@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0e13">
+<meta name="description" content="Garage Clash : collectionne des cartes de vraies voitures, ouvre des boosters et affronte l'IA.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Garage Clash">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Garage Clash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e13;--panel:#151922;--panel2:#1b2030;--line:#262d3c;--txt:#e9edf4;--mut:#8b94a7;--acc:#ff5a1f;
+  --C:#9aa3b2;--R:#3d8bff;--E:#b04dff;--L:#ffb11f;--P:#ff3b5c;--win:#2fd27a;--lose:#ff4d5e;
+  --cw:168px;--ch:274px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Chakra Petch',system-ui,sans-serif}
+body{background:radial-gradient(1200px 500px at 50% -200px,#1d2333 0%,var(--bg) 70%) fixed}
+button,input,select{font-family:inherit}
+.wrap{max-width:1140px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:6px 0 14px}
+.logo{font-weight:700;font-size:26px;letter-spacing:.06em;font-style:italic}
+.logo span{color:var(--acc)}
+.hud{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;font-size:15px}
+nav{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;border:none;color:var(--mut);font-size:15px;font-weight:600;padding:10px 14px;cursor:pointer;border-bottom:3px solid transparent;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+nav button.on{color:var(--txt);border-bottom-color:var(--acc)}
+section{display:none}section.on{display:block}
+h2{margin:0 0 4px;font-size:22px}
+h3{margin:0 0 8px;font-size:18px}
+h4{margin:16px 0 8px;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.mut{color:var(--mut);margin:0 0 14px;font-size:14px;line-height:1.45}
+.btn{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.03em;transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.1)}.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.38;cursor:not-allowed}
+.btn.ghost{background:var(--panel2);border:1px solid var(--line)}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:8px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.cols{grid-template-columns:1fr}}
+
+/* Ouvrir */
+@keyframes shine{0%{background-position:130% 0}100%{background-position:-130% 0}}
+.inv{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.item{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.pic{width:46px;height:62px;border-radius:7px;flex:none;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.pic.bc{background:linear-gradient(145deg,#ff5a1f,#c2185b)}
+.pic.bp{background:linear-gradient(145deg,#b04dff,#3d1a78);box-shadow:0 0 12px rgba(176,77,255,.5)}
+.pic.br{background:linear-gradient(145deg,#c58b4a,#5a3416)}
+.pic.dc{background:linear-gradient(145deg,#ff5a1f,#3d1a78);width:62px;height:46px}
+.pic.cp{background:linear-gradient(145deg,#ff3b5c,#ffb11f);width:62px;height:46px}
+.item .nm{font-weight:700}.item small{color:var(--mut);display:block;font-size:12px}
+.item .q{margin-left:auto;text-align:right}
+.odds-t{width:100%;border-collapse:collapse;font-size:13px}
+.odds-t th,.odds-t td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right}
+.odds-t th:first-child,.odds-t td:first-child{text-align:left}
+.odds-t th{color:var(--mut);font-weight:600}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+
+/* Cartes */
+.card{width:var(--cw);height:var(--ch);border-radius:13px;padding:4px;position:relative;background:linear-gradient(155deg,#f4f6fa 0%,#aab1be 20%,#5b6270 48%,#b7bfcb 76%,#eef1f5 100%);flex:none;user-select:none}
+.card .in{background:linear-gradient(180deg,#171b25,#10131a);border-radius:10px;height:100%;padding:8px 9px;display:flex;flex-direction:column}
+.card{--rc:#cfd5df}
+/* ===== EFFETS HOLOGRAPHIQUES ===== */
+@property --mx{syntax:'<percentage>';inherits:true;initial-value:50%}
+@property --my{syntax:'<percentage>';inherits:true;initial-value:50%}
+@property --o{syntax:'<number>';inherits:true;initial-value:0}
+.card{--rx:0deg;--ry:0deg;transform:perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .3s;will-change:transform}
+.card.active{transition:transform .08s linear,box-shadow .3s;z-index:5}
+.card:not(.locked).active{box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 26px color-mix(in srgb,var(--rc) 45%,transparent)}
+.holo,.glare,.sparkle{position:absolute;inset:0;border-radius:13px;pointer-events:none;z-index:3}
+.glare{background:radial-gradient(farthest-corner circle at var(--mx) var(--my),rgba(255,255,255,.75) 0%,rgba(255,255,255,.2) 22%,rgba(0,0,0,.35) 90%);mix-blend-mode:overlay;opacity:calc(var(--o)*.9);transition:opacity .3s}
+.card.active .glare{--o:1}
+/* idle : les cartes rares bougent seules (mobile / sans souris) */
+@keyframes idle{0%{--mx:20%;--my:15%}50%{--mx:80%;--my:60%}100%{--mx:35%;--my:90%}}
+.var-h:not(.active):not(.locked),.var-r:not(.active):not(.locked),.var-f:not(.active):not(.locked),.var-a:not(.active):not(.locked),.var-p:not(.active):not(.locked){animation:idle 7s ease-in-out infinite alternate}
+/* RARE : holo arc-en-ciel sur la photo */
+.art{position:relative}
+.ah{position:absolute;inset:0;pointer-events:none;mix-blend-mode:color-dodge;opacity:.55;
+ background-image:repeating-linear-gradient(0deg,#ff7773 5%,#ffed5f 10%,#a8ff5f 15%,#83fff7 20%,#7894ff 25%,#d875ff 30%,#ff7773 35%),repeating-linear-gradient(128deg,#0e152e 0%,#8fa9a9 3.8%,#9ec2c2 4.5%,#8fa9a9 5.2%,#0e152e 10%,#0e152e 12%);
+ background-size:200% 700%,300% 100%;background-position:calc(var(--mx)*.6 + 20%) var(--my),var(--mx) var(--my);background-blend-mode:hue,hard-light;filter:brightness(.8) contrast(1.5) saturate(1.5);transition:opacity .3s}
+.var-h .ah{opacity:calc(.35 + var(--o)*.5)}
+.var-r .ah{opacity:calc(.7 + var(--o)*.3);filter:brightness(.95) contrast(1.5) saturate(1.7)}
+
+/* ÉPIQUE : holo + paillettes violettes sur toute la carte */
+/* paillettes scintillantes (L et P) */
+.sparkle{display:none;mix-blend-mode:screen;
+ -webkit-mask-image:radial-gradient(circle at var(--mx) var(--my),#000 0%,rgba(0,0,0,.35) 30%,transparent 60%);mask-image:radial-gradient(circle at var(--mx) var(--my),#000 0%,rgba(0,0,0,.35) 30%,transparent 60%);
+ background-image:radial-gradient(circle,#fff 0 .6px,transparent 1.1px),radial-gradient(circle,#fff 0 .5px,transparent 1px),radial-gradient(circle,#ffe9a8 0 .8px,transparent 1.3px);
+ background-size:31px 37px,19px 23px,47px 43px;background-position:calc(var(--mx)*.3) calc(var(--my)*.3),calc(var(--mx)*-.5) 11px,7px calc(var(--my)*.4);animation:twinkle 2.4s ease-in-out infinite}
+.var-f .sparkle,.var-p .sparkle{display:block}
+.var-p .sparkle{background-image:radial-gradient(circle,#fff 0 .6px,transparent 1.1px),radial-gradient(circle,#9ff 0 .5px,transparent 1px),radial-gradient(circle,#f9f 0 .8px,transparent 1.3px)}
+@keyframes twinkle{0%,100%{opacity:.5}50%{opacity:1}}
+/* ===== FAÇONS DE BRILLER (le cadre est le même pour toutes) ===== */
+.var-s .ah{display:none}
+.sym{letter-spacing:1px;color:#e8ecf3;font-size:12px}
+.var-f .sym{color:#fff;text-shadow:0 0 6px #fff}
+.var-p .sym,.var-p .brand,.var-p .vlab{color:#ffd36b}
+/* FULL ART (★ et ♛) : la photo occupe toute la carte */
+.card.fa .in{position:relative;overflow:hidden;background:#0b0d12}
+.fa-bg{position:absolute;inset:-12px;background-size:cover;background-position:center;filter:blur(10px) brightness(.55) saturate(1.3)}
+.fa-img{position:absolute;left:-14%;right:-14%;top:13%;height:50%;-webkit-mask-image:linear-gradient(180deg,transparent,#000 14%,#000 82%,transparent);mask-image:linear-gradient(180deg,transparent,#000 14%,#000 82%,transparent)}
+.fa-img img{width:100%;height:100%;object-fit:cover}
+.card.fa .ct,.card.fa .statbox,.card.fa .cf{position:relative;z-index:1}
+.card.fa .ct{text-shadow:0 1px 6px rgba(0,0,0,.9)}
+.fa-space{flex:1}
+.card.fa .statbox{background:rgba(8,10,16,.55);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);border-radius:8px;padding:3px 2px;border:1px solid rgba(255,255,255,.12)}
+.card.fa .stat span{color:#c9cfdb}
+.card.fa .cf{border-top:none}
+/* ★ Légendaire : holo arc-en-ciel sur toute la carte */
+.var-f .holo{mix-blend-mode:color-dodge;opacity:calc(.3 + var(--o)*.45);border-radius:10px;inset:4px;
+ background-image:repeating-linear-gradient(0deg,#ff7773 5%,#ffed5f 10%,#a8ff5f 15%,#83fff7 20%,#7894ff 25%,#d875ff 30%,#ff7773 35%),repeating-linear-gradient(128deg,#0e152e 0%,#8fa9a9 3.8%,#9ec2c2 4.5%,#8fa9a9 5.2%,#0e152e 10%,#0e152e 12%);
+ background-size:200% 700%,300% 100%;background-position:calc(var(--mx)*.6 + 20%) var(--my),var(--mx) var(--my);background-blend-mode:hue,hard-light;filter:brightness(.7) contrast(1.6) saturate(1.4)}
+/* ♛ Prépa : feuille dorée gravée + reflets */
+.var-p .holo{mix-blend-mode:color-dodge;opacity:calc(.15 + var(--o)*.65);border-radius:10px;inset:4px;filter:none;
+ background-image:repeating-linear-gradient(-45deg,rgba(255,226,150,.22) 0 1px,transparent 1px 4px),linear-gradient(115deg,transparent 15%,rgba(255,200,80,.55) 35%,rgba(255,255,230,.9) 48%,rgba(255,170,30,.5) 60%,transparent 80%),radial-gradient(farthest-corner circle at var(--mx) var(--my),rgba(255,220,140,.6),transparent 60%);
+ background-size:auto,300% 300%,auto;background-position:0 0,var(--mx) var(--my),0 0}
+/* ◆◆◆ Épique : reverse holo pailleté sur le cadre intérieur */
+.var-r .holo{mix-blend-mode:color-dodge;opacity:calc(.25 + var(--o)*.4);border-radius:10px;inset:4px;
+ background:radial-gradient(circle at var(--mx) var(--my),rgba(200,220,255,.55),transparent 55%),repeating-linear-gradient(110deg,transparent 0 5px,rgba(180,200,255,.18) 6px 8px,transparent 9px 14px),repeating-linear-gradient(20deg,transparent 0 9px,rgba(255,255,255,.08) 10px 11px)}
+.var-r .sparkle{display:block;opacity:.6}
+/* ★★★ Alt : texture « toile » + arc-en-ciel doux */
+.var-a .holo{mix-blend-mode:overlay;opacity:calc(.45 + var(--o)*.45);border-radius:10px;inset:4px;
+ background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.10) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.10) 0 1px,transparent 1px 3px),linear-gradient(115deg,#ff7773,#ffed5f,#a8ff5f,#83fff7,#7894ff,#d875ff,#ff7773);
+ background-size:auto,auto,300% 300%;background-position:0 0,0 0,var(--mx) var(--my)}
+.var-a .sparkle{display:block}
+.var-a .sym{color:#ffe9a8;text-shadow:0 0 6px rgba(255,220,140,.8)}
+/* reveal glows sans couleur de rareté */
+.w-E{filter:drop-shadow(0 0 18px rgba(255,255,255,.45))!important}.w-L{filter:drop-shadow(0 0 30px rgba(255,255,255,.75))!important}.w-P,.w-K{filter:drop-shadow(0 0 32px rgba(255,210,120,.85))!important}
+/* ===== CARTE 3D À PIVOTER (avec tranche et dos) ===== */
+.v3d{perspective:1100px;touch-action:none;cursor:grab;padding:18px;display:flex;justify-content:center}
+.v3d:active{cursor:grabbing}
+.v3d-card{position:relative;width:220px;height:356px;transform-style:preserve-3d;will-change:transform}
+.v3d .edge{position:absolute;inset:0;border-radius:13px;background:linear-gradient(90deg,#ffffff,#c3c9d3 18%,#7e8695 50%,#c3c9d3 82%,#ffffff);box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.v3d-card::after{content:'';position:absolute;left:8%;right:8%;bottom:-26px;height:22px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),transparent);transform:translateZ(-30px)}
+.v-front{position:absolute;inset:0}
+.v-front{transform:translateZ(4.6px)}
+.v3d .card{width:100%!important;height:100%!important;transform:none!important;animation:none!important;transition:none}
+.v3d .card:not(.fa) .art{height:128px}.v3d .card .stat{font-size:14px;padding:5px 7px}.v3d .card .model{font-size:16px}.v3d .card .brand{font-size:12px}
+.v3d .back-card{width:100%;height:100%}
+.v3d.deal{animation:deal .38s cubic-bezier(.2,.9,.3,1.2)}
+.v3d.rare-in{animation:rareIn .8s cubic-bezier(.2,.9,.3,1.25)}
+@keyframes rareIn{0%{transform:scale(.55);filter:brightness(3) saturate(0)}60%{filter:brightness(1.6)}100%{transform:none;filter:none}}
+.under{position:absolute;left:50%;top:18px;width:220px;height:356px;transform:translateX(-50%) translateY(12px) scale(.94);filter:brightness(.55);pointer-events:none;z-index:0}
+.under .card{width:100%!important;height:100%!important;transform:none!important;animation:none!important}
+.under .card:not(.fa) .art{height:128px}.under .card .stat{font-size:14px;padding:5px 7px}.under .card .model{font-size:16px}
+.stage #cur{position:relative;z-index:1}
+@media(max-width:560px){.under{width:190px;height:308px}}
+.v3d .card.lit .glare{opacity:calc(var(--o)*.9)}
+@media(max-width:560px){.v3d-card{width:190px;height:308px}.v3d .card:not(.fa) .art{height:104px}.v3d .card .stat{font-size:12px}}
+.evof{display:block;font-size:10px;color:#aeb6c4;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic}
+.card.fa .evof{color:#e2e6ee}
+.cf .num{font-size:10px;letter-spacing:.04em;color:#aeb6c4}
+.card.fa .cf .num{color:#e2e6ee}
+.vlab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#e8ecf3;font-weight:700}
+/* éclat derrière les tirages Légendaire / Prépa */
+.slot{position:relative}
+.slot.burst::before{content:'';position:absolute;left:50%;top:42%;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;z-index:-1;pointer-events:none;
+ background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.28) 0 6deg,transparent 6deg 18deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 65%);mask:radial-gradient(circle,#000 20%,transparent 65%);animation:spin 12s linear infinite,pop .6s ease-out}
+.slot.burst.P::before,.slot.burst.K::before{background:repeating-conic-gradient(from 0deg,rgba(255,210,120,.45) 0 6deg,transparent 6deg 18deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.card{animation:none!important}.sparkle{animation:none}.slot.burst::before{animation:none}}
+.cnt{position:absolute;top:-7px;right:-7px;background:var(--acc);color:#fff;font-size:12px;font-weight:700;border-radius:99px;padding:2px 7px;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.ct{line-height:1.1;min-height:36px}
+.brand{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--rc);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.model{display:block;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.art{height:96px;margin:4px -4px 6px;border-radius:8px;overflow:hidden;background:#0b0d12;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rc) 50%,transparent)}
+.art img{width:100%;height:100%;object-fit:cover;display:block}
+.art img.mystery{filter:grayscale(1) brightness(.18) blur(3px);transform:scale(1.1)}
+.credit{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.4}
+.credit a{color:var(--mut)}
+.credits-list{font-size:12px;color:var(--mut);columns:2 320px;line-height:1.6}
+.credits-list a{color:var(--mut)}
+.stat{display:flex;justify-content:space-between;gap:6px;white-space:nowrap;font-size:12px;padding:3px 5px;border-radius:5px;margin:1px 0}
+.stat span{color:var(--mut)}
+.stat b{font-weight:600}
+.stat.clickable{cursor:pointer;background:rgba(255,255,255,.04);outline:1px solid rgba(255,255,255,.08)}
+.stat.clickable:hover{background:var(--acc);outline-color:var(--acc)}.stat.clickable:hover span{color:#fff}
+.stat.win{background:var(--win);color:#06210f}.stat.win span{color:#06210f}
+.stat.lose{background:var(--lose);color:#2a0509}.stat.lose span{color:#2a0509}
+.stat.tie{background:#556}
+.cf{margin-top:auto;display:flex;justify-content:space-between;font-size:11px;color:var(--mut);padding-top:5px;border-top:1px solid var(--line)}
+.cf .rl{color:var(--rc);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.card.locked .in{opacity:.55}
+.lockq{font-size:44px;font-weight:700;text-align:center;color:var(--line);margin:8px 0}
+.back-card{--rc:#ff5a1f;background:linear-gradient(145deg,#ff5a1f,#c2185b 50%,#3d1a78)}
+.back-card .in{background:repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 8px,transparent 8px 16px),linear-gradient(145deg,#1a1020,#0f0c18);align-items:center;justify-content:center}
+.back-card .gc{font-size:34px;font-weight:700;font-style:italic;letter-spacing:.05em}
+.back-card .gc span{color:var(--acc)}
+
+/* Ouvrir — façon TCG mobile */
+.clickable-chip{cursor:pointer;border-color:#3d8bff}
+.freebox{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;flex-wrap:wrap}
+.freebox .hg{font-size:30px}
+.fb-main{flex:1;min-width:200px}
+.fb-main small{color:var(--mut)}
+.gauge{height:10px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.gauge div{height:100%;background:linear-gradient(90deg,#33d6ff,#3d8bff);transition:width 1s linear}
+.packs{display:flex;gap:16px;justify-content:center;align-items:center;margin:14px 0 18px;min-height:330px;flex-wrap:wrap}
+.bpack{width:200px;height:300px;border-radius:14px;position:relative;overflow:hidden;cursor:pointer;flex:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 12px 30px rgba(0,0,0,.5);transition:transform .3s,opacity .3s,box-shadow .3s;user-select:none}
+.packs .bpack{transform:scale(.8);opacity:.55}
+.packs .bpack.sel{transform:scale(1) translateY(-6px);opacity:1;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3),0 0 50px rgba(255,140,60,.35),0 20px 40px rgba(0,0,0,.6);animation:float 3s ease-in-out infinite}
+@keyframes float{50%{translate:0 -10px}}
+.pk-c{background:linear-gradient(160deg,#ff5a1f,#c2185b 55%,#3d1a78)}
+.pk-p{background:linear-gradient(160deg,#ffb11f,#b04dff 45%,#2a1240)}
+.pk-r{background:linear-gradient(160deg,#e0b070,#8a5426 50%,#2a1a0c)}
+.bpack::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 10px,transparent 10px 20px)}
+.bp-top{position:absolute;left:0;right:0;top:0;height:16%;background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.05));border-bottom:2px dashed rgba(255,255,255,.35)}
+.bp-art{position:absolute;left:8%;right:8%;top:22%;height:38%;border-radius:10px;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.35),0 8px 18px rgba(0,0,0,.45)}
+.bp-art img{width:100%;height:100%;object-fit:cover}
+.bp-name{position:absolute;top:64%;width:100%;text-align:center;font-weight:700;font-style:italic;font-size:22px;letter-spacing:.04em;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.bp-name span{color:#ffe08a}
+.bp-sub{position:absolute;top:76%;width:100%;text-align:center;font-weight:700;letter-spacing:.14em;font-size:12px;text-transform:uppercase}
+.bp-tag{position:absolute;bottom:5%;left:50%;transform:translateX(-50%);font-size:11px;background:rgba(0,0,0,.35);padding:3px 10px;border-radius:99px;white-space:nowrap}
+.bp-shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 48%,transparent 60%);background-size:260% 100%;animation:shine 3.2s infinite;pointer-events:none}
+.bpack.big{width:240px;height:360px}
+.pack-actions{justify-content:center}
+.btn.big{padding:14px 26px;font-size:17px}
+.opener{position:relative;width:100%;min-height:100vh;z-index:55;background:radial-gradient(800px 500px at 50% 40%,#1d1530,#07080c 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-y:auto;overflow-x:hidden;user-select:none}
+.opener.hidden{display:none}
+body.opening .wrap{display:none}
+body.opening{background:#07080c}
+.op-title{font-size:18px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.op-count{color:var(--mut);letter-spacing:.2em;margin-bottom:14px}
+.op-hint{color:var(--mut);margin-top:18px;font-size:15px;animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.45}}
+.tearwrap{position:relative;width:240px;height:360px;touch-action:none;cursor:grab}
+.tearwrap .piece{position:absolute;inset:0;transition:transform .7s cubic-bezier(.3,.7,.3,1),opacity .7s}
+.tearwrap .piece.top{clip-path:inset(0 0 84% 0);z-index:2}
+.tearwrap .piece.body{clip-path:inset(16% 0 0 0)}
+.tearline{position:absolute;left:4%;right:4%;top:16%;height:3px;z-index:3;background:repeating-linear-gradient(90deg,rgba(255,255,255,.8) 0 8px,transparent 8px 14px);border-radius:3px;animation:blink 1.2s infinite}
+.tearline i{display:block;height:100%;width:0;background:#fff;box-shadow:0 0 12px #fff,0 0 24px #ffb11f}
+.tearwrap.torn .piece.top{transform:translate(90px,-260px) rotate(28deg);opacity:0}
+.tearwrap.torn .piece.body{transform:translateY(240px);opacity:0;transition-delay:.25s}
+.tearwrap.torn .tearline{opacity:0}
+.tearwrap.torn::after{content:'';position:absolute;left:-40%;right:-40%;top:8%;height:80px;background:radial-gradient(closest-side,rgba(255,240,200,.95),transparent);animation:flash .7s forwards}
+@keyframes flash{from{opacity:1}to{opacity:0;transform:scaleY(3)}}
+.stage{position:relative;display:flex;justify-content:center;align-items:center;min-height:400px}
+.opener .card{--cw:220px;--ch:356px;width:220px;height:356px}
+.opener .card .art{height:128px}.opener .card .stat{font-size:14px;padding:5px 7px}.opener .card .model{font-size:16px}
+.behind{position:absolute;top:calc(var(--k)*8px);left:50%;transform:translateX(calc(-50% + var(--k)*8px)) rotate(calc(var(--k)*3deg));opacity:calc(.7 - var(--k)*.25);z-index:-1}
+.deal{animation:deal .38s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes deal{from{transform:translateY(60px) scale(.85);opacity:0}}
+#cur.out{animation:out .33s forwards}
+@keyframes out{to{transform:translateX(-140%) rotate(-16deg);opacity:0}}
+.w-E{filter:drop-shadow(0 0 20px var(--E))}.w-L{filter:drop-shadow(0 0 30px var(--L))}.w-P,.w-K{filter:drop-shadow(0 0 30px var(--P))}
+@keyframes wobble{0%,100%{transform:rotate(-2deg) scale(1)}50%{transform:rotate(2deg) scale(1.04)}}
+.tag.show{visibility:visible}
+.sum{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:1000px}
+.opener .sum .card{--cw:150px;--ch:248px;width:150px;height:248px}.opener .sum .card:not(.fa) .art{height:78px}.opener .sum .card .stat{font-size:11px;padding:3px 5px}.opener .sum .card .model{font-size:13px}.sum .evof{display:none}
+/* Ouverture multiple */
+.tearwrap .ghostpack{position:absolute;inset:0;pointer-events:none;transition:opacity .5s}
+.tearwrap .ghostpack.g1{transform:translate(14px,-10px) rotate(4deg);filter:brightness(.7)}
+.tearwrap .ghostpack.g2{transform:translate(28px,-20px) rotate(8deg);filter:brightness(.5)}
+.tearwrap.torn .ghostpack{opacity:0}
+.xbadge{position:absolute;top:-14px;right:-26px;z-index:4;background:var(--acc);color:#fff;font-weight:700;font-size:20px;border-radius:99px;padding:6px 12px;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+/* Main de cartes */
+.hand{position:relative;perspective:1100px;touch-action:none;cursor:grab;width:300px;height:420px;display:flex;align-items:center;justify-content:center}
+.hand:active{cursor:grabbing}
+.stack3d{position:relative;width:220px;height:356px;transform-style:preserve-3d;will-change:transform}
+.scard{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .3s ease-out}
+.scard.top{transition:none}
+.sedge{position:absolute;inset:0;border-radius:13px;background:linear-gradient(90deg,#fff,#b9c0cb 20%,#7e8695 50%,#b9c0cb 80%,#fff);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.sface{position:absolute;inset:0}
+.sface .card{width:100%!important;height:100%!important;transform:none!important;animation:none!important;transition:none}
+.sface .card:not(.fa) .art{height:128px}.sface .card .stat{font-size:14px;padding:5px 7px}.sface .card .model{font-size:16px}.sface .card .brand{font-size:12px}
+.scard:not(.top) .glare,.scard:not(.top) .holo,.scard:not(.top) .sparkle{display:none}
+.stack3d::after{content:'';position:absolute;left:6%;right:6%;bottom:-30px;height:24px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);transform:translateZ(-40px)}
+.tagline{min-height:30px;margin-top:6px}
+.tag.pop{animation:pop .35s ease-out}
+.tag.hit{background:linear-gradient(90deg,#9ff,#f9f,#ff9);color:#1a1030}
+.hand.tease .stack3d{animation:tease 1.2s ease-in-out infinite}
+.hand.tease.t-E .stack3d{filter:drop-shadow(0 0 16px rgba(220,230,255,.7))}
+.hand.tease.t-L .stack3d{filter:drop-shadow(0 0 26px rgba(255,210,110,.9))}
+.hand.tease.t-P .stack3d,.hand.tease.t-K .stack3d{filter:drop-shadow(0 0 22px rgba(255,59,92,.7)) drop-shadow(0 0 30px rgba(51,214,255,.6))}
+@keyframes tease{0%,100%{translate:0 0}10%{translate:-2px 0}20%{translate:2px 0}30%{translate:0 0}}
+.rays{position:absolute;left:50%;top:50%;width:620px;height:620px;margin:-310px 0 0 -310px;border-radius:50%;pointer-events:none;opacity:0;z-index:-1}
+.rays.on{opacity:1;animation:spin 14s linear infinite,pop .6s ease-out;-webkit-mask:radial-gradient(circle,#000 18%,transparent 66%);mask:radial-gradient(circle,#000 18%,transparent 66%)}
+.rays.r-E{background:repeating-conic-gradient(rgba(220,230,255,.3) 0 6deg,transparent 6deg 18deg)}
+.rays.r-L{background:repeating-conic-gradient(rgba(255,210,110,.45) 0 6deg,transparent 6deg 18deg)}
+.rays.r-P{background:repeating-conic-gradient(rgba(255,59,92,.4) 0 5deg,rgba(255,210,80,.35) 5deg 10deg,rgba(51,214,255,.4) 10deg 15deg,transparent 15deg 22deg)}
+.rays.r-K{background:repeating-conic-gradient(rgba(47,210,122,.35) 0 6deg,transparent 6deg 18deg)}
+.scard.rare-in .sface{animation:rareIn .8s cubic-bezier(.2,.9,.3,1.25)}
+.pt{position:absolute;left:50%;top:50%;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c);pointer-events:none;z-index:5;animation:pt 1.2s cubic-bezier(.1,.7,.3,1) forwards}
+@keyframes pt{from{transform:translate(-50%,-50%)}to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.2);opacity:0}}
+.flash{position:absolute;inset:0;pointer-events:none;z-index:60;animation:flashOut .8s ease-out forwards}
+.flash.f-E{background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.7),transparent 60%)}
+.flash.f-L{background:radial-gradient(circle at 50% 45%,rgba(255,230,160,.95),rgba(255,180,40,.3) 50%,transparent 75%)}
+.flash.f-P{background:radial-gradient(circle at 50% 45%,#fff,rgba(255,59,92,.5) 35%,rgba(51,214,255,.4) 55%,transparent 80%)}
+.flash.f-K{background:radial-gradient(circle at 50% 45%,rgba(200,255,220,.8),transparent 60%)}
+@keyframes flashOut{from{opacity:1}to{opacity:0}}
+.tearwrap.rumble{animation:rumble .09s linear infinite}
+@keyframes rumble{0%{translate:-2px 1px}50%{translate:2px -1px}100%{translate:-1px -2px}}
+.tearwrap.best-L.torn::after{background:radial-gradient(closest-side,rgba(255,220,120,1),transparent)}
+.tearwrap.best-P.torn::after{background:radial-gradient(closest-side,#fff,rgba(255,59,92,.8) 40%,rgba(51,214,255,.6) 70%,transparent)}
+.tearwrap.best-L .piece,.tearwrap.best-P .piece{filter:drop-shadow(0 0 24px rgba(255,210,110,.9))}
+@media(max-width:560px){.stack3d{width:190px;height:308px}.hand{width:260px;height:370px}.sface .card:not(.fa) .art{height:104px}.sface .card .stat{font-size:12px}}
+/* Boutique de gemmes */
+.gemshop{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:640px;width:100%;position:relative}
+.gemshop .x{position:absolute;top:10px;right:14px;background:none;border:none;color:var(--mut);font-size:24px;cursor:pointer}
+.testband{background:repeating-linear-gradient(135deg,#3a2a00 0 10px,#2a1f00 10px 20px);color:#ffd36b;border:1px solid #6b5200;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;letter-spacing:.06em;text-align:center}
+.offers{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.offer{position:relative;background:linear-gradient(180deg,#1f2840,#151922);border:1px solid #2f3b5c;border-radius:14px;padding:14px 8px 10px;color:var(--txt);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s,border-color .15s}
+.offer:hover{transform:translateY(-3px);border-color:#3d8bff}
+.offer.best{border-color:var(--L);box-shadow:0 0 18px rgba(255,177,31,.25)}
+.offer b{font-size:18px}.offer small{color:var(--mut)}.offer .bonus{color:var(--win);font-weight:700}
+.offer .price{margin-top:4px;background:#3d8bff;color:#fff;border-radius:8px;padding:5px 10px;font-weight:700;width:100%}
+.ribbon{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--L);color:#2a1a00;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.gem-ic{line-height:1;filter:drop-shadow(0 0 10px rgba(80,180,255,.6))}
+.paybox{display:flex;align-items:center;gap:14px;margin:16px 0;background:var(--panel2);border-radius:12px;padding:14px}
+.paybox .price.big{margin-left:auto;font-size:22px;font-weight:700}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
+.paid{text-align:center;padding:10px}
+.paid .check{width:70px;height:70px;border-radius:50%;background:var(--win);color:#06210f;font-size:40px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:6px auto 12px;animation:pop .4s ease-out}
+@media(max-width:560px){.opener .card{width:190px;height:310px}.opener .card .art{height:104px}.packs{flex-wrap:nowrap;gap:8px;min-height:0;margin:18px 0}.packs .bpack{zoom:.55;transform:scale(.86)}.packs .bpack.sel{transform:none}nav button{font-size:12.5px;padding:10px 8px;letter-spacing:.02em}.btn.big{padding:12px 16px;font-size:15px}.opener .sum .card{width:140px;height:236px}.sum{gap:8px}}
+/* Garage */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.f{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600}
+.f.on{background:var(--txt);color:var(--bg)}
+select,input[type=number]{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+input[type=number]{width:84px}
+.progress{height:8px;background:var(--panel);border-radius:99px;overflow:hidden;margin:6px 0 16px}
+.progress div{height:100%;background:linear-gradient(90deg,var(--acc),var(--L))}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cw),1fr));gap:16px;justify-items:center}
+.clk{content-visibility:auto;contain-intrinsic-size:var(--cw) var(--ch);cursor:pointer;transition:transform .15s}.clk:hover{transform:translateY(-3px)}
+
+/* Modales */
+.modal>*{margin:auto}
+.modal{position:fixed;inset:0;overflow-x:hidden;background:rgba(5,6,10,.9);backdrop-filter:blur(6px);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px;overflow-y:auto}
+.modal.hidden{display:none}
+.slot{display:flex;flex-direction:column;align-items:center;gap:8px}
+.tag{font-size:12px;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:99px;visibility:hidden}
+.flipped+.tag{visibility:visible}
+.tag.new{background:var(--win);color:#06210f}.tag.dup{background:var(--panel2);color:var(--mut)}
+.modal-actions{margin-top:20px;display:flex;gap:10px}
+.detail{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;max-width:780px;width:100%;display:grid;grid-template-columns:auto 1fr;gap:22px;position:relative}
+@media(max-width:640px){.detail{grid-template-columns:1fr;justify-items:center}}
+.detail .x{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer}
+.fact{background:var(--panel2);border-left:3px solid var(--acc);border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.45;margin:10px 0}
+.kv{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid var(--line)}
+.kv span{color:var(--mut)}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px}
+.node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer}
+.node small{color:var(--mut)}
+.node.own{border-color:var(--win)}
+.node.cur{background:var(--acc);border-color:var(--acc)}.node.cur small{color:#ffe}
+.node.prep{border-style:dashed;border-color:var(--P)}
+.arr{color:var(--mut)}
+.actions{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.actions .btn{text-align:left}
+.req{font-size:12px;color:var(--mut);margin:-4px 0 4px 2px}
+
+/* Boutique */
+.shopbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:120px}
+.kpi small{display:block;color:var(--mut);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.kpi b{font-size:20px}
+.row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.row:last-child{border-bottom:none}
+.row .grow{flex:1;min-width:140px}
+.row small{color:var(--mut)}
+.up{color:var(--win)}.down{color:var(--lose)}
+.log{font-size:13px;max-height:260px;overflow:auto}
+.log div{padding:6px 0;border-bottom:1px solid var(--line)}
+.log .ok{color:var(--win)}.log .ko{color:var(--lose)}
+.edu{font-size:13px;color:var(--mut);background:var(--panel2);border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.45}
+.edu b{color:var(--txt)}
+.switch{display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600}
+.switch .tg{width:42px;height:24px;border-radius:99px;background:var(--line);position:relative;transition:background .2s}
+.switch .tg::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
+.switch.on .tg{background:var(--win)}.switch.on .tg::after{left:21px}
+
+/* Duel */
+.duel-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.pick{cursor:pointer;border-radius:15px;outline:3px solid transparent;outline-offset:3px;transition:outline-color .15s,transform .15s}
+.pick.on{outline-color:var(--acc);transform:translateY(-4px)}
+.score{display:flex;align-items:center;justify-content:center;gap:18px;font-size:30px;font-weight:700;margin:4px 0}
+.score small{font-size:13px;color:var(--mut);display:block;text-align:center;font-weight:500;letter-spacing:.1em}
+.round{text-align:center;color:var(--mut);letter-spacing:.15em;text-transform:uppercase;font-size:13px}
+.turn{text-align:center;margin:8px 0 16px;font-size:16px;min-height:22px}
+.board{display:flex;justify-content:center;align-items:center;gap:22px;flex-wrap:wrap}
+.vs{font-size:28px;font-weight:700;font-style:italic;color:var(--acc)}
+.side{display:flex;flex-direction:column;align-items:center;gap:6px}
+.side .who{font-size:12px;letter-spacing:.15em;color:var(--mut);text-transform:uppercase}
+.board .card{width:210px;height:320px}
+.board .stat{font-size:14px;padding:5px 7px}
+.board .model{font-size:16px}
+.board .art{height:120px}
+.result{text-align:center;margin:18px 0 6px;font-size:22px;font-weight:700}
+.result.p{color:var(--win)}.result.a{color:var(--lose)}
+.why{text-align:center;color:var(--mut);font-size:14px;max-width:560px;margin:0 auto 12px;line-height:1.45}
+.center{text-align:center}
+.end{max-width:460px;margin:30px auto;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px}
+.end .big{font-size:40px;font-weight:700;font-style:italic;margin:6px 0}
+.empty{text-align:center;padding:40px 20px;color:var(--mut);background:var(--panel);border:1px dashed var(--line);border-radius:14px}
+.empty .btn{margin-top:14px}
+
+/* Académie */
+.quiz{max-width:640px}
+.qopt{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:12px 14px;margin:8px 0;cursor:pointer;font-size:15px;font-weight:600}
+.qopt:hover{border-color:var(--acc)}
+.qopt.good{background:var(--win);color:#06210f;border-color:var(--win)}
+.qopt.bad{background:var(--lose);color:#2a0509;border-color:var(--lose)}
+.qopt[disabled]{cursor:default}
+.lex{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.lex div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.45;color:var(--mut)}
+.lex b{color:var(--txt);display:block;margin-bottom:4px}
+
+footer{margin:40px 0 10px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--mut);font-size:12px}
+.link{background:none;border:none;color:var(--mut);text-decoration:underline;cursor:pointer;font-size:12px}
+.link.danger{color:var(--lose)}
+#god{position:fixed;right:14px;top:14px;z-index:70;background:#1a0f14;border:2px solid var(--P);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;width:220px;box-shadow:0 10px 40px rgba(255,59,92,.3)}
+#god .god-h{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--P);letter-spacing:.1em}
+#god .btn{text-align:left}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(90px);background:var(--panel2);border:1px solid var(--line);padding:10px 18px;border-radius:10px;transition:transform .3s;z-index:60;font-weight:600;max-width:90vw}
+.toast.show{transform:translateX(-50%) translateY(0)}
+@media(max-width:560px){:root{--cw:150px;--ch:248px}.card .stat{font-size:11px}.art{height:78px}.board .card{width:160px;height:268px}.board .stat{font-size:12px}.board .art{height:84px}.board{gap:10px}.vs{font-size:20px}}
+
+/* ================= UI v2 ================= */
+:root{--bg:#0a0c11;--panel:#141821;--panel2:#1c2130;--line:#252c3b;--r:16px;--sh:0 10px 30px rgba(0,0,0,.35)}
+body{background:radial-gradient(900px 420px at 15% -120px,rgba(255,90,31,.14),transparent 70%),radial-gradient(900px 500px at 95% -160px,rgba(61,139,255,.12),transparent 70%),var(--bg);background-attachment:fixed;-webkit-tap-highlight-color:transparent}
+.wrap{padding:0 16px 24px}
+header{position:sticky;top:0;z-index:30;margin:0 -16px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:rgba(10,12,17,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:nowrap}
+.logo{font-size:24px;background:linear-gradient(90deg,#fff 0 52%,var(--acc) 52%);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.logo span{color:transparent}
+.hud{flex-wrap:nowrap;gap:6px}
+.chip{background:linear-gradient(180deg,#1a1f2c,#12151d);border-color:rgba(255,255,255,.08);padding:6px 12px;font-size:14px;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.clickable-chip{border-color:rgba(61,139,255,.6);box-shadow:0 0 14px rgba(61,139,255,.18),inset 0 1px 0 rgba(255,255,255,.05)}
+nav{border:none;gap:6px;margin:16px 0 20px;padding:5px;background:var(--panel);border:1px solid var(--line);border-radius:14px;width:max-content;max-width:100%}
+nav button{display:flex;align-items:center;gap:8px;border:none;border-radius:10px;padding:9px 16px;font-size:14px;transition:background .15s,color .15s}
+nav button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+nav button:hover{color:var(--txt)}
+nav button.on{background:linear-gradient(180deg,#ff6a33,#f04d12);color:#fff;border:none;box-shadow:0 6px 16px rgba(255,90,31,.3)}
+h2{font-size:24px;letter-spacing:.01em}
+.panel,.freebox,.item,.kpi,.end,.gemshop,.detail{border-radius:var(--r);border-color:rgba(255,255,255,.07);background:linear-gradient(180deg,#171b26,#12151d);box-shadow:var(--sh)}
+.btn{border-radius:12px;background:linear-gradient(180deg,#ff6a33,#f04d12);box-shadow:0 6px 16px rgba(255,90,31,.25),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .12s,filter .15s,box-shadow .15s}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{box-shadow:none;transform:none;filter:none}
+.btn.ghost{background:linear-gradient(180deg,#222838,#191d29);border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.btn.sm{border-radius:9px}
+.f{background:#161a24;border-color:rgba(255,255,255,.08);padding:7px 13px;transition:background .15s}
+.f:hover{background:#1f2533}
+.f.on{background:#fff;color:#0a0c11;border-color:#fff}
+select,input[type=number]{border-radius:10px;border-color:rgba(255,255,255,.1);padding:7px 10px}
+.progress{height:10px;background:#161a24;box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
+.freebox{padding:14px 18px}
+.freebox .hg{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;background:radial-gradient(circle at 30% 30%,#2a3350,#151a28);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.gauge{height:8px}
+.packs{position:relative}
+.packs::before{content:'';position:absolute;left:50%;top:50%;width:min(620px,100%);height:260px;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(255,110,50,.22),transparent);pointer-events:none;z-index:-1}
+#packInfo{max-width:640px;margin:10px auto 0;font-size:13px}
+.odds-t th{font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.odds-t tr:last-child td{border-bottom:none}
+.grid{gap:18px}
+.card{box-shadow:0 6px 16px rgba(0,0,0,.45)}
+.card.locked{box-shadow:none}
+.cnt{border:2px solid var(--bg)}
+.edu{border:1px solid rgba(255,255,255,.05)}
+.fact{border-radius:10px}
+.qopt{border-radius:12px;transition:border-color .15s,transform .1s}
+.qopt:not([disabled]):hover{transform:translateX(3px)}
+.empty{border-radius:var(--r);background:rgba(255,255,255,.02)}
+.toast{border-radius:999px;background:rgba(28,33,48,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:var(--sh);bottom:calc(24px + env(safe-area-inset-bottom))}
+footer{border-top-color:rgba(255,255,255,.06);opacity:.8}
+.modal{background:rgba(5,6,10,.82)}
+:focus-visible{outline:2px solid #7fb0ff;outline-offset:2px}
+::selection{background:rgba(255,90,31,.4)}
+@media(max-width:700px){
+ .wrap{padding:0 12px calc(96px + env(safe-area-inset-bottom))}
+ header{margin:0 -12px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px}
+ .logo{font-size:19px}
+ .chip{font-size:12.5px;padding:5px 9px}
+ #hudCol{display:none}
+ nav{position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;width:auto;max-width:none;border-radius:0;border:none;border-top:1px solid rgba(255,255,255,.08);background:rgba(12,14,20,.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px;justify-content:space-around;overflow:visible}
+ nav button{flex:1;flex-direction:column;gap:3px;padding:7px 2px 5px;font-size:10.5px;letter-spacing:.02em;text-transform:none;border-radius:12px;min-width:0}
+ nav button svg{width:22px;height:22px}
+ nav button.on{background:rgba(255,90,31,.14);color:#ff7a45;box-shadow:none}
+ section{padding-top:14px}
+ h2{font-size:20px}
+ .toast{bottom:calc(90px + env(safe-area-inset-bottom))}
+ #god{top:auto;bottom:calc(84px + env(safe-area-inset-bottom));right:10px;max-height:60vh;overflow:auto}
+ .pack-actions .btn{flex:1 1 46%}
+ .grid{gap:12px}
+ .detail{padding:16px}
+ .toolbar{flex-wrap:nowrap;overflow-x:auto;margin:0 -12px 12px;padding:0 12px 4px;scrollbar-width:none}
+ .toolbar::-webkit-scrollbar{display:none}
+ .toolbar .f,.toolbar select{flex:none}
+ footer{flex-direction:column}
+}
+body.opening nav{display:none}
+.toast{opacity:0;pointer-events:none;transition:transform .3s,opacity .3s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">GARAGE<span>CLASH</span></div>
+    <div class="hud"><div class="chip" id="hudCoins" title="Jetons : boutique, duels, quiz"></div><div class="chip clickable-chip" id="hudGems" onclick="openGemShop()"></div><div class="chip" id="hudPts" title="Points booster : échange-les contre la carte de ton choix"></div><div class="chip" id="hudCol" title="Cartes collectionnées"></div></div>
+  </header>
+  <nav>
+    <button data-tab="ouvrir" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M5 8h14"/><path d="M12 12l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="currentColor" stroke="none"/></svg><span>Ouvrir</span></button>
+    <button data-tab="garage"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="11" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/></svg><span>Garage</span></button>
+    <button data-tab="boutique"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l1.5-5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/><path d="M5 12v8h14v-8"/><path d="M10 20v-5h4v5"/></svg><span>Boutique</span></button>
+    <button data-tab="duel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h13l-3 4.5 3 4.5H5"/></svg><span>Duel</span></button>
+    <button data-tab="academie"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg><span>Académie</span></button>
+  </nav>
+
+  <section id="ouvrir" class="on">
+    <div class="freebox">
+      <div class="hg">⏳</div>
+      <div class="fb-main"><b id="freeTxt"></b><div class="gauge"><div id="freeBar"></div></div><small id="freeSub"></small></div>
+      <button class="btn ghost sm" onclick="openGemShop()">💎 Acheter des gemmes</button>
+    </div>
+    <h2 class="center" style="margin-top:18px">Extension 1 · Première Vitesse</h2><p class="mut center" style="margin:-2px 0 0">Choisis ta couverture préférée : le contenu est le même.</p>
+    <div class="packs" id="packs"></div>
+    <div class="btns pack-actions"><button class="btn big" id="openFree">Ouvrir gratuitement</button><button class="btn big" id="openFree2" style="display:none">Ouvrir les 2 gratuits</button><button class="btn ghost big" id="openGem"></button><button class="btn ghost big" id="openGem10"></button></div>
+    <p class="mut center" id="packInfo"></p>
+    <h3 style="margin-top:26px">Mon stock scellé <small class="mut">(achats en boutique)</small></h3>
+    <div class="inv" id="invOpen"></div>
+    <h4>Taux de drop (par carte)</h4>
+    <div class="panel" style="overflow-x:auto"><table class="odds-t" id="oddsTable"></table>
+      <div class="edu" id="oddsEdu"></div>
+    </div>
+  </section>
+
+  <section id="garage">
+    <h2>Mon garage</h2>
+    <div class="mut" id="colTxt"></div>
+    <div class="progress"><div id="colBar" style="width:0"></div></div>
+    <div class="toolbar">
+      <button class="f on" data-f="all">Toutes</button>
+      <button class="f" data-f="mine">Possédées</button>
+      <button class="f" data-f="k:C">●</button>
+      <button class="f" data-f="k:AR">◆</button>
+      <button class="f" data-f="v:h">Holo</button>
+      <button class="f" data-f="v:r">★</button>
+      <button class="f" data-f="v:f">★★</button>
+      <button class="f" data-f="v:a">★★★</button>
+      <button class="f" data-f="v:p">♛</button>
+      <select id="sort"><option value="num">Tri : extension et numéro</option><option value="rar">Tri : rareté</option><option value="car">Tri : par voiture</option><option value="hp">Tri : puissance</option><option value="year">Tri : année</option><option value="brand">Tri : marque</option></select>
+    </div>
+    <p class="mut">Chaque voiture existe en plusieurs versions à collectionner. Clique sur une carte pour voir sa fiche et sa lignée.</p>
+    <div class="grid" id="garageGrid"></div>
+  </section>
+
+  <section id="boutique"></section>
+  <section id="duel"></section>
+  <section id="academie"></section>
+
+  <footer>
+    <span>Prototype · 1 booster gratuit toutes les 5 h (réserve de 2) · achats de gemmes simulés · photos Wikimedia Commons (licences libres) · caractéristiques constructeur approximatives · progression sauvegardée dans ce navigateur · la boutique tourne tant que la page est ouverte</span>
+    <span><button class="link" onclick="showTab('academie');setTimeout(()=>document.getElementById('credits').scrollIntoView(),50)">Crédits photos</button> · <button class="link" onclick="godPanel()">Mode dev</button> · <button class="link danger" id="resetBtn">Réinitialiser la partie</button></span>
+  </footer>
+</div>
+
+<div class="modal hidden" id="detailModal"></div>
+<div class="opener hidden" id="opener"></div>
+<div class="modal hidden" id="gemModal"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================================
+// DONNÉES — [clé, marque, modèle, année, ch, vmax km/h, 0-100 s, poids kg, silhouette, pays, le saviez-vous, {evo, mega, tuner}]
+// =====================================================================
+const RAW=[
+ ['clio5','Renault','Clio V TCe 90',2019,90,178,12.2,1090,'citadine','FR',"La Clio est l'une des voitures les plus vendues en France depuis sa sortie en 1990."],
+ ['p208','Peugeot','208 PureTech 100',2019,100,188,10.2,1090,'citadine','FR',"La 208 de deuxième génération a été élue Voiture de l'année en Europe en 2020."],
+ ['fiat500','Fiat','500 1.2',2007,69,160,12.9,865,'citadine','IT',"Lancée en 2007, elle reprend le style de la Fiat 500 de 1957, la petite voiture populaire de l'Italie d'après-guerre.",{mega:'abarth695'}],
+ ['golf8','Volkswagen','Golf 8 1.5 TSI',2020,130,224,9.2,1255,'berline','DE',"Plus de 35 millions de Golf ont été produites depuis 1974, toutes générations confondues."],
+ ['sandero','Dacia','Sandero TCe 90',2021,90,178,11.7,1050,'citadine','RO',"Dacia est une marque roumaine qui appartient au groupe Renault depuis 1999."],
+ ['yaris','Toyota','Yaris Hybrid',2020,116,175,9.7,1090,'citadine','JP',"Une hybride associe un moteur essence et un moteur électrique dont la batterie se recharge notamment au freinage."],
+ ['2cv','Citroën','2CV6',1970,29,115,32.0,560,'classique','FR',"Produite de 1948 à 1990, la 2CV devait selon son cahier des charges transporter deux paysans et leurs marchandises sur des chemins de terre."],
+ ['r5gt','Renault','5 GT Turbo',1985,115,201,7.9,830,'classique','FR',"Avec seulement 830 kg, la R5 GT Turbo était l'une des petites sportives les plus vives des années 80.",{evo:'r5e'}],
+ ['205gti','Peugeot','205 GTI 1.9',1986,130,206,7.8,910,'classique','FR',"Le succès de la 205 a fortement contribué au redressement de Peugeot dans les années 80."],
+ ['cox','Volkswagen','Coccinelle 1200',1960,34,115,32.0,760,'classique','DE',"Produite de 1938 à 2003, la Coccinelle a dépassé les 21 millions d'exemplaires."],
+ ['ae86','Toyota','Corolla AE86',1983,130,195,8.9,940,'classique','JP',"Légère et à propulsion, l'AE86 est devenue une icône du drift au Japon.",{}],
+ ['duster','Dacia','Duster dCi 115',2018,115,179,10.5,1300,'suv','RO',"Le Duster a rendu le SUV accessible à petit prix en Europe."],
+ ['twingo','Renault','Twingo I',1993,55,150,14.5,790,'citadine','FR',"Sa forme « monocorps » et sa banquette arrière coulissante ont marqué les années 90.",{evo:'twingo2'}],
+ ['golfmk1','Volkswagen','Golf GTI Mk1',1976,110,182,9.0,810,'classique','DE',"La Golf GTI de 1976 est souvent considérée comme la première compacte sportive grand public.",{evo:'golfmk2'}],
+ ['delorean','DeLorean','DMC-12',1981,130,209,10.5,1230,'sport','US',"Sa carrosserie est en acier inoxydable brossé et ses portes s'ouvrent en papillon."],
+ ['mini64','Mini','Cooper S 1275',1964,76,155,11.0,650,'citadine','GB',"Une Mini Cooper S a remporté le rallye de Monte-Carlo en 1964 face à des voitures bien plus puissantes.",{evo:'minir53'}],
+ ['mx5na','Mazda','MX-5 NA 1.6',1989,116,190,8.7,950,'sport','JP',"La MX-5 est inscrite au Guinness comme le roadster deux places le plus vendu de l'histoire.",{evo:'mx5nb'}],
+ ['a110old','Alpine','A110 1600 S Berlinette',1970,138,210,7.0,700,'classique','FR',"L'Alpine A110 a offert à la France le premier titre constructeurs du championnat du monde des rallyes, en 1973.",{evo:'a110'}],
+ ['minis','Mini','Cooper S',2014,192,235,6.8,1160,'citadine','GB',"La Mini moderne est produite par BMW depuis 2001.",{mega:'jcwgp'}],
+ ['model3','Tesla','Model 3 Propulsion',2021,283,225,6.1,1760,'berline','US',"Un moteur électrique délivre son couple maximal dès l'arrêt : pas besoin de monter dans les tours."],
+ ['golfmk7','Volkswagen','Golf GTI Mk7',2013,220,246,6.5,1351,'berline','DE',"GTI signifie « Gran Turismo Injection » : un moteur à injection pour une conduite sportive.",{mega:'clubsports'}],
+ ['megane','Renault','Mégane R.S. Trophy',2019,300,260,5.7,1419,'berline','FR',"La Mégane R.S. a battu plusieurs fois le record du Nürburgring pour une traction.",{mega:'trophyr'}],
+ ['ek9','Honda','Civic Type R EK9',1997,185,225,6.8,1050,'berline','JP',"Première Civic Type R, elle n'a été vendue officiellement qu'au Japon.",{evo:'ep3'}],
+ ['fk8','Honda','Civic Type R FK8',2017,320,272,5.8,1380,'berline','JP',"En 2017, elle a détenu le record du tour du Nürburgring pour une traction.",{evo:'fl5'}],
+ ['gryaris','Toyota','GR Yaris',2020,261,230,5.5,1280,'citadine','JP',"Conçue pour homologuer une voiture de rallye, elle reçoit une transmission intégrale."],
+ ['sti','Subaru','Impreza WRX STI',2008,300,250,5.2,1505,'berline','JP',"Les Impreza sont célèbres en rallye, notamment grâce à Colin McRae, champion du monde en 1995."],
+ ['evo9','Mitsubishi','Lancer Evolution IX',2005,280,250,5.0,1400,'berline','JP',"Tommi Mäkinen a remporté 4 titres mondiaux des rallyes de suite (1996-1999) avec une Lancer Evolution."],
+ ['mx5nd','Mazda','MX-5 ND 2.0',2015,160,214,7.3,1050,'sport','JP',"Mazda la conçoit selon le principe « Jinba Ittai » : l'unité entre le cavalier et son cheval."],
+ ['gr86','Toyota','GR86',2022,234,226,6.3,1275,'sport','JP',"Son nom « 86 » rend hommage à la Corolla AE86 des années 80."],
+ ['r5e','Renault','5 E-Tech électrique',2024,150,150,7.9,1450,'citadine','FR',"La R5 électrique de 2024 reprend le design de la Renault 5 de 1972."],
+ ['r34','Nissan','Skyline GT-R R34',1999,280,250,5.2,1560,'sport','JP',"À l'époque, les constructeurs japonais annonçaient tous 280 ch au maximum à cause d'un « accord de gentlemen », même quand la puissance réelle était supérieure.",{evo:'r35'}],
+ ['supraa80','Toyota','Supra A80 Twin Turbo',1993,330,250,5.1,1570,'sport','JP',"Son moteur 2JZ est réputé pour encaisser des préparations dépassant 1 000 ch.",{evo:'grsupra'}],
+ ['a110','Alpine','A110',2017,252,250,4.5,1103,'sport','FR',"Grâce à son châssis en aluminium, l'A110 moderne pèse à peine plus de 1 100 kg."],
+ ['e30','BMW','M3 E30',1986,200,235,6.7,1200,'classique','DE',"La première M3 a été conçue pour courir en championnat de voitures de tourisme (Groupe A).",{evo:'e36'}],
+ ['delta','Lancia','Delta HF Integrale Evo',1991,210,220,5.7,1300,'classique','IT',"La Lancia Delta a remporté 6 titres constructeurs consécutifs en championnat du monde des rallyes (1987-1992)."],
+ ['quattro','Audi','Quattro',1980,200,222,7.1,1290,'classique','DE',"Elle a popularisé la transmission intégrale en rallye au début des années 80.",{}],
+ ['carrera27','Porsche','911 Carrera RS 2.7',1973,210,245,5.8,975,'classique','DE',"Son petit aileron arrière, surnommé « queue de canard », est devenu un emblème des années 70.",{evo:'gt3'}],
+ ['mustang65','Ford','Mustang 289 V8',1965,225,190,8.5,1300,'classique','US',"Présentée en 1964, la Mustang a dépassé le million d'exemplaires vendus en moins de deux ans.",{evo:'mustangfox'}],
+ ['macan','Porsche','Macan S',2019,354,254,5.3,1865,'suv','DE',"Le Macan est le SUV compact de Porsche, lancé en 2014."],
+ ['rx7','Mazda','RX-7 FD',1992,239,250,5.3,1310,'sport','JP',"Elle utilise un moteur rotatif Wankel : un rotor triangulaire tourne dans une chambre, sans pistons classiques."],
+ ['grsupra','Toyota','GR Supra 3.0',2019,340,250,4.3,1570,'sport','JP',"La GR Supra a été développée avec BMW et partage sa base avec la BMW Z4."],
+ ['golf8r','Volkswagen','Golf 8 R',2020,320,250,4.7,1551,'berline','DE',"« R » désigne la Golf la plus sportive, avec une transmission intégrale 4Motion."],
+ ['gt3','Porsche','911 GT3 (992)',2021,510,318,3.4,1435,'sport','DE',"Son 6 cylindres à plat atmosphérique monte jusqu'à 9 000 tr/min.",{mega:'gt3rs'}],
+ ['m3g80','BMW','M3 Competition G80',2021,510,290,3.9,1730,'berline','DE',"Depuis 2021, la M3 Competition peut recevoir la transmission intégrale xDrive.",{mega:'m3cs'}],
+ ['rs6','Audi','RS6 Avant C8',2019,600,305,3.6,2075,'berline','DE',"RS signifie « RennSport », c'est-à-dire « sport de course » en allemand."],
+ ['amggtr','Mercedes-AMG','GT R',2017,585,318,3.6,1555,'sport','DE',"On la surnomme « la bête de l'enfer vert », en référence au circuit du Nürburgring.",{mega:'blackseries'}],
+ ['r35','Nissan','GT-R R35',2017,570,315,2.8,1752,'sport','JP',"Chaque moteur de GT-R est assemblé à la main par un seul technicien, appelé « Takumi ».",{mega:'gtrnismo'}],
+ ['mustang','Ford','Mustang GT 5.0',2018,450,250,4.3,1750,'sport','US',"La Mustang a créé en 1964 la catégorie des « pony cars » : des coupés sportifs abordables.",{mega:'shelby500'}],
+ ['c8','Chevrolet','Corvette C8 Stingray',2020,482,312,3.5,1655,'sport','US',"La C8 est la première Corvette de série à moteur central arrière."],
+ ['huracan','Lamborghini','Huracán EVO',2019,640,325,2.9,1422,'hyper','IT',"Comme beaucoup de Lamborghini, elle porte le nom d'un célèbre taureau de combat.",{mega:'sto'}],
+ ['f40','Ferrari','F40',1987,478,324,4.1,1100,'hyper','IT',"Dernière Ferrari lancée du vivant d'Enzo Ferrari, elle célébrait les 40 ans de la marque.",{}],
+ ['458','Ferrari','458 Italia',2009,570,325,3.4,1485,'hyper','IT',"Son V8 atmosphérique de 4,5 L a été récompensé plusieurs fois comme moteur de l'année.",{}],
+ ['countach','Lamborghini','Countach LP5000 QV',1985,455,295,4.9,1490,'hyper','IT',"Son nom vient d'une exclamation d'admiration en dialecte piémontais.",{}],
+ ['urus','Lamborghini','Urus',2018,650,305,3.6,2200,'suv','IT',"Lamborghini avait déjà produit un 4x4, le LM002, dans les années 80 avant de lancer l'Urus.",{mega:'venatus'}],
+ ['g63','Mercedes-AMG','G 63',2018,585,220,4.5,2560,'suv','DE',"Le Classe G est fabriqué à Graz, en Autriche, depuis 1979.",{mega:'brabus800'}],
+ ['mcf1','McLaren','F1',1992,627,386,3.2,1138,'hyper','GB',"Le conducteur est assis au centre, entre deux passagers, et le compartiment moteur est tapissé d'or pour réfléchir la chaleur.",{}],
+ ['911ts','Porsche','911 Turbo S (992)',2020,650,330,2.7,1640,'sport','DE',"Chez Porsche, « Turbo S » désigne la 911 de route la plus puissante, pas seulement la présence d'un turbo."],
+ ['veyron','Bugatti','Veyron 16.4',2005,1001,407,2.5,1888,'hyper','FR',"En 2005, elle est devenue la première voiture de série à dépasser 400 km/h.",{}],
+ ['chiron','Bugatti','Chiron',2016,1500,420,2.4,1995,'hyper','FR',"Son moteur W16 de 8,0 L est suralimenté par 4 turbos.",{mega:'ss300'}],
+ ['agera','Koenigsegg','Agera RS',2015,1360,447,2.8,1395,'hyper','SE',"En 2017, elle a atteint 447 km/h de moyenne sur une route fermée du Nevada."],
+ ['nevera','Rimac','Nevera',2021,1914,412,2.0,2300,'hyper','HR',"Hypercar 100 % électrique croate, elle a battu de nombreux records d'accélération."],
+ ['laferrari','Ferrari','LaFerrari',2013,963,350,2.6,1585,'hyper','IT',"Première Ferrari de route hybride, avec un système dérivé du KERS de la Formule 1."],
+ ['918','Porsche','918 Spyder',2013,887,345,2.6,1674,'hyper','DE',"Hybride rechargeable, elle peut rouler en mode 100 % électrique."],
+ ['p1','McLaren','P1',2013,916,350,2.8,1490,'hyper','GB',"Héritière de la McLaren F1, elle associe un V8 biturbo à un moteur électrique."],
+ ['svj','Lamborghini','Aventador SVJ',2018,770,350,2.8,1525,'hyper','IT',"En 2018, elle a battu le record du Nürburgring pour une voiture de série."],
+ ['sf90','Ferrari','SF90 Stradale',2019,1000,340,2.5,1570,'hyper','IT',"Première Ferrari de série hybride rechargeable ; son nom célèbre les 90 ans de la Scuderia Ferrari."],
+ ['plaid','Tesla','Model S Plaid',2021,1020,322,2.1,2162,'berline','US',"Plus de 1 000 ch grâce à trois moteurs électriques, dans une berline familiale."],
+ ['taycan','Porsche','Taycan Turbo S',2020,761,260,2.8,2295,'berline','DE',"Son architecture 800 volts permet une recharge très rapide."],
+ ['720s','McLaren','720S',2017,720,341,2.9,1419,'hyper','GB',"Sa cellule centrale « Monocage » est en fibre de carbone.",{mega:'lt765'}],
+ ['huayra','Pagani','Huayra',2012,730,370,3.2,1350,'hyper','IT',"Son nom vient de Huayra-tata, divinité du vent dans la culture inca."],
+ ['demon','Dodge','Challenger SRT Demon',2018,840,270,2.3,1940,'sport','US',"Le Guinness l'a reconnue comme la première voiture de série capable de lever ses roues avant au départ."],
+ ['twingo2','Renault','Twingo II 1.2 16V',2007,75,170,11.7,950,'citadine','FR',"La Twingo II abandonne la forme « monocorps » de la première génération pour un style plus classique.",{evo:'twingo3'}],
+ ['twingo3','Renault','Twingo III SCe 70',2014,70,151,14.5,865,'citadine','FR',"La Twingo III a son moteur à l'arrière et est une propulsion : elle partage sa base avec la Smart ForFour.",{evo:'twingoe'}],
+ ['twingoe','Renault','Twingo E-Tech électrique',2020,82,135,12.6,1160,'citadine','FR',"Version 100 % électrique de la Twingo III, pensée pour la ville."],
+ ['cliow','Renault','Clio Williams',1993,150,215,7.8,990,'citadine','FR',"Série spéciale baptisée du nom de l'écurie Williams, championne du monde de F1 avec un moteur Renault.",{evo:'clio2rs'}],
+ ['clio2rs','Renault','Clio II R.S. 172',2000,172,220,7.3,1035,'citadine','FR',"Son 2.0 16V atmosphérique en a fait une référence des petites sportives du début des années 2000.",{evo:'clio4rs'}],
+ ['clio4rs','Renault','Clio IV R.S. 200 EDC',2013,200,230,6.7,1204,'citadine','FR',"Première Clio R.S. à moteur turbo et à boîte automatique à double embrayage (EDC).",{evo:'clio5'}],
+ ['golfmk2','Volkswagen','Golf II GTI 16V',1986,139,208,8.5,960,'classique','DE',"La Golf II a été produite à plus de 6 millions d'exemplaires.",{evo:'golfmk5'}],
+ ['golfmk5','Volkswagen','Golf V GTI',2004,200,235,7.2,1336,'berline','DE',"Elle a relancé la GTI avec un 2.0 turbo et une boîte DSG à double embrayage en option.",{evo:'golfmk7'}],
+ ['r32mk4','Volkswagen','Golf IV R32',2002,241,247,6.6,1477,'berline','DE',"Avec son V6 de 3,2 L et sa transmission intégrale, c'est l'ancêtre des Golf R.",{evo:'r32mk5'}],
+ ['r32mk5','Volkswagen','Golf V R32',2005,250,250,6.5,1510,'berline','DE',"Son V6 de 3,2 L est réputé pour sa sonorité.",{evo:'golfr7'}],
+ ['golfr7','Volkswagen','Golf VII R',2014,300,250,5.1,1476,'berline','DE',"Le V6 laisse place à un 4 cylindres 2.0 turbo, plus léger et plus puissant.",{evo:'golf8r'}],
+ ['mx5nb','Mazda','MX-5 NB 1.8',1998,140,205,8.4,1065,'sport','JP',"La NB remplace les phares escamotables de la première MX-5 par des phares fixes.",{evo:'mx5nc'}],
+ ['mx5nc','Mazda','MX-5 NC 2.0',2005,160,210,7.9,1155,'sport','JP',"La NC a introduit une version à toit rigide rétractable.",{evo:'mx5nd'}],
+ ['ep3','Honda','Civic Type R EP3',2001,200,235,6.8,1204,'berline','JP',"Cette Civic Type R était fabriquée en Angleterre, à Swindon.",{evo:'fk8'}],
+ ['fl5','Honda','Civic Type R FL5',2022,329,275,5.4,1429,'berline','JP',"En 2023, elle a établi le record du tour du Nürburgring pour une traction."],
+ ['r32gtr','Nissan','Skyline GT-R R32',1989,280,250,5.6,1430,'sport','JP',"La presse australienne l'a surnommée « Godzilla » après ses victoires en course.",{evo:'r33'}],
+ ['r33','Nissan','Skyline GT-R R33',1995,280,250,5.4,1530,'sport','JP',"Elle a été annoncée comme la première voiture de série sous les 8 minutes au Nürburgring.",{evo:'r34'}],
+ ['e36','BMW','M3 E36 3.0',1992,286,250,6.0,1460,'berline','DE',"La M3 E36 a aussi existé en berline 4 portes et en cabriolet.",{evo:'e46'}],
+ ['e46','BMW','M3 E46',2000,343,250,5.2,1570,'berline','DE',"Son 6 cylindres en ligne atmosphérique monte jusqu'à près de 8 000 tr/min.",{evo:'e92'}],
+ ['e92','BMW','M3 E92',2007,420,250,4.8,1655,'berline','DE',"C'est la seule M3 de série à moteur V8 (4,0 L)."],
+ ['f80','BMW','M3 F80',2014,431,250,4.3,1560,'berline','DE',"Retour au 6 cylindres en ligne, cette fois suralimenté par deux turbos.",{evo:'m3g80'}],
+ ['t930','Porsche','911 Turbo (930)',1975,260,250,5.5,1140,'classique','DE',"Première 911 Turbo de série, surnommée « faiseuse de veuves » pour son comportement délicat.",{evo:'t993'}],
+ ['t993','Porsche','911 Turbo (993)',1995,408,290,4.5,1500,'sport','DE',"Première 911 Turbo à transmission intégrale et à deux turbos.",{evo:'t997'}],
+ ['t997','Porsche','911 Turbo (997)',2006,480,310,3.9,1585,'sport','DE',"L'une des premières voitures essence équipées de turbos à géométrie variable.",{evo:'911ts'}],
+ ['mustangfox','Ford','Mustang GT « Fox »',1987,225,220,6.9,1450,'classique','US',"La génération « Fox » a été produite de 1979 à 1993, un record de longévité pour une Mustang.",{evo:'mustang05'}],
+ ['mustang05','Ford','Mustang GT (S197)',2005,300,240,5.3,1600,'sport','US',"Son style rétro rend hommage aux Mustang des années 60.",{evo:'mustang'}],
+ ['supraa70','Toyota','Supra A70 Turbo',1986,234,235,7.2,1550,'sport','JP',"Avec la A70, la Supra devient un modèle à part entière, séparé de la Celica.",{evo:'supraa80'}],
+ ['minir53','Mini','Cooper S (R53)',2002,163,218,7.4,1140,'citadine','GB',"Son compresseur volumétrique lui donne un sifflement caractéristique.",{evo:'minis'}],
+ ['rs6c5','Audi','RS6 Avant C5',2002,450,250,4.7,1840,'berline','DE',"La première RS6 utilisait un V8 biturbo de 4,2 L mis au point avec Cosworth.",{evo:'rs6c6'}],
+ ['rs6c6','Audi','RS6 Avant C6',2008,580,250,4.6,2025,'berline','DE',"Elle cachait un V10 biturbo de 5,0 L sous son capot de break familial.",{evo:'rs6c7'}],
+ ['rs6c7','Audi','RS6 Avant C7',2013,560,250,3.9,1935,'berline','DE',"Son V8 peut couper la moitié de ses cylindres pour consommer moins.",{evo:'rs6'}],
+ ['sandero1','Dacia','Sandero 1.4 MPI',2008,75,162,13.0,1000,'citadine','RO',"Le Sandero a d'abord été lancé au Brésil, en 2007.",{evo:'sandero2'}],
+ ['sandero2','Dacia','Sandero II TCe 90',2012,90,175,11.1,1000,'citadine','RO',"Le Sandero II a aussi existé en version baroudeuse Stepway.",{evo:'sandero'}],
+ // ---- PRÉPAS (méga-évolutions)
+ ['abarth695','Abarth','695 Biposto',2014,190,230,5.9,997,'citadine','IT',"Abarth, fondé en 1949 par Carlo Abarth, transforme les petites Fiat en bombes miniatures.",{tuner:'Abarth'}],
+ ['jcwgp','Mini','John Cooper Works GP',2020,306,265,5.2,1255,'citadine','GB',"John Cooper, constructeur de Formule 1, a donné son nom aux Mini les plus sportives.",{tuner:'John Cooper Works'}],
+ ['clubsports','Volkswagen','Golf GTI Clubsport S',2016,310,265,5.8,1360,'berline','DE',"Série limitée à 400 exemplaires, elle a battu le record du Nürburgring pour une traction en 2016.",{tuner:'Volkswagen (série limitée)'}],
+ ['trophyr','Renault','Mégane R.S. Trophy-R',2019,300,262,5.4,1306,'berline','FR',"Allégée de 130 kg (plus de banquette arrière !), elle a battu le record des tractions au Nürburgring en 2019.",{tuner:'Renault Sport'}],
+ ['gt3rs','Porsche','911 GT3 RS (992)',2022,525,296,3.2,1450,'sport','DE',"RS = RennSport : c'est la version piste de la GT3, développée au centre Porsche de Weissach.",{tuner:'Porsche Motorsport'}],
+ ['m3cs','BMW','M3 CS (G80)',2023,550,302,3.4,1765,'berline','DE',"BMW M, la division sportive de BMW, a été créée en 1972 sous le nom de BMW Motorsport GmbH.",{tuner:'BMW M'}],
+ ['blackseries','Mercedes-AMG','GT Black Series',2020,730,325,3.2,1540,'sport','DE',"Les Black Series sont les AMG les plus radicales ; celle-ci a battu le record du Nürburgring en 2020.",{tuner:'AMG'}],
+ ['gtrnismo','Nissan','GT-R Nismo',2020,600,315,2.7,1703,'sport','JP',"Nismo (NISsan MOtorsport), créé en 1984, est la division compétition de Nissan.",{tuner:'Nismo'}],
+ ['shelby500','Ford','Mustang Shelby GT500',2020,760,290,3.6,1916,'sport','US',"Carroll Shelby, vainqueur des 24 Heures du Mans 1959, a créé la Shelby GT350 sur base de Mustang dès 1965.",{tuner:'Shelby'}],
+ ['sto','Lamborghini','Huracán STO',2021,640,310,3.0,1339,'hyper','IT',"STO signifie « Super Trofeo Omologata » : une version de route inspirée de la course.",{tuner:'Lamborghini Squadra Corse'}],
+ ['venatus','Mansory','Venatus (Urus)',2019,810,320,3.3,2200,'suv','DE',"Mansory, fondé en 1989, est connu pour ses préparations extrêmes en fibre de carbone.",{tuner:'Mansory'}],
+ ['brabus800','Brabus','800 (Classe G)',2019,800,240,4.1,2560,'suv','DE',"Brabus, fondé en 1977 à Bottrop (Allemagne), est le préparateur Mercedes le plus célèbre.",{tuner:'Brabus'}],
+ ['lt765','McLaren','765LT',2020,765,330,2.8,1339,'hyper','GB',"LT signifie « LongTail », un clin d'œil à la McLaren F1 GTR Longtail de 1997.",{tuner:'McLaren LT'}],
+ ['ss300','Bugatti','Chiron Super Sport 300+',2019,1600,440,2.4,1995,'hyper','FR',"Un prototype a dépassé 490 km/h en 2019 ; « 300+ » fait référence aux plus de 300 mph atteints.",{tuner:'Bugatti'}]
+];
+const PHOTO={"clio5":["Renault Clio V 1X7A0392.jpg","Alexander Migl","CC BY-SA 4.0"],"p208":["Peugeot 208 GT-Line Genf 2019 1Y7A5131.jpg","Alexander Migl","CC BY-SA 4.0"],"fiat500":["Fiat 500 2007 (2012-07-14).JPG","Lothar Spurzem","CC BY-SA 2.0 de"],"golf8":["Volkswagen Golf VIII 1X7A0353.jpg","Alexander Migl","CC BY-SA 4.0"],"sandero":["2021 Dacia Sandero Comfort 1.5.jpg","Vauxford","CC BY-SA 4.0"],"yaris":["Toyota Yaris Hybrid (XP210) 1X7A0353.jpg","Alexander Migl","CC BY-SA 4.0"],"2cv":["Citroen 2CV AZ.jpg","Krzysztof Golik","CC BY-SA 4.0"],"r5gt":["Renault R5 GT, Baujahr 1985 (Sp).JPG","Lothar Spurzem","CC BY-SA 2.0 de"],"205gti":["Peugeot 205 GTi 1.6 1989.jpg","Calreyn88","CC BY 4.0"],"cox":["Volkswagen Beetle 1200.jpg","Bene Riobó","CC BY-SA 4.0"],"ae86":["Toyota COROLLA LEVIN GT APEX (E-AE86-ECMVF) front.jpg","Tokumeigakarinoaoshima","CC0"],"duster":["Dacia Duster III IMG 8961.jpg","Alexander-93","CC BY-SA 4.0"],"twingo":["1993 Renault Twingo.jpg","Calreyn88","CC BY-SA 4.0"],"golfmk1":["VW Golf GTI, Klassikstadt, Frankfurt am Main (P1032532).jpg","Matti Blume","CC BY-SA 4.0"],"delorean":["DeLorean DMC-12 BW 2017-07-16 15-10-09.jpg","Berthold Werner","CC BY-SA 4.0"],"mini64":["Mini Cooper S 1964 (AJB 44B) - 2016.jpg","DeFacto","CC BY-SA 4.0"],"mx5na":["Mazda MX-5 (NA) IMG 0206.jpg","Alexander-93","CC BY-SA 4.0"],"a110old":["Renault Alpine A110 Berlinette 1600 SX.jpg","LSDSL","CC BY-SA 3.0"],"minis":["MINI F56 Hatch Cooper S Chili Red (6).jpg","Damian B Oh","CC BY-SA 4.0"],"model3":["Tesla Model 3 (2023) Autofrühling Ulm IMG 9282.jpg","Alexander-93","CC BY-SA 4.0"],"golfmk7":["VOLKSWAGEN GOLF GTI (Mk7, Typ 5G) China.jpg","Dinkun Chen","CC BY-SA 4.0"],"megane":["2019 Renault Megane R.S. 300 Trophy 1.8 Front.jpg","Vauxford","CC BY-SA 4.0"],"ek9":["Honda CIVIC TYPE R (EK9) right.JPG","Tokumeigakarinoaoshima","CC0"],"fk8":["Honda CIVIC TYPE R (FK8).jpg","Tokumeigakarinoaoshima","CC BY-SA 4.0"],"gryaris":["Toyota GR Yaris RZ 1X7A0252.jpg","Alexander Migl","CC BY-SA 4.0"],"sti":["2008 Subaru Impreza WRX STi 2.5 Turbo AWD.jpg","Rutger van der Maar","CC BY 2.0"],"evo9":["2005 Mitsubishi Lancer Evolution IX BS O24.jpg","MrWalkr","CC BY-SA 4.0"],"mx5nd":["Mazda MX-5 (ND) 1X7A7471.jpg","Alexander-93","CC BY-SA 4.0"],"gr86":["Toyota GR86 IMG 7863.jpg","Alexander-93","CC BY-SA 4.0"],"r5e":["Renault 5 E-Tech GIMS 2024 1X7A2227.jpg","Alexander-93","CC BY-SA 4.0"],"r34":["1999 Nissan Skyline GT-R.jpg","Calreyn88","CC BY-SA 4.0"],"supraa80":["Toyota Supra SZ (A80) front.jpg","Tokumeigakarinoaoshima","CC0"],"a110":["Alpine A110 en Angleterre Aout 2018.jpg","Charles01","CC BY-SA 4.0"],"e30":["BMW M3 E30, Pau 2015.jpg","Handelsgeselschaft","CC BY-SA 4.0"],"delta":["1992 Lancia Delta HF Integrale Evoluzione HCC23.jpg","MrWalkr","CC BY-SA 4.0"],"quattro":["1980-1991 Audi Quattro NEC Restoration Show.jpg","kieranwhite599","CC BY 2.0"],"carrera27":["Porsche 911 Carrera RS, Bj. 1972-73 (2016-07-02 01 Sp).JPG","Lothar Spurzem","CC BY-SA 2.0 de"],"mustang65":["Ford Mustang, Bj. 1965 (2019-06-02 Sp).JPG","Lothar Spurzem","CC BY-SA 2.0 de"],"macan":["2022 Porsche Macan S 1X7A0821.jpg","Alexander-93","CC BY-SA 4.0"],"rx7":["FD Mazda RX-7.jpg","Aaron Lai","CC BY 2.0"],"grsupra":["2019 Toyota GR Supra A90.jpg","Calreyn88","CC BY-SA 4.0"],"golf8r":["2021 Volkswagen Golf R (46643).jpg","Calreyn88","CC BY-SA 4.0"],"gt3":["Porsche 911 GT3 4.0 (992) 1X7A7256.jpg","Alexander-93","CC BY-SA 4.0"],"m3g80":["BMW M3 Competition (G80) 1X7A1573.jpg","Alexander-93","CC BY-SA 4.0"],"rs6":["Audi RS6 Avant C8 1X7A0305.jpg","Alexander Migl","CC BY-SA 4.0"],"amggtr":["Mercedes-AMG C190 GT R IMG 7306.jpg","Alexander-93","CC BY-SA 4.0"],"r35":["Nissan GT-R (R35, 2011 facelift) in Brunei 01.jpg","Pangalau","CC BY-SA 4.0"],"mustang":["2018 Ford Mustang GT 5.0 Front.jpg","Vauxford","CC BY-SA 4.0"],"c8":["Chevrolet Corvette C8 IAA 2021 1X7A0156.jpg","Alexander Migl","CC BY-SA 4.0"],"huracan":["Lamborghini Huracan Evo, GIMS 2019, Le Grand-Saconnex (GIMS1010).jpg","Matti Blume","CC BY-SA 4.0"],"f40":["Ferrari F40 GIMS 2024 1X7A2271.jpg","Alexander-93","CC BY-SA 4.0"],"458":["2011 Ferrari 458 Italia DCT S-A 4.5 Front.jpg","Vauxford","CC BY-SA 4.0"],"countach":["1986 Lamborghini Countach 5000 QV, Bianco Polo Park white, front right.jpg","Mr.choppers","CC BY-SA 3.0"],"urus":["Lamborghini Urus S 1X7A6798.jpg","Alexander-93","CC BY-SA 4.0"],"g63":["Mercedes-AMG G 63 (2018) IMG 4370.jpg","Alexander Migl","CC BY-SA 4.0"],"mcf1":["1994 McLaren F1 R26.jpg","MrWalkr","CC BY-SA 4.0"],"911ts":["Porsche 992 Turbo S 1X7A0413.jpg","Alexander Migl","CC BY-SA 4.0"],"veyron":["Bugatti Veyron 16.4 – Frontansicht (3), 5. April 2012, Düsseldorf.jpg","M 93","CC BY-SA 3.0 de"],"chiron":["Bugatti Chiron 2017.jpg","MrWalkr","CC BY-SA 4.0"],"agera":["Koenigsegg Agera RS scf25.jpg","Calreyn88","CC BY-SA 4.0"],"nevera":["Rimac Nevera.jpg","MrWalkr","CC BY-SA 4.0"],"laferrari":["Ferrari LaFerrari at Grand Basel 2018 01.jpg","Ank Kumar","CC BY-SA 4.0"],"918":["2015 Porsche 918 Spyder 4.6.jpg","Chelsea Jay","CC BY-SA 4.0"],"p1":["2013 McLaren P1.jpg","MrWalkr","CC BY-SA 4.0"],"svj":["Lamborghini Aventador SVJ 2019.jpg","Calreyn88","CC BY-SA 4.0"],"sf90":["Ferrari SF90 Stradale Mayfair.jpg","Calreyn88","CC BY 4.0"],"plaid":["Tesla Model S Plaid Autofrühling Ulm IMG 9321 (cropped).jpg","Alexander-93","CC BY-SA 4.0"],"taycan":["2020 Porsche Taycan Turbo S (21742).jpg","Calreyn88","CC BY-SA 4.0"],"720s":["Mclaren 720S PA280973-PSD.jpg","Ermell","CC BY-SA 4.0"],"huayra":["Pagani Huayra GIMS 2024 noBG.jpg","MB-one","CC BY-SA 4.0"],"demon":["2018 Dodge Challenger SRT Demon Hellcat (51353899565).jpg","David Merrett from Daventry, England","CC BY 2.0"],"abarth695":["2016 Abarth 695 Biposto 1.jpg","Calreyn88","CC0"],"jcwgp":["2020 Mini JCW GP 3.jpg","Calreyn88","CC BY-SA 4.0"],"clubsports":["2016 Volkswagen Golf GTi Clubsport S BS O24.jpg","MrWalkr","CC BY-SA 4.0"],"trophyr":["2019 Renault Megane RS Trophy-R FOS19.jpg","MrWalkr","CC BY-SA 4.0"],"gt3rs":["Porsche 911 GT3 RS (2022) 1X7A7164.jpg","Alexander-93","CC BY-SA 4.0"],"m3cs":["2023 BMW M3 CS 1.jpg","Calreyn88","CC0"],"blackseries":["Mercedes-AMG GT Black Series IMG 0324.jpg","Alexander-93","CC BY-SA 4.0"],"gtrnismo":["Nissan GT-R Nismo (28492).jpg","Calreyn88","CC BY-SA 4.0"],"shelby500":["2020 Ford Mustang Shelby GT500 GT101.jpg","MrWalkr","CC BY-SA 4.0"],"sto":["Lamborghini Huracan STO 1X7A0297.jpg","Alexander Migl","CC BY-SA 4.0"],"venatus":["Lamborghini Urus Mansory Venatus 1.jpg","Calreyn88","CC BY 4.0"],"brabus800":["Brabus G 800.jpg","Calreyn88","CC BY-SA 4.0"],"lt765":["2020 McLaren 765LT 4.0.jpg","Liam Walker","CC BY-SA 4.0"],"ss300":["2020 Bugatti Chiron Super Sport 300+ Prototype Front.jpg","Dylan Johnson","CC BY-SA 4.0"],"twingo2":["Renault Twingo (II, Facelift) – Frontansicht, 21. Juli 2012, Heiligenhaus.jpg","M 93","CC BY-SA 3.0 de"],"twingo3":["Renault Twingo, Generation 3 (2017-07-27 Sp).JPG","Lothar Spurzem","CC BY-SA 2.0 de"],"twingoe":["Renault Twingo Z.E. DSC 2934.jpg","Alexander Migl","CC BY-SA 4.0"],"cliow":["Renault Clio Williams (40114405095).jpg","Guillaume Vachey","CC0"],"clio2rs":["2001 Renault Clio RS 172 BS O24.jpg","MrWalkr","CC BY-SA 4.0"],"clio4rs":["Renault Clio IV RS (front).JPG","Overlaet","CC BY-SA 3.0"],"golfmk2":["Volkswagen Golf II GTI 16V IMG 9644.jpg","Alexander-93","CC BY-SA 4.0"],"golfmk5":["Volkswagen Golf GTI V.jpg","MrWalkr","CC BY-SA 4.0"],"r32mk4":["Volkswagen Golf IV R32 Classic-Days 2022 DSC 0035.jpg","Alexander Migl","CC BY-SA 4.0"],"r32mk5":["2008 Volkswagen Golf R32.jpg","Calreyn88","CC BY-SA 4.0"],"golfr7":["Volkswagen Golf R (Mk VII) Greater Toronto Area, Canada.jpg","OWS Photography","CC BY 4.0"],"mx5nb":["2001 Mazda MX-5 S (NB) - 1.8 (140PS) petrol manual - 2025-05-05, front right.jpg","DieselFordMondeo","CC BY-SA 4.0"],"mx5nc":["Mazda MX-5 (NC) en Valencia.jpg","Dorieo","CC BY-SA 4.0"],"ep3":["2002 Honda Civic Type R EP3, front right.jpg","Ethan Llamas","CC BY-SA 4.0"],"fl5":["HONDA CIVIC TYPE R FL5 China.jpg","Dinkun Chen","CC BY-SA 4.0"],"r32gtr":["Nissan Skyline GT-R R32 (33539).jpg","Calreyn88","CC BY-SA 4.0"],"r33":["1996 Nissan Skyline GT-R R33 V-Spec.jpg","Calreyn88","CC BY-SA 4.0"],"e36":["BMW M3 E36 Estoril Blue.jpg","Ethan Llamas","CC BY-SA 4.0"],"e46":["BMW M3 (E46) at the 2025 Shannons Adelaide Rally (028A4479).jpg","Yu Chu Chin","CC BY 4.0"],"e92":["BMW M3 Coupé (E92) Washington DC Metro Area, USA.jpg","OWS Photography","CC BY 4.0"],"f80":["BMW M3 F80 Competition grey (1).jpg","Damian B Oh","CC BY-SA 4.0"],"t930":["Porsche Turbo 930 P5190666.jpg","Ermell","CC BY-SA 4.0"],"t993":["Porsche 911 993 Turbo (29187).jpg","Calreyn88","CC BY-SA 4.0"],"t997":["Porsche 997 Turbo Toulouse.jpg","Handelsgeselschaft","CC BY-SA 4.0"],"mustangfox":["1986 Ford Mustang GT Hatchback (14400540061).jpg","Sicnag","CC BY 2.0"],"mustang05":["2005 Ford Mustang GT Deluxe Coupe, front right, 07-02-2023.jpg","MercurySable99","CC BY-SA 4.0"],"supraa70":["Toyota Supra (A70) in white.jpg","Accord14","CC BY-SA 4.0"],"minir53":["Mini Cooper S (R53) Washington DC Metro Area, USA.jpg","OWS Photography","CC BY 4.0"],"rs6c5":["Audi RS6 Avant C5 Mugello Blue (6).jpg","Damian B Oh","CC BY-SA 4.0"],"rs6c6":["Audi RS6 Avant (C6) front.JPG","Tokumeigakarinoaoshima","CC0"],"rs6c7":["AUDI RS6 AVANT C7 China.jpg","Dinkun Chen","CC BY-SA 4.0"],"sandero1":["Dacia Sandero 1.4 MPI 2008.jpg","Torsten Maue","CC BY 2.0"],"sandero2":["Dacia Sandero II (92841).jpg","WorldGarage","CC BY-SA 4.0"]};
+// Voitures (modèles) — rar = niveau de la voiture selon sa puissance
+const MODELS=RAW.map(r=>{const o=r[11]||{};return{key:r[0],brand:r[1],model:r[2],year:r[3],hp:r[4],vmax:r[5],acc:r[6],kg:r[7],type:r[8],cc:r[9],fact:r[10],evo:o.evo,mega:o.mega,tuner:o.tuner,rar:r[4]>=700?'L':r[4]>=400?'E':r[4]>=150?'R':'C'}});
+const MK={};MODELS.forEach(m=>MK[m.key]=m);
+const PREV={};MODELS.forEach(m=>{if(m.evo&&!PREV[m.evo])PREV[m.evo]=m.key});
+const BASES=MODELS.filter(m=>!m.tuner);
+const ORDER={C:0,R:1,E:2,L:3};
+// Versions de carte (comme le TCG : on ne fait pas évoluer, on collectionne les versions)
+
+const VORDER=['s','h','r','f','a','p'];
+const PHOTO_ALT={"delta":["Audi Sport Rally, Dyfi Forest stage, October 1988 - Lancia Delta Integrale - geograph.org.uk - 6423650.jpg","Richard Law","CC BY-SA 2.0"],"sti":["2008 Rally Mexico - Chris Atkinson.jpg","Dr GMC","CC BY 2.0"],"f40":["Ferrari F40 at Goodwood 2014 001.jpg","Nic Redhead","CC BY-SA 2.0"],"mini64":["Morris Mini Cooper S (42183612770).jpg","Neil","CC BY 2.0"],"gryaris":["Kalle Rovanperä Rally Finland 2025 Ouninpohja (cropped).jpg","Antti Leppänen","CC BY 4.0"],"ae86":["Ae86 drift.jpg","Tokino","CC BY-SA 3.0"],"rx7":["2017-06-10 Jason Clark RX-7.JPG","Lewis Collard","Attribution"],"2cv":["Racing Citroen 2cv at Snetterton - geograph.org.uk - 4261350.jpg","John Winder","CC BY-SA 2.0"],"fk8":["No.75 Team Noah HONDA CIVIC TCR at 2022 SUZUKA 5 Hours Endurance Race (10).jpg","Tokumeigakarinoaoshima","CC0"],"huracan":["Lamborghini Super Trofeo 18.jpg","SmackJam","CC BY-SA 4.0"],"mcf1":["McLaren F1 GTR 95 P440 CPJ Ritz.jpg","Sovxx","Public domain"],"mx5na":["Track Day Miata 68 SP24 03.jpg","SmackJam","CC BY-SA 4.0"],"r5gt":["Renault 5 GT Turbo Raider.jpg","Bigstevet","Public domain"],"supraa80":["Александр Сиверцев 2.JPG","Ignitione","CC BY-SA 4.0"]};
+// CARS = toutes les cartes collectionnables (voiture × version)
+const PHOTO_FA={"clio5":["Renault Clio V (2023) 1X7A1577.jpg","Alexander-93","CC BY-SA 4.0"],"p208":["Peugeot 208 II.jpg","Cédric Fan de Peugeot","CC BY-SA 4.0"],"fiat500":["Fiat 500 in Emilia-Romagna.jpg","Petar Milošević","CC BY-SA 4.0"],"golf8":["Volkswagen Golf VIII 1X7A0164.jpg","Alexander Migl","CC BY-SA 4.0"],"sandero":["2021 Dacia Sandero Access.jpg","Calreyn88","CC BY-SA 4.0"],"yaris":["Toyota Yaris Hybrid (XP210) 1X7A0366.jpg","Alexander Migl","CC BY-SA 4.0"],"2cv":["Citroën 2 CV Charleston (2015-08-29 3174 b).jpg","Lothar Spurzem","CC BY-SA 2.0 de"],"r5gt":["Renault 5 GT Turbo, 14. ADAC Stormarn Retro, Zarpen (TR257116).jpg","Matti Blume","CC BY-SA 4.0"],"205gti":["1990 Peugeot 205 GTi 2.jpg","Calreyn88","CC BY-SA 4.0"],"cox":["1962 VW Beetle 1200 (2863369263).jpg","dave_7 from Lethbridge, Canada","CC BY 2.0"],"ae86":["The frontview of Toyota COROLLA LEVIN GT APEX (E-AE86-ECMVF).jpg","Tokumeigakarinoaoshima","CC0"],"duster":["Dacia Duster III IMG 8970.jpg","Alexander-93","CC BY-SA 4.0"],"twingo":["1993 Renault Twingo 1.2.jpg","Rutger van der Maar","CC BY 2.0"],"golfmk1":["VW Golf GTI (no 118), Rallye Monte Carlo Historique 2025, Bad Homburg (P1032872).jpg","Matti Blume","CC BY-SA 4.0"],"delorean":["DeLorean DMC-12 Classic-Days 2022 DSC 0050.jpg","Alexander Migl","CC BY-SA 4.0"],"mini64":["1964 Austin Mini Cooper S.jpg","Dave Hamster","CC BY 2.0"],"mx5na":["1996 Mazda MX-5 1.8.jpg","Vauxford","CC BY-SA 4.0"],"a110old":["1974 Alpine A110 1600 S Berlinette.jpg","Vauxford","CC BY-SA 4.0"],"minis":["Mini Cooper S (F56) Washington DC Metro Area, USA.jpg","OWS Photography","CC BY 4.0"],"model3":["Tesla Model 3, EMS 2024, Essen (P1032260).jpg","Matti Blume","CC BY-SA 4.0"],"golfmk7":["2013 Volkswagen Golf GTI Mk7 (9709791383).jpg","David Villarreal Fernández","CC BY-SA 2.0"],"megane":["Renault Megane RS Trophy Filderstadt 1Y7A4867.jpg","Alexander Migl","CC BY-SA 4.0"],"ek9":["1997 Honda Civic Type R EK9.jpg","Mark van Seeters","CC BY 2.0"],"fk8":["Honda Civic Type R (FK8) Washington DC Metro Area, USA.jpg","OWS Photography","CC BY 4.0"],"gryaris":["Toyota GR Yaris, EMS 2024, Essen (P1031922).jpg","Matti Blume","CC BY-SA 4.0"],"sti":["Subaru Impreza WRX STI in Russia.JPG","Itrade","Public domain"],"evo9":["Mitsubishi Lancer Evolution IX WRC2006.jpg","LSDSL","CC BY-SA 3.0"],"mx5nd":["Mazda MX-5 ND Wien 26 July 2020 JM (1).jpg","Johannes Maximilian","CC BY-SA 4.0"],"gr86":["Toyota GR86 SZ.jpg","TTTNIS","CC0"],"r5e":["Renault 5 E-Tech Electric DSC 7281.jpg","Alexander Migl","CC BY-SA 4.0"],"r34":["2001 Nissan Skyline GT-R V-Spec II R34 (99828).jpg","Calreyn88","CC BY-SA 4.0"],"supraa80":["TOYOTA SUPRA (A80) HONG KONG.jpg","Dinkun Chen","CC BY-SA 4.0"],"a110":["2018 Alpine A110.jpg","NauyopTaiwan","CC BY-SA 4.0"],"e30":["BMW M3 (E30) of Peter Brock at the 2025 Adelaide Grand Final.jpg","Yu Chu Chin","CC BY-SA 4.0"],"delta":["1995 Lancia Delta HF Integrale Evoluzione II 2.0.jpg","Chelsea Jay","CC BY-SA 4.0"],"quattro":["1980-1991 Audi Quattro - 53037114378.jpg","kieranwhite599","CC BY 2.0"],"carrera27":["Porsche 911 Carrera RS 2.7 (1972) Solitude Revival 2022 1X7A0355.jpg","Alexander Migl","CC BY-SA 4.0"],"mustang65":["1965 Ford Mustang Convertible Classic-Gala 2021 1X7A0275.jpg","Alexander Migl","CC BY-SA 4.0"],"macan":["Porsche Macan S, GIMS 2019, Le Grand-Saconnex (GIMS9985).jpg","Matti Blume","CC BY-SA 4.0"],"rx7":["Mazda RX-7 of Mike Whiddett at the 2026 Adelaide Motorsport Festival (DSCF2622).jpg","Yu Chu Chin","CC BY-SA 4.0"],"grsupra":["Toyota Supra GR (2022) (52575036232).jpg","Charles from Port Chester, New York","CC BY 2.0"],"golf8r":["2021 Volkswagen Golf R TSi 4MOTION 2.0.jpg","Vauxford","CC BY-SA 4.0"],"gt3":["Porsche 911 GT3, EMS 2024, Essen (P1031698).jpg","Matti Blume","CC BY-SA 4.0"],"m3g80":["BMW M3 Competition (G80) 1X7A0170.jpg","Alexander Migl","CC BY-SA 4.0"],"rs6":["Audi RS6 Avant C8 at IAA 2019 IMG 0194.jpg","Alexander Migl","CC BY-SA 4.0"],"amggtr":["Mercedes-AMG GT R, BAS 24, Brussels (P1170229-RR).jpg","Matti Blume","CC BY-SA 4.0"],"r35":["NISSAN GT-R (R35) China.jpg","Dinkun Chen","CC BY-SA 4.0"],"mustang":["Ford GT Mustang P5201092.jpg","Ermell","CC BY-SA 4.0"],"c8":["Chevrolet Corvette C8 IMG 8837.jpg","Alexander-93","CC BY-SA 4.0"],"huracan":["Lamborghini Huracán Evo GT Celebration 1X7A1627.jpg","Alexander-93","CC BY-SA 4.0"],"f40":["F40 Ferrari 20090509.jpg","Will ainsworth","CC BY-SA 3.0"],"458":["Ferrari 458 Italia, Toulouse.jpg","Handelsgeselschaft","CC BY-SA 4.0"],"countach":["1988 Lamborghini Countach 5000 QV federal.jpg","Mr.choppers","CC BY-SA 3.0"],"urus":["Lamborghini Urus S 1X7A6796.jpg","Alexander-93","CC BY-SA 4.0"],"g63":["Mercedes-AMG G 63 (2018) Motorworld Munich 1X7A0054.jpg","Alexander-93","CC BY-SA 4.0"],"mcf1":["1994 McLaren F1 HDK LCCS20.jpg","MrWalkr","CC BY-SA 4.0"],"911ts":["Porsche 992 Turbo S 1X7A6046 (cropped).jpg","Alexander Migl","CC BY-SA 4.0"],"veyron":["2009 Bugatti Veyron 16.4.jpg","Calreyn88","CC BY-SA 4.0"],"chiron":["Bugatti Chiron, GIMS 2018, Le Grand-Saconnex (1X7A1765).jpg","Matti Blume","CC BY-SA 4.0"],"agera":["Koenigsegg Agera RST 2.jpg","Calreyn88","CC BY-SA 4.0"],"nevera":["Rimac - Nevera 01.jpg","Miroslav.vajdic","CC BY-SA 4.0"],"laferrari":["Ferrari LaFerrari GIMS 2024 1X7A2272.jpg","Alexander-93","CC BY-SA 4.0"],"918":["Porsche 918 Spyder IAA 2013 (Zuschnitt).jpg","Thomas Wolf, www.foto-tw.de","CC BY-SA 3.0 de"],"p1":["2014 McLaren P1 3.8.jpg","Chelsea Jay","CC BY-SA 4.0"],"svj":["Lamborghini Aventador SVJ 13.jpg","Calreyn88","CC BY-SA 4.0"],"sf90":["2021 Ferrari SF90 Stradale 3.jpg","Calreyn88","CC BY-SA 4.0"],"plaid":["Tesla Model S Plaid Autofrühling Ulm IMG 9278 (cropped).jpg","Alexander-93","CC BY-SA 4.0"],"taycan":["Porsche Taycan IAA 2019 JM 0787.jpg","Johannes Maximilian","CC BY-SA 4.0"],"720s":["McLaren 720S, IAA 2017, (1Y7A3406).jpg","Matti Blume","CC BY-SA 4.0"],"huayra":["Geneva MotorShow 2013 - Pagani Huayra blue front lights.jpg","Clément Bucco-Lechat","CC BY-SA 3.0"],"demon":["2023 Dodge Challenger SRT Demon 170, orange, front right side, Golden Super Cruise 2026-10-03.jpg","Xnatedawgx","CC BY-SA 4.0"],"twingo2":["Renault Twingo 02 by-dpc.jpg","David Perez","CC BY-SA 4.0"],"twingo3":["Renault Twingo III AV.jpg","A1AA1A","CC BY-SA 4.0"],"twingoe":["Renault Twingo E-Tech IMG 6605.jpg","Alexander Migl","CC BY-SA 4.0"],"cliow":["1993 Renault Clio Williams 2.0 16V.jpg","Rutger van der Maar","CC BY 2.0"],"clio2rs":["Renault Clio Sport 172 (13157517025).jpg","FotoSleuth","CC BY 2.0"],"clio4rs":["Marcus Ericsson test drives a Renault Clio RS 2014 001.jpg","Rune Luk","CC BY 3.0"],"golfmk2":["Volkswagen Golf GTi 16v 1.jpg","Calreyn88","CC BY-SA 4.0"],"golfmk5":["Volkswagen Golf GTI (Mk V) Washington DC Metro Area, USA.jpg","OWS Photography","CC BY 4.0"],"r32mk4":["Volkswagen Golf IV R32.jpg","TTTNIS","Public domain"],"r32mk5":["2007 Volkswagen Golf R32 Blue HCC22.jpg","MrWalkr","CC BY-SA 4.0"],"golfr7":["Volkswagen Golf VII R, TWB 2018, Friedrichshafen (OW1A0552).jpg","Matti Blume","CC BY-SA 4.0"],"mx5nb":["1998 (S) Mazda MX-5.jpg","Aboutdamnavantime.wiki","CC BY 4.0"],"mx5nc":["3rd Mazda MX-5 -- 06-14-2010.jpg","IFCAR","Public domain"],"ep3":["Honda CIVIC TYPE R (EP3) front.jpg","Tokumeigakarinoaoshima","CC0"],"fl5":["HONDA CIVIC TYPE R FL5 China (3).jpg","Dinkun Chen","CC BY-SA 4.0"],"r32gtr":["Nissan Skyline GT-R (R32) Washington DC Metro Area, USA.jpg","OWS Photography","CC BY 4.0"],"r33":["Nissan Skyline R33 GT-R 001.jpg","Tennen-Gas","CC BY-SA 3.0"],"e36":["BMW M3 Coupé (E36) Washington DC Metro Area, USA.jpg","OWS Photography","CC BY 4.0"],"e46":["BMW M3 Coupé E46 (11207042666).jpg","nakhon100","CC BY 2.0"],"e92":["BMW M3 E92 coupe track.jpg","Mikolaj Kirschke","CC BY-SA 3.0"],"f80":["2017 BMW M3 Competition 2.jpg","Calreyn88","CC BY-SA 4.0"],"t930":["Porsche 911 Turbo (Typ 930-3.3)- 6280186.jpg","Ermell","CC BY-SA 4.0"],"t993":["1997 Porsche 911 993 Turbo (57547).jpg","Calreyn88","CC BY-SA 4.0"],"t997":["Porsche 997 Turbo 2007 Gumball 3000 (2).jpg","John Griffiths","CC BY-SA 2.0"],"mustangfox":["Ford Fox Body Mustang.jpg","Michael Price","CC BY 2.0"],"mustang05":["2005 Ford Mustang GT Antonov AR500.jpg","Calreyn88","CC BY-SA 4.0"],"supraa70":["Toyota Supra (A70, pre-facelift) 1X7A2556.jpg","Alexander-93","CC BY-SA 4.0"],"minir53":["MINI R53 Hatch Cooper S Indi Blue (1).jpg","Damian B Oh","CC BY-SA 4.0"],"rs6c5":["Audi RS6 Avant C5 Mugello Blue (12).jpg","Damian B Oh","CC BY-SA 4.0"],"rs6c6":["Audi RS6 C6.jpg","smjb","CC BY 2.0"],"rs6c7":["Audi RS6 (C7) front.JPG","Tokumeigakarinoaoshima","CC0"],"sandero1":["Dacia Sandero front - PSM 2009.jpg","Michge","CC BY-SA 3.0"],"sandero2":["Dacia Sandero Stepway II (front quarter).JPG","Overlaet","CC BY-SA 3.0"]};
+// Extensions : chaque booster = une extension avec ses cartes numérotées et ses secrètes
+const EXT=[{id:'PV1',name:'Première Vitesse',test:()=>true}];
+BASES.forEach(b=>{b.ext=EXT.find(e=>e.test(b)).id;b.alt=!!PHOTO_ALT[b.key]});
+// rareté de base calculée DANS chaque extension : les moins puissantes ●, puis ◆, les plus puissantes ★
+EXT.forEach(e=>{const l=BASES.filter(b=>b.ext===e.id).sort((a,b)=>a.hp-b.hp),n=l.length,nc=Math.round(n*.5),na=Math.round(n*.3);l.forEach((b,i)=>b.br=i<nc?'C':i<nc+na?'AR':'R')});
+const BRO={C:0,AR:1,R:2};
+const CARS=[];
+EXT.forEach(e=>{
+  const list=BASES.filter(b=>b.ext===e.id).sort((a,b)=>BRO[a.br]-BRO[b.br]||a.brand.localeCompare(b.brand)||a.year-b.year);
+  e.N=list.length;
+  list.forEach((b,i)=>{b.num=i+1;(b.br==='R'?['r']:['s','h']).forEach(v=>CARS.push({...b,v,base:b.key,img:b.key,num:i+1,N:e.N,secret:false}))});
+  let n=e.N;
+  list.filter(b=>b.br!=='C').forEach(b=>CARS.push({...b,v:'f',base:b.key,img:b.key+'_fa',num:++n,N:e.N,secret:true}));
+  list.filter(b=>b.alt).forEach(b=>CARS.push({...b,v:'a',base:b.key,img:b.key+'_alt',num:++n,N:e.N,secret:true}));
+  list.filter(b=>b.mega).forEach(b=>CARS.push({...b,v:'p',base:b.key,img:b.mega,tuner:MK[b.mega].tuner,prep:MK[b.mega],num:++n,N:e.N,secret:true}));
+  e.total=n;
+});
+CARS.forEach((c,i)=>c.id=i);
+const extOf=c=>EXT.find(e=>e.id===c.ext);
+const numLabel=c=>`${c.ext} ${String(c.num).padStart(3,'0')}/${String(c.N).padStart(3,'0')}`;
+const STD={};CARS.forEach(c=>{if(c.v==='s'||c.v==='r')STD[c.base]=c.id});
+const CARDID={};CARS.forEach(c=>CARDID[c.base+':'+c.v]=c.id);
+// rang de rareté : ● C, ● holo, ◆ AR, ◆ holo, ★ Rare, ★★ Full Art, ★★★ Alt, ♛ Prépa
+const RANKV={f:5,a:6,p:7};
+const cardRank=c=>c.v==='s'||c.v==='h'?(c.br==='C'?0:2)+(c.v==='h'?1:0):c.v==='r'?4:RANKV[c.v];
+const COUNTRY={FR:['🇫🇷','France'],DE:['🇩🇪','Allemagne'],IT:['🇮🇹','Italie'],JP:['🇯🇵','Japon'],US:['🇺🇸','États-Unis'],GB:['🇬🇧','Royaume-Uni'],SE:['🇸🇪','Suède'],HR:['🇭🇷','Croatie'],RO:['🇷🇴','Roumanie']};
+const STATS=[{k:'hp',label:'Puissance',short:'Puissance',unit:'ch',hi:true},{k:'vmax',label:'Vitesse max',short:'V. max',unit:'km/h',hi:true},{k:'acc',label:'0-100 km/h',short:'0-100',unit:'s',hi:false},{k:'kg',label:'Poids',short:'Poids',unit:'kg',hi:false}];
+const RANGE={};STATS.forEach(s=>{const v=CARS.map(c=>c[s.k]);RANGE[s.k]={min:Math.min(...v),max:Math.max(...v)}});
+function norm(c,k){const s=STATS.find(x=>x.k===k),r=RANGE[k];let n=k==='hp'?Math.log(c[k]/r.min)/Math.log(r.max/r.min):(c[k]-r.min)/(r.max-r.min);return s.hi?n:1-n}
+function power(c){return STATS.reduce((a,s)=>a+norm(c,s.k),0)}
+// valeurs par rang de rareté (● ●holo ◆ ◆holo ★ ★★ ★★★ ♛). Un booster revendu en doublons rapporte moins que son prix.
+const COTE=[2,5,4,10,18,110,240,700],DUP=[1,3,2,6,12,60,120,300];
+function cote(c){return Math.max(1,Math.round(COTE[cardRank(c)]*(0.7+power(c)/4*0.8)))}
+const dupVal=c=>DUP[cardRank(c)];
+
+// Boosters & produits scellés
+// emplacements holo 7, 8, 9 : chance d'être remplacés par une secrète (♛ = rareté « gold »)
+const PV1={name:'Première Vitesse',ext:'PV1',ar:.35,hs:[{},{F:.03,A:.015},{F:.06,A:.03,P:.007}]};
+const BOOST={
+ classique:PV1,premium:PV1,retro:PV1
+};
+const PROD={
+ bc:{name:'Booster Première Vitesse',desc:'10 cartes · 6 non holo, 3 holo, 1 ★',b:'classique',cost:70,base:100},
+ dc:{name:'Display Première Vitesse',desc:'Boîte scellée de 10 boosters',contains:{bc:10},cost:650,base:950},
+ cp:{name:'Coffret Première Vitesse',desc:'4 boosters dans un coffret collector',contains:{bc:4},cost:300,base:440}
+};
+const FREE_MS=5*3600*1000,FREE_MAX=2;
+const GEM_PRICE={classique:10,premium:10,retro:10};
+const ptCost=c=>[35,50,70,100,150,400,700,1000][cardRank(c)];
+const PACKS=[{type:'classique',name:'Première Vitesse',sub:'Couverture GR Yaris',img:'gryaris',cls:'pk-c'},{type:'premium',name:'Première Vitesse',sub:'Couverture Chiron',img:'chiron',cls:'pk-p'},{type:'retro',name:'Première Vitesse',sub:'Couverture F40',img:'f40',cls:'pk-r'}];
+const GEM_OFFERS=[{g:60,p:.99},{g:330,p:4.99,b:'+10 %'},{g:700,p:9.99,b:'+17 %'},{g:1500,p:19.99,b:'+25 %',best:1},{g:4000,p:49.99,b:'+33 %'}];
+
+// =====================================================================
+// SAUVEGARDE
+// =====================================================================
+const SKEY='gc_save_v8';
+function fresh(){return{gems:50,points:0,freeStock:2,iap:[],coins:300,owned:{},inv:{bc:2},freeAt:0,wins:0,losses:0,draws:0,packs:0,shelf:[],vitrine:[],rep:10,open:true,sales:0,revenue:0,spent:0,mkt:{bc:1,bp:1,br:1,dc:1,cp:1},mktPrev:{bc:1,bp:1,br:1,dc:1,cp:1},log:[],quizOk:0,quizN:0,nextCust:0}}
+function load(){try{const s=JSON.parse(localStorage.getItem(SKEY)||'null');if(s)return Object.assign(fresh(),s)}catch(e){}return null}
+let S=load();
+if(!S){S=fresh();try{const o=JSON.parse(localStorage.getItem('gc_save_v7')||localStorage.getItem('gc_save_v6')||localStorage.getItem('gc_save_v5')||localStorage.getItem('gc_save_v4')||localStorage.getItem('gc_save_v3')||localStorage.getItem('gc_save_v2')||'null');if(o){['gems','coins','points','freeStock','freeAt','iap','wins','losses','draws','quizOk','quizN','rep','sales','revenue','spent'].forEach(k=>{if(o[k]!=null)S[k]=o[k]});if(o.inv){S.inv=o.inv;delete S.inv.cp}}}catch(e){}}
+if(S.freeStock==null){S.freeStock=S.freeAt&&S.freeAt>Date.now()?0:1;S.freeAt=S.freeStock<FREE_MAX?Date.now()+FREE_MS:0}
+// anciens produits (Hypercars / Légendes) convertis en boosters Première Vitesse
+['bp','br'].forEach(k=>{if(S.inv[k]){S.inv.bc=(S.inv.bc||0)+S.inv[k];delete S.inv[k]}});S.shelf=(S.shelf||[]).filter(x=>PROD[x.pid]);
+try{for(let v=2;v<8;v++)localStorage.removeItem('gc_save_v'+v)}catch(e){}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}}
+const cnt=id=>S.owned[id]||0;
+
+// =====================================================================
+// VISUELS
+// =====================================================================
+function fmt(s,v){return s.k==='acc'?v.toFixed(1).replace('.',',')+' s':v.toLocaleString('fr-FR')+' '+s.unit}
+const nf=n=>Math.round(n).toLocaleString('fr-FR');
+const symOf=c=>({p:'♛',a:'★★★',f:'★★',r:'★'})[c.v]||(c.br==='C'?'●':'◆');
+function cardHTML(c,o={}){
+  if(o.locked)return `<div class="card rar-${c.rar} var-${c.v} locked"><div class="in"><div class="ct"><span class="brand">???</span><span class="model">???</span></div><div class="art"><img src="img/${c.img}.webp" alt="" loading="lazy" class="mystery"></div><div class="lockq">?</div><div class="cf"><span class="sym">${symOf(c)}</span><span class="num">${numLabel(c)}</span></div></div></div>`;
+  const rows=STATS.map(s=>{const cl=['stat'];if(o.clickable)cl.push('clickable');if(o.hl&&o.hl.stat===s.k)cl.push(o.hl.res);return `<div class="${cl.join(' ')}" data-stat="${s.k}" title="${s.label}"><span>${s.short}</span><b>${fmt(s,c[s.k])}</b></div>`}).join('');
+  const badge=o.count>1?`<div class="cnt">x${o.count}</div>`:'';
+  const fa=c.v==='f'||c.v==='a'||c.v==='p',src=`img/${c.img}.webp`;
+  const pv=PREV[c.base],evoLine=c.v==='p'?`<span class="evof">Mise en scène : préparation ${c.tuner}</span>`:pv?`<span class="evof">Évolution de ${MK[pv].model}</span>`:'';
+  const head=`<div class="ct"><span class="brand">${c.brand}</span><span class="model" title="${c.model}">${c.model}</span>${evoLine}</div>`;
+  const foot=`<div class="cf"><span class="sym">${symOf(c)}</span><span class="num">${numLabel(c)}</span></div>`;
+  const inner=fa?`<div class="fa-bg" style="background-image:url(${src})"></div><div class="fa-img"><img src="${src}" alt="${c.brand} ${c.model}" decoding="async"${o.lazy?' loading="lazy"':''}></div>${head}<div class="fa-space"></div><div class="statbox">${rows}</div>${foot}`
+    :`${head}<div class="art"><img src="${src}" alt="${c.brand} ${c.model}" decoding="async"${o.lazy?' loading="lazy"':''}><div class="ah"></div></div><div class="statbox">${rows}</div>${foot}`;
+  return `<div class="card rar-${c.rar} var-${c.v}${fa?' fa':''}">${badge}<div class="in">${inner}</div><div class="holo"></div><div class="sparkle"></div><div class="glare"></div></div>`;
+}
+const BACK=`<div class="card back-card"><div class="in"><div class="gc">G<span>C</span></div></div></div>`;
+
+// =====================================================================
+// UTILITAIRES
+// =====================================================================
+const $=s=>document.querySelector(s);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400)}
+const ownedCount=()=>CARS.filter(c=>cnt(c.id)).length;
+const curTab=()=>document.querySelector('nav button.on').dataset.tab;
+function updateHUD(){
+  $('#hudCoins').textContent='🪙 '+nf(S.coins);
+  $('#hudGems').textContent='💎 '+nf(S.gems)+'  +';
+  $('#hudPts').textContent='✦ '+nf(S.points);
+  $('#hudCol').textContent='🚗 '+ownedCount()+'/'+CARS.length;
+  tick();
+}
+function regen(){const now=Date.now();if(S.freeStock>=FREE_MAX){S.freeAt=0;return}if(!S.freeAt)S.freeAt=now+FREE_MS;while(S.freeStock<FREE_MAX&&now>=S.freeAt){S.freeStock++;S.freeAt+=FREE_MS}if(S.freeStock>=FREE_MAX)S.freeAt=0}
+function fmtShort(ms){const h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000);return h?`${h} h ${String(m).padStart(2,'0')} min`:`${m} min ${String(s).padStart(2,'0')} s`}
+function tick(){
+  const before=S.freeStock;regen();if(S.freeStock!==before)save();
+  if(!$('#freeTxt'))return;
+  $('#freeTxt').textContent=`${S.freeStock} / ${FREE_MAX} booster${S.freeStock>1?'s':''} gratuit${S.freeStock>1?'s':''}`;
+  const full=S.freeStock>=FREE_MAX,left=full?0:S.freeAt-Date.now();
+  $('#freeBar').style.width=(full?100:Math.max(0,Math.min(100,(1-left/FREE_MS)*100)))+'%';
+  $('#freeSub').textContent=full?'Réserve pleine : ouvre-les pour relancer le chrono !':`+1 booster gratuit dans ${fmtShort(left)}`;
+  $('#openFree').disabled=S.freeStock<1;
+  $('#openFree').textContent=S.freeStock>0?'Ouvrir gratuitement':'Prochain gratuit dans '+fmtShort(left);
+  $('#openGem').textContent=`Ouvrir ×1 — 💎 ${GEM_PRICE[selPack]}`;
+  $('#openGem10').textContent=`Ouvrir ×5 — 💎 ${GEM_PRICE[selPack]*5}`;
+  $('#openFree2').style.display=S.freeStock>=2?'':'none';
+}
+function rerender(){updateHUD();const t=curTab();if(t==='ouvrir')renderOpen();if(t==='garage')renderGarage();if(t==='boutique')renderShop();if(t==='duel'&&!duel)renderDuel()}
+
+// =====================================================================
+// CARTE 3D PIVOTABLE
+// =====================================================================
+function viewerHTML(front,extra=''){return `<div class="v3d ${extra}"><div class="v3d-card">${[-4,-3,-2,-1,0,1,2,3,4].map(z=>`<div class="edge" style="transform:translateZ(${z}px)"></div>`).join('')}<div class="v-front">${front}</div></div></div>`}
+// La carte s'incline vers la souris / le doigt (on voit sa tranche). Option onSwipe : glisser pour la jeter.
+function mountViewer(root,opt={}){
+  const card=root.querySelector('.v3d-card'),inner=root.querySelector('.v-front .card'),MAX=30;
+  let rx=0,ry=0,trx=0,tRy=0,tx=0,ttx=0,drag=false,x0=0,y0=0,moved=0,gone=false;
+  function aim(e){const r=card.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    tRy=Math.max(-1,Math.min(1,x*2.2))*MAX;trx=-Math.max(-1,Math.min(1,y*2.2))*MAX*.75}
+  function loop(){
+    if(!root.isConnected)return;
+    rx+=(trx-rx)*.14;ry+=(tRy-ry)*.14;tx+=(ttx-tx)*(gone?.22:.25);
+    card.style.transform=`translateX(${tx.toFixed(1)}px) rotateZ(${(tx/22).toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+    if(inner){inner.style.setProperty('--mx',(50+ry/MAX*55).toFixed(1)+'%');inner.style.setProperty('--my',(50-rx/(MAX*.75)*55).toFixed(1)+'%');const o=Math.min(1,(Math.abs(rx)+Math.abs(ry))/18);inner.style.setProperty('--o',o.toFixed(2));inner.classList.toggle('lit',o>.03)}
+    requestAnimationFrame(loop)}
+  function fling(dir){if(gone)return;gone=true;ttx=dir*(window.innerWidth||900);tRy=dir*35;setTimeout(()=>opt.onSwipe&&opt.onSwipe(dir),280)}
+  root.addEventListener('pointermove',e=>{aim(e);if(!drag||gone)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));if(opt.onSwipe)ttx=dx});
+  root.addEventListener('pointerdown',e=>{if(gone)return;drag=true;x0=e.clientX;y0=e.clientY;moved=0;aim(e);try{root.setPointerCapture(e.pointerId)}catch(_){}});
+  const up=e=>{if(!drag)return;drag=false;
+    if(opt.onSwipe&&Math.abs(ttx)>80)fling(Math.sign(ttx));
+    else{ttx=0;if(opt.onSwipe&&moved<8&&e.type==='pointerup')fling(-1)}
+    if(e.pointerType&&e.pointerType!=='mouse'){trx=0;tRy=0}};
+  root.addEventListener('pointerup',up);root.addEventListener('pointercancel',up);
+  root.addEventListener('pointerleave',()=>{if(!drag){trx=0;tRy=0}});
+  requestAnimationFrame(loop);
+  return{fling};
+}
+
+// =====================================================================
+// OUVERTURE FAÇON TCG MOBILE
+// =====================================================================
+const TOUCH=!!(window.matchMedia&&matchMedia('(hover:none)').matches);
+let OP=null;
+function startOpening(type,title,count=1){
+  let items=[];
+  for(let k=0;k<count;k++){const r=rollBooster(type);items.push(...r.res.map(x=>({kind:'car',c:x.c,isNew:x.isNew,pack:k})))}
+  items.forEach(it=>{const im=new Image();im.src='img/'+it.c.img+'.webp'});
+  OP={type,count,title:title||(count>1?`${count} boosters ${BOOST[type].name}`:'Booster '+BOOST[type].name),items,i:0,stage:'pack',revealed:false,busy:false};
+  updateHUD();document.body.classList.add('opening');window.scrollTo(0,0);renderOpener();$('#opener').classList.remove('hidden');
+}
+const itRar=it=>({p:'P',a:'L',f:'L',r:'E'})[it.c.v]||null;
+const isRareItem=it=>!!itRar(it);
+function renderOpener(){
+  const o=$('#opener'),p=PACKS.find(x=>x.type===OP.type)||PACKS[0];
+  if(OP.stage==='pack'){
+    o.innerHTML=`<div class="op-title">${OP.title}</div>
+      <div class="tearwrap ${OP.count>1?'multi':''}" id="tw">${OP.count>1?`<div class="ghostpack g2">${packHTML(p,'big')}</div><div class="ghostpack g1">${packHTML(p,'big')}</div><div class="xbadge">×${OP.count}</div>`:''}<div class="piece top">${packHTML(p,'big')}</div><div class="piece body">${packHTML(p,'big')}</div><div class="tearline"><i id="cut"></i></div></div>
+      <div class="op-hint">Glisse le doigt le long de la ligne pour déchirer ✂️</div>
+      <button class="link" id="tearTap">ou touche ici pour ouvrir</button>`;
+    const tw=$('#tw');let x0=null,minX=0,maxX=0;
+    tw.onpointerdown=e=>{x0=e.clientX;minX=maxX=e.clientX;tw.setPointerCapture(e.pointerId)};
+    tw.onpointermove=e=>{if(x0==null)return;minX=Math.min(minX,e.clientX);maxX=Math.max(maxX,e.clientX);const w=tw.getBoundingClientRect().width,pr=Math.min(1,(maxX-minX)/(w*.6));$('#cut').style.width=(pr*100)+'%';if(pr>=1){x0=null;tear()}};
+    tw.onpointerup=()=>{x0=null};
+    $('#tearTap').onclick=e=>{e.stopPropagation();tear()};
+    return;
+  }
+  if(OP.stage==='cards'){renderHand();return}
+  // résumé
+  const nNew=OP.items.filter(it=>it.isNew).length,nSec=OP.items.filter(it=>it.c.secret).length;
+  o.innerHTML=`<div class="op-title">${OP.count>1?`Contenu des ${OP.count} boosters`:'Contenu du booster'}</div>
+    ${OP.count>1?`<p class="mut center">${OP.items.length} cartes · ${nNew} nouvelle${nNew>1?'s':''} · ${nSec} secrète${nSec>1?'s':''} (★★ / ★★★ / ♛)</p>`:''}
+    ${Array.from({length:OP.count},(_,k)=>`${OP.count>1?`<h4 class="center">Booster ${k+1}</h4>`:''}<div class="sum">${OP.items.filter(it=>(it.pack||0)===k).map(it=>`<div class="slot">${cardHTML(it.c)}<div class="tag ${it.isNew?'new':'dup'} show">${it.isNew?'NOUVELLE':'Doublon'}</div></div>`).join('')}</div>`).join('')}
+    <p class="mut center" style="margin-top:14px">+${5*OP.count} ✦ points booster · total ${S.points} ✦ (échangeables contre la carte de ton choix dans le Garage)</p>
+    <div class="btns" style="justify-content:center"><button class="btn" id="opAgain">Ouvrir un autre booster</button><button class="btn ghost" id="opClose">Terminer</button></div>`;
+  $('#opAgain').onclick=e=>{e.stopPropagation();closeOpener();showTab('ouvrir')};
+  $('#opClose').onclick=e=>{e.stopPropagation();closeOpener()};
+}
+// ---- La « main » : toutes les cartes empilées, on swipe celle du dessus
+const faceOf=x=>cardHTML(x.c);
+function renderHand(){
+  const o=$('#opener'),n=OP.items.length;
+  o.innerHTML=`<div class="op-title">${OP.title}</div><div class="op-count" id="opCount"></div>
+    <div class="hand" id="hand"><div class="rays" id="rays"></div><div class="stack3d" id="stack3d">${OP.items.map((it,k)=>`<div class="scard" data-k="${k}" style="z-index:${n-k}"><div class="sedge" style="transform:translateZ(-1px)"></div><div class="sedge" style="transform:translateZ(-2px)"></div><div class="sface">${k<8?faceOf(it):''}</div></div>`).join('')}</div></div>
+    <div class="tagline" id="tagline"></div>
+    <div class="op-hint">${TOUCH?'Glisse la carte du dessus sur le côté, ou touche-la, pour passer à la suivante':'Bouge la souris pour incliner le paquet · glisse la carte du dessus sur le côté'}</div>
+    <button class="btn ghost sm" id="opSkip" style="margin-top:12px">Passer ⏭ voir tout</button>`;
+  $('#opSkip').onclick=e=>{e.stopPropagation();OP.stage='summary';renderOpener()};
+  const hand=$('#hand'),stack=$('#stack3d'),cards=[...stack.querySelectorAll('.scard')],MAX=26;
+  let rx=0,ry=0,trx=0,tRy=0,tx=0,drag=false,x0=0,y0=0,moved=0,flying=false;
+  function layout(){
+    cards.forEach((el,k)=>{const d=k-OP.i;if(d<0)return;const f=el.querySelector('.sface');if(d<8&&!f.innerHTML)f.innerHTML=faceOf(OP.items[k]);el.style.display=d>6?'none':'';el.style.transform=`translateZ(${-Math.min(d,6)*3.2}px)`;el.classList.toggle('top',d===0)});
+    const it0=OP.items[OP.i],pk=it0.pack||0,first=OP.items.findIndex(x=>(x.pack||0)===pk);
+    $('#opCount').textContent=OP.count>1?`Booster ${pk+1} / ${OP.count} · carte ${OP.i-first+1} / 10`:`${OP.i+1} / ${n}`;
+    const it=OP.items[OP.i],nx=OP.items[OP.i+1];
+    $('#tagline').innerHTML=`<span class="tag ${it.isNew?'new':'dup'} show pop">${it.isNew?'NOUVELLE':'Doublon · x'+cnt(it.c.id)}</span>${it.c.v==='h'?' <span class="tag hit show pop">✨ HOLO</span>':''}`;
+    hand.className='hand'+(nx&&isRareItem(nx)?' tease t-'+itRar(nx):'');
+  }
+  function reveal(){const it=OP.items[OP.i];if(!isRareItem(it))return;const r=itRar(it);
+    const rays=$('#rays');rays.className='rays on r-'+r;
+    const fl=document.createElement('div');fl.className='flash f-'+r;o.appendChild(fl);setTimeout(()=>fl.remove(),900);
+    const N={E:18,L:40,P:60,K:24}[r]||20,cols={E:['#fff','#bcd3ff'],L:['#fff','#ffd36b','#ffb11f'],P:['#ff3b5c','#ffb11f','#fff15c','#2fd27a','#33d6ff','#b04dff'],K:['#2fd27a','#fff']}[r];
+    for(let i=0;i<N;i++){const p=document.createElement('span');p.className='pt';const a=Math.random()*Math.PI*2,d=140+Math.random()*220;
+      p.style.cssText=`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;--c:${cols[i%cols.length]};animation-delay:${Math.random()*.15}s;width:${4+Math.random()*6}px;height:${4+Math.random()*6}px`;hand.appendChild(p);setTimeout(()=>p.remove(),1500)}
+    const top=cards[OP.i];top.classList.add('rare-in');setTimeout(()=>top.classList.remove('rare-in'),900);
+  }
+  function aim(e){const r=stack.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    tRy=Math.max(-1,Math.min(1,x*2.2))*MAX;trx=-Math.max(-1,Math.min(1,y*2.2))*MAX*.75}
+  function loop(){
+    if(!hand.isConnected)return;
+    rx+=(trx-rx)*.14;ry+=(tRy-ry)*.14;
+    stack.style.transform=`rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+    const top=cards[OP.i];
+    if(top&&!flying){top.style.transform=`translateZ(0) translateX(${tx.toFixed(1)}px) translateY(${(-Math.abs(tx)/12).toFixed(1)}px) rotateZ(${(tx/20).toFixed(2)}deg)`;
+      const c=top.querySelector('.card');if(c){c.style.setProperty('--mx',(50+ry/MAX*55).toFixed(1)+'%');c.style.setProperty('--my',(50-rx/(MAX*.75)*55).toFixed(1)+'%');const ov=Math.min(1,(Math.abs(rx)+Math.abs(ry))/16);c.style.setProperty('--o',ov.toFixed(2));c.classList.toggle('lit',ov>.03)}}
+    requestAnimationFrame(loop)}
+  function fling(dir){
+    if(flying)return;flying=true;const top=cards[OP.i];
+    top.style.transition='transform .35s cubic-bezier(.4,0,.6,1),opacity .35s';
+    top.style.transform=`translateZ(30px) translateX(${dir*900}px) translateY(-80px) rotateZ(${dir*35}deg)`;top.style.opacity='0';
+    setTimeout(()=>{top.style.display='none';tx=0;OP.i++;flying=false;
+      if(OP.i>=n){OP.stage='summary';renderOpener();return}
+      layout();reveal()},330);
+  }
+  hand.addEventListener('pointermove',e=>{aim(e);if(!drag||flying)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));tx=dx});
+  hand.addEventListener('pointerdown',e=>{if(flying)return;drag=true;x0=e.clientX;y0=e.clientY;moved=0;aim(e);try{hand.setPointerCapture(e.pointerId)}catch(_){}});
+  const up=e=>{if(!drag)return;drag=false;if(Math.abs(tx)>80)fling(Math.sign(tx));else{tx=0;if(moved<8&&e.type==='pointerup')fling(-1)}
+    if(e.pointerType&&e.pointerType!=='mouse'){trx=0;tRy=0}};
+  hand.addEventListener('pointerup',up);hand.addEventListener('pointercancel',up);
+  hand.addEventListener('pointerleave',()=>{if(!drag){trx=0;tRy=0}});
+  layout();reveal();requestAnimationFrame(loop);
+}
+function tear(){
+  if(OP.stage!=='pack'||OP.busy)return;OP.busy=true;
+  const best=OP.items.reduce((m,it)=>Math.max(m,it.c.v==='p'||it.c.v==='a'?4:it.c.v==='f'?3:0),0),tw=$('#tw');
+  if(best>=3){tw.classList.add('rumble',best>=4?'best-P':'best-L');$('.op-hint').textContent='… il se passe quelque chose !'}
+  setTimeout(()=>{tw.classList.add('torn');setTimeout(()=>{OP.busy=false;OP.stage='cards';renderOpener()},850)},best>=3?900:0);
+}
+function closeOpener(){$('#opener').classList.add('hidden');document.body.classList.remove('opening');OP=null;rerender()}
+
+
+// =====================================================================
+// BOUTIQUE DE GEMMES (achats SIMULÉS — aucun paiement réel)
+// =====================================================================
+const euro=p=>p.toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
+function openGemShop(msg){
+  const m=$('#gemModal');
+  m.innerHTML=`<div class="gemshop"><button class="x" onclick="closeGem()">×</button>
+    <h3>💎 Boutique de gemmes</h3>
+    <div class="testband">MODE TEST — achats simulés, aucun paiement réel n’est effectué</div>
+    ${msg?`<p class="mut" style="margin:8px 0 0">${msg}</p>`:''}
+    <p class="mut" style="margin:8px 0 12px">Les gemmes servent à ouvrir des boosters sans attendre : 💎 ${GEM_PRICE.classique} le booster, 💎 ${GEM_PRICE.classique*5} les 5.</p>
+    <div class="offers">${GEM_OFFERS.map((o,i)=>`<button class="offer ${o.best?'best':''}" onclick="paySheet(${i})">${o.best?'<span class="ribbon">Meilleure offre</span>':''}<div class="gem-ic" style="font-size:${26+i*6}px">💎</div><b>${nf(o.g)}</b>${o.b?`<small class="bonus">${o.b}</small>`:'<small>&nbsp;</small>'}<span class="price">${euro(o.p)}</span></button>`).join('')}</div>
+    <p class="mut" style="margin:12px 0 0;font-size:12px">Achats simulés jusqu’ici : ${S.iap.length} · ${euro(S.iap.reduce((a,x)=>a+x.p,0))}</p>
+  </div>`;
+  m.classList.remove('hidden');m.onclick=e=>{if(e.target===m)closeGem()};
+}
+function closeGem(){$('#gemModal').classList.add('hidden');rerender()}
+function paySheet(i){
+  const o=GEM_OFFERS[i],g=$('#gemModal .gemshop');
+  g.innerHTML=`<button class="x" onclick="openGemShop()">×</button><h3>Confirmer l’achat</h3>
+    <div class="testband">MODE TEST — aucun paiement réel</div>
+    <div class="paybox"><div class="gem-ic" style="font-size:44px">💎</div><div><b style="font-size:20px">${nf(o.g)} gemmes</b><div class="mut" style="margin:0">Garage Clash</div></div><div class="price big">${euro(o.p)}</div></div>
+    <div class="kv"><span>Moyen de paiement</span><b>Simulation (mode test)</b></div>
+    <div class="kv"><span>Total</span><b>${euro(o.p)}</b></div>
+    <button class="btn" style="width:100%;margin-top:16px" id="payBtn">Payer ${euro(o.p)}</button>`;
+  $('#payBtn').onclick=()=>{
+    $('#payBtn').disabled=true;$('#payBtn').innerHTML='<span class="spin"></span> Paiement en cours…';
+    setTimeout(()=>{
+      S.gems+=o.g;S.iap.push({g:o.g,p:o.p,at:Date.now()});save();updateHUD();
+      g.innerHTML=`<div class="paid"><div class="check">✓</div><h3>Achat validé !</h3><p class="mut">+${nf(o.g)} 💎 ajoutées · solde : ${nf(S.gems)} 💎</p><p class="mut" style="font-size:12px">Simulation : aucun montant n’a été débité.</p><button class="btn" onclick="closeGem()">Super !</button></div>`;
+    },1300);
+  };
+}
+
+// Inclinaison 3D + reflets qui suivent la souris
+let tiltCard=null;
+function untilt(c){c.classList.remove('active');c.style.removeProperty('--rx');c.style.removeProperty('--ry');c.style.removeProperty('--mx');c.style.removeProperty('--my')}
+document.addEventListener('pointermove',e=>{
+  let c=e.target.closest&&e.target.closest('.card:not(.locked):not(.back-card)');if(c&&c.closest('.v3d'))c=null;
+  if(tiltCard&&tiltCard!==c){untilt(tiltCard);tiltCard=null}
+  if(!c)return;tiltCard=c;
+  const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+  c.classList.add('active');
+  c.style.setProperty('--mx',(x*100).toFixed(1)+'%');c.style.setProperty('--my',(y*100).toFixed(1)+'%');
+  c.style.setProperty('--ry',((x-.5)*22).toFixed(1)+'deg');c.style.setProperty('--rx',((.5-y)*22).toFixed(1)+'deg');
+},{passive:true});
+document.addEventListener('pointerleave',()=>{if(tiltCard){untilt(tiltCard);tiltCard=null}});
+
+// Onglets
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function showTab(t){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t));({ouvrir:renderOpen,garage:renderGarage,boutique:renderShop,duel:renderDuel,academie:renderAcademy})[t]();window.scrollTo({top:0})}
+
+// =====================================================================
+// BOOSTERS
+// =====================================================================
+
+function pickFrom(ext,pred){const p=CARS.filter(c=>(ext==null||c.ext===ext)&&pred(c));return p.length?p[Math.floor(Math.random()*p.length)]:null}
+// Structure d'un booster : 6 non holo (● ◆) · 3 holo (● ◆) · 1 emplacement Rare (★, ou ★★ / ★★★ / ♛)
+function holoSlot(u){const x=Math.random(),P=u.P||0,A=u.A||0,F=u.F||0;return x<P?'p':x<P+A?'a':x<P+A+F?'f':'h'}
+const slotProb=(B,k)=>1-B.hs.reduce((m,u)=>m*(1-(u[k]||0)),1);
+// pour le duel : une carte au hasard d'un niveau donné (version standard)
+function randomOf(r,filter=()=>true,excl=[]){const base=c=>c.v==='s'||c.v==='r';let p=CARS.filter(c=>base(c)&&c.rar===r&&filter(c)&&!excl.includes(c.id));if(!p.length)p=CARS.filter(c=>base(c)&&c.rar===r);return p[Math.floor(Math.random()*p.length)]}
+function openBooster(type,title){startOpening(type,title)}
+function rollBooster(type){
+  const B=BOOST[type];
+  const cards=[];
+  for(let i=0;i<6;i++){const br=Math.random()<B.ar?'AR':'C';cards.push(pickFrom(B.ext,c=>c.v==='s'&&c.br===br))}
+  for(let i=0;i<3;i++){const v=holoSlot(B.hs[i]);const br=Math.random()<B.ar?'AR':'C';cards.push(v==='h'?pickFrom(B.ext,c=>c.v==='h'&&c.br===br):(pickFrom(B.ext,c=>c.v===v)||pickFrom(B.ext,c=>c.v==='f')))}
+  cards.push(pickFrom(B.ext,c=>c.v==='r'));
+  const res=cards.map(c=>{const isNew=!cnt(c.id);S.owned[c.id]=cnt(c.id)+1;return{c,isNew}});
+  S.packs++;S.points+=5;save();
+  return{res};
+}
+let selPack='classique';
+function packHTML(p,extra=''){return `<div class="bpack ${p.cls} ${extra}" data-type="${p.type}"><div class="bp-top"></div><div class="bp-art"><img src="img/${p.img}.webp" alt=""></div><div class="bp-name">GARAGE<span>CLASH</span></div><div class="bp-sub">${p.name}</div><div class="bp-tag">${p.sub}</div><div class="bp-shine"></div></div>`}
+function renderPacks(){
+  $('#packs').innerHTML=PACKS.map(p=>packHTML(p,p.type===selPack?'sel':'')).join('');
+  $('#packs').querySelectorAll('.bpack').forEach(el=>el.onclick=()=>{selPack=el.dataset.type;renderPacks();tick()});
+  const B=BOOST[selPack],pc=x=>(x*100).toLocaleString('fr-FR',{maximumFractionDigits:1});$('#packInfo').textContent=`Extension ${B.name} · 10 cartes : 6 non holo, 3 holo, 1 ★ · par booster : ★★ ${pc(slotProb(B,'F'))} % · ★★★ ${pc(slotProb(B,'A'))} % · ♛ ${pc(slotProb(B,'P'))} % (≈ 1 tous les ${Math.round(1/slotProb(B,'P'))} boosters) · +5 ✦`;
+}
+$('#openFree').onclick=()=>{regen();if(S.freeStock<1)return;S.freeStock--;if(!S.freeAt)S.freeAt=Date.now()+FREE_MS;startOpening(selPack,'Booster '+BOOST[selPack].name+' (gratuit)')};
+$('#openGem').onclick=()=>{const p=GEM_PRICE[selPack];if(S.gems<p){openGemShop(`Il te manque ${p-S.gems} 💎 pour ce booster.`);return}S.gems-=p;startOpening(selPack)};
+$('#openGem10').onclick=()=>{const p=GEM_PRICE[selPack]*5;if(S.gems<p){openGemShop(`Il te manque ${p-S.gems} 💎 pour 5 boosters.`);return}S.gems-=p;startOpening(selPack,null,5)};
+$('#openFree2').onclick=()=>{regen();if(S.freeStock<2)return;S.freeStock-=2;if(!S.freeAt)S.freeAt=Date.now()+FREE_MS;startOpening(selPack,'2 boosters '+BOOST[selPack].name+' (gratuits)',2)};
+function openAll(pid){const n=Math.min(S.inv[pid]||0,5);if(!n)return;S.inv[pid]-=n;if(!S.inv[pid])delete S.inv[pid];startOpening(PROD[pid].b,null,n)}
+function openItem(pid){
+  if(!S.inv[pid])return;const P=PROD[pid];S.inv[pid]--;if(!S.inv[pid])delete S.inv[pid];
+  if(P.b){openBooster(P.b);return}
+  Object.entries(P.contains).forEach(([k,n])=>S.inv[k]=(S.inv[k]||0)+n);
+  save();rerender();toast(P.name+' déballé : '+Object.entries(P.contains).map(([k,n])=>n+' × '+PROD[k].name).join(', '));
+}
+
+function renderOpen(){
+  renderPacks();tick();
+  const items=Object.entries(S.inv).filter(([,n])=>n>0);
+  $('#invOpen').innerHTML=items.length?items.map(([pid,n])=>`<div class="item"><div class="pic ${pid}"></div><div><div class="nm">${PROD[pid].name}</div><small>${PROD[pid].desc}</small></div><div class="q"><div style="font-weight:700;margin-bottom:6px">x${n}</div><button class="btn sm" onclick="openItem('${pid}')">${PROD[pid].b?'Ouvrir':'Déballer'}</button>${PROD[pid].b&&n>1?`<button class="btn sm ghost" style="margin-top:6px" onclick="openAll('${pid}')">Ouvrir ×${Math.min(n,5)}</button>`:''}</div></div>`).join(''):`<div class="empty" style="grid-column:1/-1">Aucun produit scellé. Achète-en chez le grossiste dans l’onglet Boutique.</div>`;
+  const pAtLeast=(p,n)=>1-Math.pow(1-p,n);
+  const pct=x=>(x*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';
+  const B=BOOST.classique,pr=k=>pct(slotProb(B,k));
+  $('#oddsTable').innerHTML=`<tr><th>Emplacement</th><th>Carte</th><th>★★</th><th>★★★</th><th>♛</th></tr>
+   <tr><td>1 à 6</td><td>● ou ◆ non holo</td><td>—</td><td>—</td><td>—</td></tr>
+   ${B.hs.map((u,i)=>`<tr><td>${7+i}</td><td>● ou ◆ holo</td><td>${u.F?pct(u.F):'—'}</td><td>${u.A?pct(u.A):'—'}</td><td>${u.P?pct(u.P):'—'}</td></tr>`).join('')}
+   <tr><td>10</td><td>★</td><td>—</td><td>—</td><td>—</td></tr>
+   <tr><td><b>Par booster</b></td><td></td><td><b>${pr('F')}</b></td><td><b>${pr('A')}</b></td><td><b>${pr('P')}</b><br><small class="mut">≈ 1 tous les ${Math.round(1/slotProb(B,'P'))} boosters</small></td></tr>`;
+  const pP=slotProb(B,'P');
+  $('#oddsEdu').innerHTML=`<b>« 1 tous les ${Math.round(1/pP)} boosters » ne veut pas dire « garanti en ${Math.round(1/pP)} boosters ».</b> Chaque booster est un tirage indépendant. La chance de ne <i>pas</i> avoir de ♛ en ${Math.round(1/pP)} boosters vaut (1 − ${(pP*100).toLocaleString('fr-FR',{maximumFractionDigits:2})} %)<sup>${Math.round(1/pP)}</sup> ≈ ${Math.round(Math.pow(1-pP,Math.round(1/pP))*100)} % : environ une personne sur trois n’en aura toujours pas !<br><b>Un booster = 10 cartes :</b> 6 non holo, 3 holo (les « hits », qui peuvent être remplacés par une secrète) et 1 ★. Les raretés : ● et ◆ (non holo ou holo), ★ toujours holo, puis les secrètes ★★ Full Art, ★★★ Alt et ♛ Prépa, numérotées au-delà du total de l’extension.`;
+}
+
+// =====================================================================
+// GARAGE + FICHE
+// =====================================================================
+let gFilter='all';
+document.querySelectorAll('.f').forEach(b=>b.onclick=()=>{gFilter=b.dataset.f;document.querySelectorAll('.f').forEach(x=>x.classList.toggle('on',x===b));renderGarage()});
+$('#sort').onchange=renderGarage;
+function renderGarage(){
+  const n=ownedCount();$('#colTxt').textContent=`${n} carte${n>1?'s':''} sur ${CARS.length} · `+EXT.map(e=>`${e.name} ${CARS.filter(c=>c.ext===e.id&&cnt(c.id)).length}/${CARS.filter(c=>c.ext===e.id).length}`).join(' · ');$('#colBar').style.width=(n/CARS.length*100)+'%';
+  const [fk,fv]=gFilter.split(':');
+  let list=CARS.filter(c=>gFilter==='all'||(gFilter==='mine'?cnt(c.id):fk==='v'?c.v===fv:fk==='k'?(c.br===fv&&(c.v==='s'||c.v==='h')):c.ext===fv));
+  const k=$('#sort').value;
+  list.sort((a,b)=>k==='rar'?(cardRank(b)-cardRank(a))||(b.hp-a.hp):k==='hp'?b.hp-a.hp:k==='year'?a.year-b.year:k==='car'?a.base.localeCompare(b.base)||cardRank(a)-cardRank(b):k==='num'?EXT.findIndex(e=>e.id===a.ext)-EXT.findIndex(e=>e.id===b.ext)||a.num-b.num||cardRank(a)-cardRank(b):a.brand.localeCompare(b.brand));
+  if(k==='rar'||k==='hp')list.sort((a,b)=>(cnt(b.id)?1:0)-(cnt(a.id)?1:0));
+  $('#garageGrid').innerHTML=list.map(c=>`<div class="clk" data-id="${c.id}">${cnt(c.id)?cardHTML(c,{count:cnt(c.id),lazy:true}):cardHTML(c,{locked:true})}</div>`).join('')||'<div class="empty" style="grid-column:1/-1">Rien ici pour l’instant.</div>';
+  $('#garageGrid').querySelectorAll('.clk').forEach(el=>el.onclick=()=>openDetail(+el.dataset.id));
+}
+function chainOf(c){
+  let root=c.base;while(PREV[root])root=PREV[root];
+  const line=[];let k=root;while(k){line.push(MK[k]);k=MK[k].evo}
+  return line;
+}
+function openDetail(id){
+  const c=CARS[id],own=cnt(id),m=$('#detailModal'),pc=ptCost(c);
+  const line=chainOf(c);
+  const node=n=>{const sid=STD[n.key];return `<span class="node ${cnt(sid)?'own':''} ${n.key===c.base?'cur':''}" onclick="openDetail(${sid})">${n.brand} ${n.model} <small>${n.year}</small></span>`};
+  let chainH=line.length>1?line.map(node).join(' <span class="arr">→</span> '):'<span class="mut" style="margin:0">Pas d’autre génération dans le jeu pour l’instant.</span>';
+  const versions=VORDER.map(v=>CARDID[c.base+':'+v]).filter(x=>x!=null).map(i=>{const x=CARS[i];return `<span class="node ${cnt(i)?'own':''} ${i===id?'cur':''}" onclick="openDetail(${i})">${symOf(x)}${x.v==='h'?' holo':''} <small>${String(x.num).padStart(3,'0')}/${String(x.N).padStart(3,'0')}</small></span>`}).join(' ');
+  const ptBtn=`<button class="btn ${own?'ghost':''}" ${S.points>=pc?'':'disabled'} onclick="buyWithPoints(${id})">✦ ${own?'Obtenir un exemplaire':'La débloquer'} avec ${pc} points booster</button><div class="req">Tu as ${S.points} ✦ (+5 par booster ouvert)</div>`;
+  if(!own){
+    m.innerHTML=`<div class="detail"><button class="x" onclick="closeDetail()">×</button><div>${cardHTML(c,{locked:true})}</div><div><h3>Carte non découverte</h3><p class="mut">${symOf(c)} · extension ${extOf(c).name} n°${numLabel(c).split(' ')[1]}${c.secret?' (secrète)':''}. Ouvre des boosters ${extOf(c).name} pour la trouver.</p><h4>Versions de cette voiture</h4><div class="chain">${versions}</div><div class="actions">${ptBtn}</div></div></div>`;
+    m.classList.remove('hidden');m.onclick=e=>{if(e.target===m)closeDetail()};return;
+  }
+  let acts=ptBtn;
+  if(own>=2){
+    acts+=`<button class="btn ghost" ${S.vitrine.length<8?'':'disabled'} onclick="toVitrine(${id})">🏪 Mettre un exemplaire en vitrine (cote ${cote(c)} 🪙)</button>`;
+    acts+=`<button class="btn ghost" onclick="sellDup(${id})">💱 Revendre un doublon au grossiste (+${dupVal(c)} 🪙)</button>`;
+  }
+  const ctry=COUNTRY[c.cc];
+  m.innerHTML=`<div class="detail"><button class="x" onclick="closeDetail()">×</button><div>${viewerHTML(cardHTML(c,{count:own}))}<div class="req center">${TOUCH?'Touche la carte pour l’incliner':'Bouge la souris sur la carte pour l’incliner'}</div></div><div>
+   <h3>${c.brand} ${c.model}</h3>
+   <div class="mut" style="margin:0">${ctry[0]} ${ctry[1]} · ${c.year} · ${symOf(c)}${c.v==='h'?' holo':''} · ${extOf(c).name} n°${numLabel(c).split(' ')[1]}${c.secret?' (secrète)':''}</div>${c.v==='a'?`<div class="fact"><b>Mise en scène ★★★ :</b> la voiture en action (rallye, piste, drift ou photo historique).</div>`:''}${c.v==='p'?`<div class="fact"><b>Mise en scène Prépa :</b> la photo montre la version préparée par ${c.tuner} (${c.prep.brand} ${c.prep.model}, ${c.prep.hp} ch). ${c.prep.fact}</div>`:''}
+   <div class="fact"><b>Le saviez-vous ?</b> ${c.fact}</div>
+   <div class="credit">📷 ${photoCredit(c)}</div>
+   <div class="kv"><span>Rapport poids/puissance</span><b>${(c.kg/c.hp).toFixed(1).replace('.',',')} kg/ch</b></div>
+   <div class="kv"><span>Cote estimée (à l’unité)</span><b>${cote(c)} 🪙</b></div>
+   <div class="kv"><span>Exemplaires</span><b>${own}</b></div>
+   <h4>Versions de la carte</h4><div class="chain">${versions}</div>
+   <h4>Lignée du modèle <small class="mut">(info)</small></h4><div class="chain">${chainH}</div>
+   <div class="actions">${acts}</div>
+  </div></div>`;
+  m.classList.remove('hidden');m.onclick=e=>{if(e.target===m)closeDetail()};
+  mountViewer(m.querySelector('.v3d'));
+}
+function photoCredit(c){const p=c.v==='f'?PHOTO_FA[c.key]:c.v==='a'?PHOTO_ALT[c.key]:PHOTO[c.img];if(!p)return '';const url='https://commons.wikimedia.org/wiki/File:'+encodeURIComponent(p[0].replace(/ /g,'_'));return `Photo : ${p[1]} · ${p[2]} · <a href="${url}" target="_blank" rel="noopener">Wikimedia Commons</a>`}
+function closeDetail(){$('#detailModal').classList.add('hidden');rerender()}
+function buyWithPoints(id){const c=CARS[id],pc=ptCost(c);if(!pc||S.points<pc)return;S.points-=pc;const isNew=!cnt(id);S.owned[id]=cnt(id)+1;save();updateHUD();openDetail(id);toast(isNew?'Nouvelle carte débloquée !':'Exemplaire ajouté')}
+function sellDup(id){if(cnt(id)<2)return;S.owned[id]--;S.coins+=dupVal(CARS[id]);save();updateHUD();openDetail(id);toast('Doublon revendu au grossiste')}
+function toVitrine(id){if(cnt(id)<2||S.vitrine.length>=8)return;S.owned[id]--;S.vitrine.push({cid:id,price:cote(CARS[id])});save();updateHUD();openDetail(id);toast('Ajoutée à la vitrine de ta boutique')}
+
+// =====================================================================
+// BOUTIQUE (gestion façon TCG shop)
+// =====================================================================
+const mkt=pid=>Math.round(PROD[pid].base*S.mkt[pid]);
+function buyWholesale(pid){const P=PROD[pid];if(S.coins<P.cost){toast('Pas assez de jetons');return}S.coins-=P.cost;S.spent+=P.cost;S.inv[pid]=(S.inv[pid]||0)+1;save();updateHUD();renderShop()}
+function toShelf(pid){
+  if(!S.inv[pid])return;let slot=S.shelf.find(s=>s.pid===pid);
+  if(!slot){if(S.shelf.length>=6){toast('Rayons pleins (6 emplacements)');return}slot={pid,qty:0,price:mkt(pid)};S.shelf.push(slot)}
+  slot.qty++;S.inv[pid]--;if(!S.inv[pid])delete S.inv[pid];save();renderShop();
+}
+function fromShelf(i){const s=S.shelf[i];S.inv[s.pid]=(S.inv[s.pid]||0)+s.qty;S.shelf.splice(i,1);save();renderShop()}
+function fromVitrine(i){const v=S.vitrine[i];S.owned[v.cid]=cnt(v.cid)+1;S.vitrine.splice(i,1);save();renderShop();updateHUD()}
+function setPrice(arr,i,val){const v=Math.max(1,Math.round(+val||1));S[arr][i].price=v;save();renderShop()}
+function toggleOpen(){S.open=!S.open;S.nextCust=0;save();renderShop()}
+function addLog(t,cls){S.log.unshift({t,cls,at:Date.now()});S.log=S.log.slice(0,14)}
+let shopDirty=false;
+function renderShop(){
+  const el=$('#boutique');
+  if(curTab()!=='boutique')return;
+  if(el.contains(document.activeElement)&&document.activeElement.tagName==='INPUT'){shopDirty=true;return}
+  shopDirty=false;
+  const profit=S.revenue-S.spent;
+  const arrow=pid=>{const d=S.mkt[pid]-S.mktPrev[pid];return d>0.001?'<span class="up">▲</span>':d<-0.001?'<span class="down">▼</span>':'<span class="mut">■</span>'};
+  const invRows=Object.entries(S.inv).filter(([,n])=>n>0);
+  el.innerHTML=`
+  <div class="shopbar">
+    <div class="switch ${S.open?'on':''}" onclick="toggleOpen()"><div class="tg"></div>${S.open?'Boutique ouverte':'Boutique fermée'}</div>
+    <div class="kpi"><small>Réputation</small><b>${Math.round(S.rep)}/100</b></div>
+    <div class="kpi"><small>Ventes</small><b>${S.sales}</b></div>
+    <div class="kpi"><small>Chiffre d’affaires</small><b>${nf(S.revenue)} 🪙</b></div>
+    <div class="kpi"><small>Achats grossiste</small><b>${nf(S.spent)} 🪙</b></div>
+    <div class="kpi"><small>Résultat</small><b class="${profit>=0?'up':'down'}">${profit>=0?'+':''}${nf(profit)} 🪙</b></div>
+  </div>
+  <div class="cols">
+    <div class="panel">
+      <h3>Grossiste</h3>
+      <p class="mut" style="margin-bottom:6px">Tu achètes au prix de gros, tu revends au prix que tu fixes. Le prix marché bouge toutes les 20 s.</p>
+      ${Object.entries(PROD).map(([pid,P])=>`<div class="row"><div class="pic ${pid}" style="transform:scale(.7)"></div><div class="grow"><b>${P.name}</b><br><small>${P.desc}</small></div><div style="text-align:right;font-size:13px">Gros : <b>${P.cost} 🪙</b><br>Marché : <b>${mkt(pid)} 🪙</b> ${arrow(pid)}</div><button class="btn sm" ${S.coins>=P.cost?'':'disabled'} onclick="buyWholesale('${pid}')">Acheter</button></div>`).join('')}
+      <div class="edu"><b>Le scellé prend de la valeur.</b> Les displays et coffrets montent doucement avec le temps : chaque boîte ouverte disparaît du marché, donc l’offre baisse alors que la demande reste. C’est ce qui se passe avec les vraies boîtes de cartes à collectionner. Mais rien n’est garanti : le prix peut aussi baisser.</div>
+    </div>
+    <div class="panel">
+      <h3>Réserve</h3>
+      ${invRows.length?invRows.map(([pid,n])=>`<div class="row"><div class="grow"><b>${PROD[pid].name}</b> <small>x${n}</small></div><button class="btn sm ghost" onclick="toShelf('${pid}')">→ Rayon</button><button class="btn sm ghost" onclick="openItem('${pid}')">${PROD[pid].b?'Ouvrir':'Déballer'}</button></div>`).join(''):'<p class="mut">Ta réserve est vide. Achète du scellé chez le grossiste.</p>'}
+      <h3 style="margin-top:18px">Rayons <small class="mut">(${S.shelf.length}/6)</small></h3>
+      ${S.shelf.length?S.shelf.map((s,i)=>{const m=mkt(s.pid),marg=s.price-PROD[s.pid].cost;return `<div class="row"><div class="grow"><b>${PROD[s.pid].name}</b> <small>x${s.qty}</small><br><small>Marché ${m} 🪙 · marge ${marg>=0?'+':''}${marg} 🪙/unité</small></div><input type="number" min="1" value="${s.price}" onchange="setPrice('shelf',${i},this.value)" onblur="if(shopDirty)renderShop()"> 🪙<button class="btn sm ghost" onclick="fromShelf(${i})">Retirer</button></div>`}).join(''):'<p class="mut">Aucun produit en rayon : les clients repartent les mains vides.</p>'}
+      <h3 style="margin-top:18px">Vitrine cartes <small class="mut">(${S.vitrine.length}/8)</small></h3>
+      ${S.vitrine.length?S.vitrine.map((v,i)=>{const c=CARS[v.cid];return `<div class="row"><div class="grow"><b>${c.brand} ${c.model}</b><br><small>${symOf(c)}${c.v==='h'?' holo':''}</small> <small>· cote ${cote(c)} 🪙</small></div><input type="number" min="1" value="${v.price}" onchange="setPrice('vitrine',${i},this.value)" onblur="if(shopDirty)renderShop()"> 🪙<button class="btn sm ghost" onclick="fromVitrine(${i})">Retirer</button></div>`}).join(''):'<p class="mut">Mets tes doublons en vitrine depuis le Garage (fiche d’une voiture).</p>'}
+    </div>
+  </div>
+  <div class="cols" style="margin-top:16px">
+    <div class="panel"><h3>Journal des clients</h3><div class="log">${S.log.length?S.log.map(l=>`<div class="${l.cls||''}">${l.t}</div>`).join(''):'<div class="mut">Ouvre la boutique et mets des produits en rayon : les clients arrivent toutes les quelques secondes.</div>'}</div></div>
+    <div class="panel"><h3>Comprendre ta boutique</h3>
+      <div class="edu" style="margin-top:0"><b>Marge</b> = prix de vente − prix d’achat. Un booster acheté 70 et vendu 100 rapporte 30 🪙.<br><b>Taux de marge</b> = marge ÷ prix d’achat (30 ÷ 70 ≈ 43 %). Le <b>taux de marque</b>, lui, se calcule sur le prix de vente (30 ÷ 100 = 30 %).</div>
+      <div class="edu"><b>Prix psychologique.</b> Chaque client a un prix maximum en tête, autour du prix du marché. Trop cher : il repart et ta réputation baisse. Trop bas : tu vends vite mais tu gagnes peu. Une bonne réputation attire plus de clients.</div>
+    </div>
+  </div>`;
+}
+const NAMES=['Léa','Hugo','Inès','Tom','Jade','Nolan','Chloé','Yanis','Manon','Enzo','Sarah','Lucas','Camille','Rayan','Zoé','Mathis'];
+function custDelay(){return Math.max(3500,(15000-S.rep*110)*rnd(.6,1.4))}
+function customer(){
+  const n=NAMES[Math.floor(Math.random()*NAMES.length)];
+  const collector=S.vitrine.length&&(Math.random()<.3||!S.shelf.length);
+  if(collector){
+    const i=Math.floor(Math.random()*S.vitrine.length),v=S.vitrine[i],c=CARS[v.cid],will=Math.round(cote(c)*rnd(.8,1.4));
+    if(v.price<=will){S.vitrine.splice(i,1);S.coins+=v.price;S.revenue+=v.price;S.sales++;S.rep=Math.min(100,S.rep+1.5);addLog(`🧑 ${n} (collectionneur) achète la ${c.brand} ${c.model} pour ${v.price} 🪙`,'ok');sold(v.price)}
+    else{S.rep=Math.max(0,S.rep-.5);addLog(`🧑 ${n} trouve la ${c.model} trop chère à ${v.price} 🪙 (il était prêt à payer ~${will})`,'ko')}
+    return;
+  }
+  if(!S.shelf.length){S.rep=Math.max(0,S.rep-1);addLog(`🧑 ${n} repart : les rayons sont vides`,'ko');return}
+  const i=Math.floor(Math.random()*S.shelf.length),s=S.shelf[i],will=Math.round(mkt(s.pid)*rnd(.85,1.3));
+  if(s.price<=will){s.qty--;if(!s.qty)S.shelf.splice(i,1);S.coins+=s.price;S.revenue+=s.price;S.sales++;S.rep=Math.min(100,S.rep+1);addLog(`🧑 ${n} achète un ${PROD[s.pid].name} pour ${s.price} 🪙`,'ok');sold(s.price)}
+  else{S.rep=Math.max(0,S.rep-.5);addLog(`🧑 ${n} trouve le ${PROD[s.pid].name} trop cher à ${s.price} 🪙 (prêt à payer ~${will})`,'ko')}
+}
+function sold(p){if(curTab()!=='boutique')toast('🏪 Vente en boutique : +'+p+' 🪙')}
+setInterval(()=>{
+  tick();
+  if(!S.open)return;
+  const now=Date.now();
+  if(!S.nextCust||S.nextCust>now+60000){S.nextCust=now+custDelay();return}
+  if(now>=S.nextCust){S.nextCust=now+custDelay();customer();save();updateHUD();renderShop()}
+},1000);
+setInterval(()=>{
+  Object.keys(PROD).forEach(pid=>{S.mktPrev[pid]=S.mkt[pid];const drift=PROD[pid].contains?0.006:0;S.mkt[pid]=Math.min(3,Math.max(.7,S.mkt[pid]*(1+drift+(Math.random()-.5)*.05)))});
+  save();renderShop();
+},20000);
+
+// =====================================================================
+// DUEL
+// =====================================================================
+let sel=[],duel=null;
+function renderDuel(){
+  const el=$('#duel');
+  if(duel){duel.phase==='done'?renderEnd():renderRound();return}
+  // une entrée par voiture (la plus belle version possédée)
+  const best={};CARS.forEach(c=>{if(cnt(c.id)&&(!best[c.base]||cardRank(c)>cardRank(best[c.base])))best[c.base]=c});
+  const mine=Object.values(best).sort((a,b)=>power(b)-power(a));
+  sel=sel.filter(id=>mine.some(c=>c.id===id));
+  if(mine.length<5){el.innerHTML=`<div class="empty">Il te faut au moins 5 voitures différentes pour lancer un duel (tu en as ${mine.length}).<br><button class="btn" onclick="showTab('ouvrir')">Ouvrir un booster</button></div>`;return}
+  el.innerHTML=`<div class="duel-head"><div><h2>Choisis ton équipe</h2><p class="mut">5 voitures, 5 manches. À chaque manche, une stat est choisie (toi puis l’IA, en alternance) : la meilleure valeur gagne. Pour le 0-100 et le poids, c’est la plus petite valeur qui l’emporte.<br>Victoire +60 🪙 · Égalité +30 🪙 · Défaite +15 🪙</p></div><div class="btns"><button class="btn ghost" id="autoSel">Auto : mes 5 meilleures</button><button class="btn" id="goDuel" ${sel.length===5?'':'disabled'}>Lancer le duel (${sel.length}/5)</button></div></div><div class="grid">${mine.map(c=>`<div class="pick ${sel.includes(c.id)?'on':''}" data-id="${c.id}">${cardHTML(c,{lazy:true})}</div>`).join('')}</div>`;
+  el.querySelectorAll('.pick').forEach(p=>p.onclick=()=>{const id=+p.dataset.id;if(sel.includes(id))sel=sel.filter(x=>x!==id);else if(sel.length<5)sel.push(id);else{toast('5 voitures maximum');return}renderDuel()});
+  $('#autoSel').onclick=()=>{sel=mine.slice(0,5).map(c=>c.id);renderDuel()};
+  $('#goDuel').onclick=startDuel;
+}
+function startDuel(){
+  const ai=[];sel.forEach(id=>{const c=randomOf(CARS[id].rar,()=>true,ai);ai.push(c.id)});
+  duel={p:shuffle(sel),a:shuffle(ai),round:0,ps:0,as:0,phase:'choose',last:null,aiBusy:false};
+  renderDuel();
+}
+const WHY={hp:'La puissance (en chevaux) mesure la capacité du moteur à fournir de l’énergie rapidement.',vmax:'La vitesse maximale dépend de la puissance mais aussi de l’aérodynamisme et de la boîte de vitesses.',acc:'Pour le 0-100 km/h, le plus petit temps gagne : la motricité (4 roues motrices, électrique) compte autant que la puissance.',kg:'Pour le poids, le plus léger gagne : une voiture légère freine, tourne et accélère mieux à puissance égale.'};
+function renderRound(){
+  const d=duel,pc=CARS[d.p[d.round]],ac=CARS[d.a[d.round]],myTurn=d.round%2===0,rev=d.phase==='reveal';
+  const opp=r=>r==='win'?'lose':r==='lose'?'win':'tie';
+  const pRes=rev?(d.last.res==='p'?'win':d.last.res==='a'?'lose':'tie'):null;
+  $('#duel').innerHTML=`
+   <div class="round">Manche ${d.round+1} / 5</div>
+   <div class="score"><div>${d.ps}<small>TOI</small></div><div style="color:var(--mut)">–</div><div>${d.as}<small>IA</small></div></div>
+   <div class="turn">${rev?'':myTurn?'À toi : clique sur la stat de ta voiture qui doit l’emporter':'L’adversaire choisit une stat…'}</div>
+   <div class="board">
+     <div class="side"><div class="who">Ta voiture</div><div id="pCard">${cardHTML(pc,{clickable:myTurn&&!rev,hl:rev?{stat:d.last.stat,res:pRes}:null})}</div></div>
+     <div class="vs">VS</div>
+     <div class="side"><div class="who">Adversaire</div>${rev?cardHTML(ac,{hl:{stat:d.last.stat,res:opp(pRes)}}):BACK}</div>
+   </div>
+   ${rev?`<div class="result ${d.last.res}">${d.last.res==='p'?'Manche gagnée !':d.last.res==='a'?'Manche perdue':'Égalité'} <span style="color:var(--mut);font-size:15px;font-weight:500">· ${STATS.find(s=>s.k===d.last.stat).label}${d.last.by==='a'?' (choix de l’IA)':''}</span></div><div class="why">${WHY[d.last.stat]}</div><div class="center"><button class="btn" id="nextR">${d.round<4?'Manche suivante':'Voir le résultat'}</button></div>`:''}`;
+  if(!rev&&myTurn)document.querySelectorAll('#pCard .stat').forEach(s=>s.onclick=()=>resolve(s.dataset.stat,'p'));
+  if(!rev&&!myTurn&&!d.aiBusy){d.aiBusy=true;setTimeout(()=>{if(duel!==d)return;const best=STATS.map(s=>({k:s.k,v:norm(ac,s.k)+Math.random()*.08})).sort((a,b)=>b.v-a.v)[0].k;resolve(best,'a')},1200)}
+  if(rev)$('#nextR').onclick=()=>{d.round++;d.aiBusy=false;if(d.round>=5)finish();else d.phase='choose';renderDuel()};
+}
+function resolve(k,by){
+  const d=duel,s=STATS.find(x=>x.k===k),pv=CARS[d.p[d.round]][k],av=CARS[d.a[d.round]][k];
+  const res=pv===av?'tie':((s.hi?pv>av:pv<av)?'p':'a');
+  if(res==='p')d.ps++;else if(res==='a')d.as++;
+  d.last={stat:k,res,by};d.phase='reveal';if(curTab()==='duel')renderRound();
+}
+function finish(){
+  const d=duel;d.phase='done';
+  d.out=d.ps>d.as?'win':d.ps<d.as?'loss':'draw';d.reward=d.out==='win'?60:d.out==='draw'?30:15;
+  S.coins+=d.reward;if(d.out==='win')S.wins++;else if(d.out==='loss')S.losses++;else S.draws++;save();updateHUD();
+}
+function renderEnd(){
+  const d=duel;
+  $('#duel').innerHTML=`<div class="end"><div class="round">Fin du duel</div><div class="big" style="color:${d.out==='win'?'var(--win)':d.out==='loss'?'var(--lose)':'var(--txt)'}">${d.out==='win'?'VICTOIRE':d.out==='loss'?'DÉFAITE':'ÉGALITÉ'}</div><div class="score"><div>${d.ps}<small>TOI</small></div><div style="color:var(--mut)">–</div><div>${d.as}<small>IA</small></div></div><p class="mut">+${d.reward} 🪙 · Bilan : ${S.wins} V / ${S.draws} N / ${S.losses} D</p><div class="btns" style="justify-content:center"><button class="btn" id="again">Rejouer</button><button class="btn ghost" id="toOpen">Ouvrir un booster</button></div></div>`;
+  $('#again').onclick=()=>{duel=null;startDuel()};
+  $('#toOpen').onclick=()=>{duel=null;showTab('ouvrir')};
+}
+
+// =====================================================================
+// ACADÉMIE : quiz + lexique
+// =====================================================================
+let Q=null;
+const pick=(arr,n)=>shuffle(arr).slice(0,n);
+const nm=c=>c.brand+' '+c.model;
+const pctS=x=>x.toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';
+function genQ(){
+  const pool=CARS.filter(c=>c.v==='s'||c.v==='r');
+  // 4 voitures dont la valeur comparée est différente (pas d'égalité possible)
+  const uniq=f=>{const out=[],seen=new Set();for(const c of shuffle(pool)){const v=f(c);if(seen.has(v))continue;seen.add(v);out.push(c);if(out.length===4)break}return out};
+  const t=Math.floor(Math.random()*7);
+  if(t===0){const o=uniq(c=>c.hp);const a=o.reduce((m,c)=>c.hp>m.hp?c:m);return{q:'Laquelle est la plus puissante ?',opts:o.map(nm),ans:nm(a),ex:o.map(c=>`${nm(c)} : ${c.hp} ch`).join(' · ')}}
+  if(t===1){const o=uniq(c=>c.acc);const a=o.reduce((m,c)=>c.acc<m.acc?c:m);return{q:'Laquelle fait le meilleur 0 à 100 km/h ?',opts:o.map(nm),ans:nm(a),ex:o.map(c=>`${nm(c)} : ${fmt(STATS[2],c.acc)}`).join(' · ')}}
+  if(t===2){const r=c=>c.kg/c.hp;const o=uniq(c=>r(c).toFixed(1));const a=o.reduce((m,c)=>r(c)<r(m)?c:m);return{q:'Laquelle a le meilleur rapport poids/puissance ?',opts:o.map(nm),ans:nm(a),ex:'Rapport = poids ÷ puissance : moins il y a de kilos à emmener par cheval, mieux c’est. '+o.map(c=>`${c.model} : ${r(c).toFixed(1).replace('.',',')} kg/ch`).join(' · ')}}
+  if(t===3){const c=pick(pool,1)[0];const ys=new Set([c.year]);while(ys.size<4){const y=c.year+Math.round(rnd(-12,12));if(y!==c.year&&y<=2026)ys.add(y)}return{q:`En quelle année est sortie la ${nm(c)} ?`,opts:shuffle([...ys]).map(String),ans:String(c.year),ex:c.fact}}
+  if(t===4){const c=pick(pool,1)[0];const all=Object.keys(COUNTRY).filter(k=>k!==c.cc);const o=shuffle([c.cc,...pick(all,3)]);return{q:`De quel pays vient la marque ${c.brand} ?`,opts:o.map(k=>COUNTRY[k][1]),ans:COUNTRY[c.cc][1],ex:`Pays d’origine de ${c.brand} : ${COUNTRY[c.cc][1]}. ${c.fact}`}}
+  if(t===5){const p=pick([2,8,9,22],1)[0]/100;const ok=(1-Math.pow(1-p,5))*100;const opts=[pctS(ok),pctS(p*500),pctS(p*100),pctS((1-Math.pow(1-p,2))*100)];return{q:`Un booster a ${pctS(p*100)} de chance de contenir une carte secrète. Si tu ouvres 5 boosters, quelle est la probabilité d’en avoir au moins une ?`,opts:shuffle([...new Set(opts)]),ans:pctS(ok),ex:`On calcule la probabilité de n’en avoir aucune : (1 − ${p.toString().replace('.',',')})⁵, puis on la retire de 1. On ne peut pas simplement multiplier par 5, car les tirages se chevauchent.`}}
+  const pid=pick(['bc','dc','cp'],1)[0],P=PROD[pid],sale=mkt(pid),m=sale-P.cost;const tm=Math.round(m/P.cost*100),tq=Math.round(m/sale*100);
+  return{q:`Tu achètes un ${P.name} ${P.cost} 🪙 et tu le revends ${sale} 🪙. Quel est ton taux de marge ?`,opts:shuffle([...new Set([tm+' %',tq+' %',Math.round(sale/P.cost*100)+' %',m+' %'])]),ans:tm+' %',ex:`Taux de marge = (vente − achat) ÷ achat = ${m} ÷ ${P.cost} ≈ ${tm} %. À ne pas confondre avec le taux de marque, calculé sur le prix de vente (${tq} %).`};
+}
+function renderAcademy(){
+  if(!Q)Q={...genQ(),done:false};
+  const LEX=[
+   ['Puissance (ch)','La quantité d’énergie que le moteur fournit par seconde. 1 cheval-vapeur ≈ 736 watts.'],
+   ['Couple (N·m)','La force de rotation du moteur. Beaucoup de couple à bas régime donne des reprises vigoureuses ; les moteurs électriques en ont dès l’arrêt.'],
+   ['0 à 100 km/h','Le temps pour passer de l’arrêt à 100 km/h. Il dépend de la puissance, du poids et de la motricité.'],
+   ['Rapport poids/puissance','Le poids divisé par la puissance (kg/ch). Plus il est bas, plus la voiture est vive.'],
+   ['Traction, propulsion, intégrale','Les roues motrices sont à l’avant (traction), à l’arrière (propulsion) ou sur les quatre roues (intégrale, 4x4).'],
+   ['Turbo ou atmosphérique','Un turbo utilise les gaz d’échappement pour souffler plus d’air dans le moteur. Un moteur atmosphérique aspire l’air naturellement.'],
+   ['Hybride','Un moteur thermique associé à un moteur électrique. « Rechargeable » : la batterie se branche aussi sur une prise.'],
+   ['Préparateur','Une entreprise qui modifie des voitures de série (moteur, châssis, carrosserie) : Brabus, Mansory, Abarth, Shelby…'],
+   ['Produit scellé','Une boîte de cartes jamais ouverte. Sa valeur suit l’offre et la demande, et monte souvent avec la rareté.'],
+   ['Taux de drop','La probabilité qu’une carte d’une rareté donnée apparaisse. Les jeux sérieux les affichent par transparence.'],
+   ['Cote','Le prix auquel une carte se revend à l’unité. Elle dépend de la rareté et de la demande.'],
+   ['Marge et marque','Marge = vente − achat. Le taux de marge se calcule sur l’achat, le taux de marque sur la vente.']
+  ];
+  $('#academie').innerHTML=`<div class="cols"><div class="panel quiz"><h3>Quiz du garage</h3><p class="mut">+8 🪙 par bonne réponse · score : ${S.quizOk}/${S.quizN}</p>
+   <div style="font-size:17px;font-weight:600;margin:6px 0 10px">${Q.q}</div>
+   ${Q.opts.map(o=>`<button class="qopt ${Q.done?(o===Q.ans?'good':o===Q.chosen?'bad':''):''}" ${Q.done?'disabled':''} data-o="${o.replace(/"/g,'&quot;')}">${o}</button>`).join('')}
+   ${Q.done?`<div class="edu"><b>${Q.chosen===Q.ans?'Bonne réponse ! +8 🪙':'Raté.'}</b> ${Q.ex}</div><div style="margin-top:12px"><button class="btn" id="nextQ">Question suivante</button></div>`:''}
+  </div>
+  <div class="panel"><h3>Comment marche Garage Clash</h3>
+   <div class="edu" style="margin-top:0"><b>Les raretés.</b> ● et ◆ sont les cartes courantes ; elles existent aussi en version <b>holo</b>. ★ est toujours holo, avec un reflet renforcé. Viennent ensuite les secrètes : ★★ <b>Full Art</b> (une autre photo sur toute la carte), ★★★ <b>Alt</b> (la voiture en action : rallye, piste, drift…) et ♛ <b>Prépa</b> (la voiture en version préparée : Brabus, Shelby, Abarth, Nismo…).</div>
+   <div class="edu"><b>Première Vitesse</b> est la première extension : ${EXT[0].N} voitures numérotées de 001 à ${String(EXT[0].N).padStart(3,'0')}, et des cartes <b>secrètes</b> (★★, ★★★, ♛) dont le numéro dépasse ${String(EXT[0].N).padStart(3,'0')}. D’autres extensions viendront ensuite.</div>
+   <div class="edu"><b>Les lignées</b> sont une info en plus : la carte indique de quel modèle elle descend (Twingo I → II → III, Skyline R32 → R33 → R34…). Une série compte 4 générations au maximum. On ne fait pas évoluer ses cartes.</div>
+   <div class="edu"><b>Les chiffres</b> sont des données constructeur approximatives, arrondies pour le jeu.</div>
+  </div></div>
+  <h3 style="margin-top:22px">Lexique</h3>
+  <div class="lex">${LEX.map(([a,b])=>`<div><b>${a}</b>${b}</div>`).join('')}</div>
+  <h3 id="credits" style="margin-top:22px">Crédits photos</h3>
+  <p class="mut">Toutes les photos viennent de Wikimedia Commons, sous licences libres (CC BY, CC BY-SA, CC0 ou domaine public). Elles ont été recadrées pour les cartes. Les licences CC BY-SA imposent de créditer l’auteur et de partager les modifications sous la même licence.</p>
+  <div class="credits-list">${CARS.filter(c=>c.v!=='h').map(c=>{const p=c.v==='f'?PHOTO_FA[c.key]:c.v==='a'?PHOTO_ALT[c.key]:PHOTO[c.img];return p?`<div><b style="color:var(--txt)">${c.brand} ${c.model}</b> <small>(${symOf(c)}${c.v==='a'?', en action':''})</small> — ${p[1]} (${p[2]}) · <a href="https://commons.wikimedia.org/wiki/File:${encodeURIComponent(p[0].replace(/ /g,'_'))}" target="_blank" rel="noopener">source</a></div>`:''}).join('')}</div>`;
+  if(!Q.done)document.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{Q.done=true;Q.chosen=b.dataset.o;S.quizN++;if(Q.chosen===Q.ans){S.quizOk++;S.coins+=8}save();updateHUD();renderAcademy()});
+  else $('#nextQ').onclick=()=>{Q=null;renderAcademy()};
+}
+
+// =====================================================================
+// MODE GOD (dev) — ouvrir avec Ctrl+Shift+G, ou en ajoutant #god à l'URL
+// =====================================================================
+function godPanel(){
+  let p=$('#god');
+  if(p){p.remove();return}
+  p=document.createElement('div');p.id='god';
+  p.innerHTML=`<div class="god-h">⚡ MODE GOD <button class="link" onclick="godPanel()">fermer</button></div>
+   <button class="btn sm" onclick="god('coins')">+10 000 🪙</button>
+   <button class="btn sm" onclick="god('all')">Toutes les cartes x3</button>
+   <button class="btn sm" onclick="god('free')">Boosters gratuits pleins</button>
+   <button class="btn sm" onclick="god('gems')">+1 000 💎</button>
+   <button class="btn sm" onclick="god('pts')">+500 ✦</button>
+   <button class="btn sm" onclick="god('inv')">+5 de chaque scellé</button>
+   <button class="btn sm" onclick="god('cust')">Client maintenant</button>
+   <button class="btn sm" onclick="god('mkt')">Tick marché</button>
+   <button class="btn sm" onclick="god('rep')">Réputation 100</button>
+   <button class="btn sm" onclick="god('leg')">Booster GOD (★★ / ★★★ / ♛)</button>
+   <button class="btn sm ghost" onclick="god('wipe')">Vider la collection</button>`;
+  document.body.appendChild(p);
+}
+function god(a){
+  if(a==='coins')S.coins+=10000;
+  if(a==='all')CARS.forEach(c=>S.owned[c.id]=Math.max(cnt(c.id),3));
+  if(a==='free'){S.freeStock=FREE_MAX;S.freeAt=0}
+  if(a==='gems')S.gems+=1000;
+  if(a==='pts')S.points+=500;
+  if(a==='inv')Object.keys(PROD).forEach(k=>S.inv[k]=(S.inv[k]||0)+5);
+  if(a==='cust'){S.nextCust=Date.now()-1}
+  if(a==='mkt')Object.keys(PROD).forEach(pid=>{S.mktPrev[pid]=S.mkt[pid];S.mkt[pid]=Math.min(3,Math.max(.7,S.mkt[pid]*(1+(Math.random()-.4)*.2)))});
+  if(a==='rep')S.rep=100;
+  if(a==='leg'){BOOST.god={name:'GOD',ext:null,ar:.5,hs:[{F:.5,A:.3},{F:.3,A:.4,P:.3},{F:.2,A:.3,P:.5}]};startOpening('god','Booster GOD')}
+  if(a==='wipe'){S.owned={};duel=null;sel=[]}
+  save();rerender();if(a!=='leg')toast('God : '+a);
+}
+document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&(e.key==='G'||e.key==='g')){e.preventDefault();godPanel()}});
+if(location.hash==='#god')setTimeout(godPanel,300);
+
+// =====================================================================
+// RESET + INIT
+// =====================================================================
+let resetArm=false;
+$('#resetBtn').onclick=()=>{const b=$('#resetBtn');if(!resetArm){resetArm=true;b.textContent='Confirmer ? Tout sera effacé';setTimeout(()=>{resetArm=false;b.textContent='Réinitialiser la partie'},4000);return}S=fresh();duel=null;sel=[];Q=null;save();resetArm=false;b.textContent='Réinitialiser la partie';showTab('ouvrir');updateHUD();toast('Nouvelle partie')};
+updateHUD();renderOpen();
+</script>
+</body>
+</html>
