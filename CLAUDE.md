@@ -27,6 +27,8 @@ Jeu web de cartes à collectionner de voitures, en français. Prototype statique
 
 ## Règles du projet
 - Aucun nom de rareté sur les cartes, seulement les symboles ● ◆ ★ ★★ ★★★ ♛
+- Aucun indice de rareté pendant l'ouverture (pas de lueur, tremblement ni grondement) : seuls les bords des cartes, visibles en inclinant le paquet, peuvent « spoiler »
+- Zoom du navigateur bloqué partout ; zoom plein écran d'une carte : inclinaison immédiate (pas d'appui maintenu)
 - Pas de dos de carte ; ouverture = pile de cartes qu'on swipe, inclinaison à la souris
 - On ne fait pas évoluer les cartes ; les lignées sont informatives
 - Achats de gemmes simulés (bandeau « MODE TEST ») : ne pas brancher de vrai paiement sans serveur

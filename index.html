@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0c0e13">
 <meta name="description" content="Garage Clash : collectionne des cartes de vraies voitures, ouvre des boosters et affronte l'IA.">
 <meta name="mobile-web-app-capable" content="yes">
@@ -929,7 +929,7 @@ function mountViewer(root,opt={}){
   function fling(dir){if(gone)return;gone=true;ttx=dir*(window.innerWidth||900);tRy=dir*35;setTimeout(()=>opt.onSwipe&&opt.onSwipe(dir),280)}
   root.addEventListener('pointermove',e=>{last=e;if(opt.dragTilt&&drag&&!tilt&&Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>6){tilt=true;clearTimeout(holdT)}if(e.pointerType==='mouse'||tilt)aim(e);if(!drag||gone)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));if(opt.onSwipe&&!tilt)ttx=dx});
   root.addEventListener('pointerdown',e=>{if(gone)return;drag=true;x0=e.clientX;y0=e.clientY;moved=0;last=e;try{root.setPointerCapture(e.pointerId)}catch(_){}
-    if(e.pointerType==='mouse')aim(e);else{tilt=false;clearTimeout(holdT);holdT=setTimeout(()=>{if(drag&&moved<12){tilt=true;aim(last)}},HOLD_MS)}});
+    if(e.pointerType==='mouse')aim(e);else if(opt.instant){tilt=true;aim(e)}else{tilt=false;clearTimeout(holdT);holdT=setTimeout(()=>{if(drag&&moved<12){tilt=true;aim(last)}},HOLD_MS)}});
   const up=e=>{if(!drag)return;drag=false;clearTimeout(holdT);if(tilt){tilt=false;ttx=0;trx=0;tRy=0;return}
     if(opt.onSwipe&&Math.abs(ttx)>80)fling(Math.sign(ttx));
     else{ttx=0;if(opt.onSwipe&&moved<8&&e.type==='pointerup')fling(-1)}
@@ -997,7 +997,7 @@ function renderHand(){
     $('#opCount').textContent=OP.count>1?`Booster ${pk+1} / ${OP.count} · carte ${OP.i-first+1} / 10`:`${OP.i+1} / ${n}`;
     const it=OP.items[OP.i],nx=OP.items[OP.i+1];
     $('#tagline').innerHTML=`<span class="tag ${it.isNew?'new':'dup'} show pop">${it.isNew?'NOUVELLE':'Doublon · x'+cnt(it.c.id)}</span>${it.c.v==='h'?' <span class="tag hit show pop">✨ HOLO</span>':''}${it.god?' <span class="tag god show pop">⚡ GOD PACK</span>':''}`;
-    hand.className='hand'+(nx&&isRareItem(nx)?' tease t-'+itRar(nx):'');
+    hand.className='hand'; // aucun indice : seules les tranches des cartes (en inclinant) peuvent trahir une rare
   }
   function reveal(){const it=OP.items[OP.i];if(it.c.v==='h')sfx.holo();if(!isRareItem(it))return;const r=itRar(it);sfx.rare(r);buzz(r==='P'?[60,40,60,40,160]:r==='L'?[40,40,90]:30);
     const rays=$('#rays');rays.className='rays on r-'+r;
@@ -1037,9 +1037,8 @@ function renderHand(){
 }
 function tear(){
   if(OP.stage!=='pack'||OP.busy)return;OP.busy=true;
-  const best=OP.items.reduce((m,it)=>Math.max(m,it.c.v==='p'||it.c.v==='a'?4:it.c.v==='f'?3:0),0),tw=$('#tw'),isGod=OP.items.some(it=>it.god);
-  if(best>=3){tw.classList.add('rumble',best>=4?'best-P':'best-L');$('.op-hint').textContent=isGod?'… ce booster est anormalement lourd ⚡':'… il se passe quelque chose !';sfx.rumble();buzz(isGod?[80,40,80,40,80,40,200]:[50,40,50,40,50,40,50])}
-  setTimeout(()=>{tw.classList.add('torn');sfx.tear();buzz(35);setTimeout(()=>{OP.busy=false;OP.stage='cards';renderOpener()},850)},best>=3?900:0);
+  const tw=$('#tw'); // pas de grondement : rien ne trahit le contenu
+  setTimeout(()=>{tw.classList.add('torn');sfx.tear();buzz(35);setTimeout(()=>{OP.busy=false;OP.stage='cards';renderOpener()},850)},0);
 }
 function closeOpener(){$('#opener').classList.add('hidden');document.body.classList.remove('opening');OP=null;rerender()}
 
@@ -1116,7 +1115,7 @@ function zoomCard(id){
   const c=CARS[id];if(!c)return;const z=$('#zoom');
   const k=Math.max(1,Math.min((innerWidth-40)/220,(innerHeight-140)/356,2.4));
   z.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="zbox" style="width:${220*k+36}px;height:${356*k+36}px">${viewerHTML(cardHTML(c),'e-'+c.v)}</div><div class="zcap">${c.brand} ${c.model} · ${symOf(c)} · ${numLabel(c)}</div>`;
-  z.classList.remove('hidden');mountViewer(z.querySelector('.v3d'),{scale:k,dragTilt:true});sfx.click();
+  z.classList.remove('hidden');mountViewer(z.querySelector('.v3d'),{scale:k,instant:true});sfx.click();
   const close=()=>{z.classList.add('hidden');z.innerHTML='';document.removeEventListener('keydown',esc)};
   const esc=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',esc);
   z.onclick=e=>{if(!e.target.closest('.v3d-card'))close()};
@@ -1611,7 +1610,11 @@ updateHUD();updateSoundBtn();renderOpen();
 let lastTouchEnd=0;
 document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouchEnd<=400&&!e.target.closest('input,select,textarea'))e.preventDefault();lastTouchEnd=now},{passive:false});
 document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
-document.addEventListener('gesturestart',e=>{if(e.target.closest&&e.target.closest('#opener,#zoom'))e.preventDefault()},{passive:false});
+// pas de zoom du navigateur, nulle part : pincement (iOS : gesture*, autres : 2 doigts) et Ctrl+molette
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
+document.addEventListener('wheel',e=>{if(e.ctrlKey)e.preventDefault()},{passive:false});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','0'].includes(e.key))e.preventDefault()});
 // Mode hors-ligne : enregistre le service worker (GitHub Pages), puis lui demande de garder toutes les images en cache
 try{if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')&&window.top===window.self){
   navigator.serviceWorker.register('sw.js').then(reg=>{const send=()=>{const w=reg.active||navigator.serviceWorker.controller;if(w)w.postMessage({type:'precache',urls:[...new Set(CARS.map(c=>'img/'+c.img+'.webp'))]})};
