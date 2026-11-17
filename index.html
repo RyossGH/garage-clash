@@ -896,9 +896,11 @@ function rerender(){updateHUD();const t=curTab();if(t==='ouvrir')renderOpen();if
 // =====================================================================
 function viewerHTML(front,extra=''){return `<div class="v3d ${extra}"><div class="v3d-card">${[-4,-3,-2,-1,0,1,2,3,4].map(z=>`<div class="edge" style="transform:translateZ(${z}px)"></div>`).join('')}<div class="v-front">${front}</div></div></div>`}
 // La carte s'incline vers la souris / le doigt (on voit sa tranche). Option onSwipe : glisser pour la jeter.
+// Au doigt, la carte ne s'incline qu'après un appui maintenu (un simple tap ne la fait plus pivoter)
+const HOLD_MS=200;
 function mountViewer(root,opt={}){
   const card=root.querySelector('.v3d-card'),inner=root.querySelector('.v-front .card'),MAX=30;
-  let rx=0,ry=0,trx=0,tRy=0,tx=0,ttx=0,drag=false,x0=0,y0=0,moved=0,gone=false;
+  let rx=0,ry=0,trx=0,tRy=0,tx=0,ttx=0,drag=false,x0=0,y0=0,moved=0,gone=false,holdT=0,tilt=false,last=null;
   function aim(e){const r=card.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
     tRy=Math.max(-1,Math.min(1,x*2.2))*MAX;trx=-Math.max(-1,Math.min(1,y*2.2))*MAX*.75}
   function loop(){
@@ -908,9 +910,10 @@ function mountViewer(root,opt={}){
     if(inner){inner.style.setProperty('--mx',(50+ry/MAX*55).toFixed(1)+'%');inner.style.setProperty('--my',(50-rx/(MAX*.75)*55).toFixed(1)+'%');const o=Math.min(1,(Math.abs(rx)+Math.abs(ry))/18);inner.style.setProperty('--o',o.toFixed(2));inner.classList.toggle('lit',o>.03)}
     requestAnimationFrame(loop)}
   function fling(dir){if(gone)return;gone=true;ttx=dir*(window.innerWidth||900);tRy=dir*35;setTimeout(()=>opt.onSwipe&&opt.onSwipe(dir),280)}
-  root.addEventListener('pointermove',e=>{aim(e);if(!drag||gone)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));if(opt.onSwipe)ttx=dx});
-  root.addEventListener('pointerdown',e=>{if(gone)return;drag=true;x0=e.clientX;y0=e.clientY;moved=0;aim(e);try{root.setPointerCapture(e.pointerId)}catch(_){}});
-  const up=e=>{if(!drag)return;drag=false;
+  root.addEventListener('pointermove',e=>{last=e;if(e.pointerType==='mouse'||tilt)aim(e);if(!drag||gone)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));if(opt.onSwipe&&!tilt)ttx=dx});
+  root.addEventListener('pointerdown',e=>{if(gone)return;drag=true;x0=e.clientX;y0=e.clientY;moved=0;last=e;try{root.setPointerCapture(e.pointerId)}catch(_){}
+    if(e.pointerType==='mouse')aim(e);else{tilt=false;clearTimeout(holdT);holdT=setTimeout(()=>{if(drag&&moved<12){tilt=true;aim(last)}},HOLD_MS)}});
+  const up=e=>{if(!drag)return;drag=false;clearTimeout(holdT);if(tilt){tilt=false;ttx=0;trx=0;tRy=0;return}
     if(opt.onSwipe&&Math.abs(ttx)>80)fling(Math.sign(ttx));
     else{ttx=0;if(opt.onSwipe&&moved<8&&e.type==='pointerup')fling(-1)}
     if(e.pointerType&&e.pointerType!=='mouse'){trx=0;tRy=0}};
@@ -966,11 +969,11 @@ function renderHand(){
   o.innerHTML=`<div class="op-title">${OP.title}</div><div class="op-count" id="opCount"></div>
     <div class="hand" id="hand"><div class="rays" id="rays"></div><div class="stack3d" id="stack3d">${OP.items.map((it,k)=>`<div class="scard" data-k="${k}" style="z-index:${n-k}"><div class="sedge" style="transform:translateZ(-1px)"></div><div class="sedge" style="transform:translateZ(-2px)"></div><div class="sface">${k<8?faceOf(it):''}</div></div>`).join('')}</div></div>
     <div class="tagline" id="tagline"></div>
-    <div class="op-hint">${TOUCH?'Glisse la carte du dessus sur le côté, ou touche-la, pour passer à la suivante':'Bouge la souris pour incliner le paquet · glisse la carte du dessus sur le côté'}</div>
+    <div class="op-hint">${TOUCH?'Touche ou glisse la carte pour passer à la suivante · maintiens le doigt pour l’incliner':'Bouge la souris pour incliner le paquet · glisse la carte du dessus sur le côté'}</div>
     <button class="btn ghost sm" id="opSkip" style="margin-top:12px">Passer ⏭ voir tout</button>`;
   $('#opSkip').onclick=e=>{e.stopPropagation();OP.stage='summary';renderOpener()};
   const hand=$('#hand'),stack=$('#stack3d'),cards=[...stack.querySelectorAll('.scard')],MAX=26;
-  let rx=0,ry=0,trx=0,tRy=0,tx=0,drag=false,x0=0,y0=0,moved=0,flying=false;
+  let rx=0,ry=0,trx=0,tRy=0,tx=0,drag=false,x0=0,y0=0,moved=0,flying=false,holdT=0,tilt=false,last=null;
   function layout(){
     cards.forEach((el,k)=>{const d=k-OP.i;if(d<0)return;const f=el.querySelector('.sface');if(d<8&&!f.innerHTML)f.innerHTML=faceOf(OP.items[k]);el.style.display=d>6?'none':'';el.style.transform=`translateZ(${-Math.min(d,6)*3.2}px)`;el.classList.toggle('top',d===0)});
     const it0=OP.items[OP.i],pk=it0.pack||0,first=OP.items.findIndex(x=>(x.pack||0)===pk);
@@ -1005,9 +1008,11 @@ function renderHand(){
       if(OP.i>=n){OP.stage='summary';renderOpener();return}
       layout();reveal()},330);
   }
-  hand.addEventListener('pointermove',e=>{aim(e);if(!drag||flying)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));tx=dx});
-  hand.addEventListener('pointerdown',e=>{if(flying)return;drag=true;x0=e.clientX;y0=e.clientY;moved=0;aim(e);try{hand.setPointerCapture(e.pointerId)}catch(_){}});
-  const up=e=>{if(!drag)return;drag=false;if(Math.abs(tx)>80)fling(Math.sign(tx));else{tx=0;if(moved<8&&e.type==='pointerup')fling(-1)}
+  // tap = carte suivante · glisser = jeter la carte · appui maintenu 0,2 s = incliner le paquet pour l'admirer
+  hand.addEventListener('pointermove',e=>{last=e;if(e.pointerType==='mouse'||tilt)aim(e);if(!drag||flying)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));if(!tilt)tx=dx});
+  hand.addEventListener('pointerdown',e=>{if(flying)return;drag=true;x0=e.clientX;y0=e.clientY;moved=0;last=e;try{hand.setPointerCapture(e.pointerId)}catch(_){}
+    if(e.pointerType==='mouse')aim(e);else{tilt=false;clearTimeout(holdT);holdT=setTimeout(()=>{if(drag&&moved<12){tilt=true;aim(last)}},HOLD_MS)}});
+  const up=e=>{if(!drag)return;drag=false;clearTimeout(holdT);if(tilt){tilt=false;tx=0;trx=0;tRy=0;return}if(Math.abs(tx)>80)fling(Math.sign(tx));else{tx=0;if(moved<8&&e.type==='pointerup')fling(-1)}
     if(e.pointerType&&e.pointerType!=='mouse'){trx=0;tRy=0}};
   hand.addEventListener('pointerup',up);hand.addEventListener('pointercancel',up);
   hand.addEventListener('pointerleave',()=>{if(!drag){trx=0;tRy=0}});
@@ -1212,7 +1217,7 @@ function openDetail(id){
     acts+=`<button class="btn ghost" onclick="sellDup(${id})">💱 Revendre un doublon au grossiste (+${dupVal(c)} 🪙)</button>`;
   }
   const ctry=COUNTRY[c.cc];
-  m.innerHTML=`<div class="detail"><button class="x" onclick="closeDetail()">×</button><div>${viewerHTML(cardHTML(c,{count:own}))}<div class="req center">${TOUCH?'Touche la carte pour l’incliner':'Bouge la souris sur la carte pour l’incliner'}</div><div class="center"><button class="btn ghost sm" onclick="zoomCard(${id})">⛶ Plein écran</button></div></div><div>
+  m.innerHTML=`<div class="detail"><button class="x" onclick="closeDetail()">×</button><div>${viewerHTML(cardHTML(c,{count:own}))}<div class="req center">${TOUCH?'Maintiens le doigt sur la carte pour l’incliner':'Bouge la souris sur la carte pour l’incliner'}</div><div class="center"><button class="btn ghost sm" onclick="zoomCard(${id})">⛶ Plein écran</button></div></div><div>
    <h3>${c.brand} ${c.model}</h3>
    <div class="mut" style="margin:0">${ctry[0]} ${ctry[1]} · ${c.year} · ${symOf(c)}${c.v==='h'?' holo':''} · ${extOf(c).name} n°${numLabel(c).split(' ')[1]}${c.secret?' (secrète)':''}</div>${c.v==='a'?`<div class="fact"><b>Mise en scène ★★★ :</b> la voiture en action (rallye, piste, drift ou photo historique).</div>`:''}${c.v==='p'?`<div class="fact"><b>Mise en scène Prépa :</b> la photo montre la version préparée par ${c.tuner} (${c.prep.brand} ${c.prep.model}, ${c.prep.hp} ch). ${c.prep.fact}</div>`:''}
    <div class="fact"><b>Le saviez-vous ?</b> ${c.fact}</div>
