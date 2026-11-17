@@ -504,6 +504,7 @@ footer{border-top-color:rgba(255,255,255,.06);opacity:.8}
 body.opening nav{display:none}
 /* pas de zoom du navigateur au double-tap (le pincement reste possible) */
 html,body,button,a,.card,.pick,.slot,.bpack,.chip,nav,section{touch-action:manipulation}
+.opener,.zoom{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* iOS zoome sur un champ de saisie dont le texte fait moins de 16 px */
 @media(max-width:700px){input,select,textarea{font-size:16px}}
 .toast{opacity:0;pointer-events:none;transition:transform .3s,opacity .3s}
@@ -1577,6 +1578,12 @@ if(location.hash==='#god')setTimeout(godPanel,300);
 let resetArm=false;
 $('#resetBtn').onclick=()=>{const b=$('#resetBtn');if(!resetArm){resetArm=true;b.textContent='Confirmer ? Tout sera effacé';setTimeout(()=>{resetArm=false;b.textContent='Réinitialiser la partie'},4000);return}S=fresh();duel=null;sel=[];Q=null;save();resetArm=false;b.textContent='Réinitialiser la partie';showTab('ouvrir');updateHUD();toast('Nouvelle partie')};
 updateHUD();updateSoundBtn();renderOpen();
+// Safari iOS ignore « touch-action: none » : deux touchers rapprochés (tap rapide sur les cartes) déclenchaient le zoom.
+// On annule l'action par défaut du 2e toucher ; les gestes du jeu (pointer events) continuent de fonctionner.
+let lastTouchEnd=0;
+document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouchEnd<=400&&!e.target.closest('input,select,textarea'))e.preventDefault();lastTouchEnd=now},{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturestart',e=>{if(e.target.closest&&e.target.closest('#opener,#zoom'))e.preventDefault()},{passive:false});
 // Mode hors-ligne : enregistre le service worker (GitHub Pages), puis lui demande de garder toutes les images en cache
 try{if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')&&window.top===window.self){
   navigator.serviceWorker.register('sw.js').then(reg=>{const send=()=>{const w=reg.active||navigator.serviceWorker.controller;if(w)w.postMessage({type:'precache',urls:[...new Set(CARS.map(c=>'img/'+c.img+'.webp'))]})};
