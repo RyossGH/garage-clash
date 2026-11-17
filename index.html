@@ -283,10 +283,10 @@ body.opening{background:#07080c}
 .tag.pop{animation:pop .35s ease-out}
 .tag.hit{background:linear-gradient(90deg,#9ff,#f9f,#ff9);color:#1a1030}
 .hand.tease .stack3d{animation:tease 1.2s ease-in-out infinite}
-.hand.tease.t-E .stack3d{filter:drop-shadow(0 0 16px rgba(220,230,255,.7))}
-.hand.tease.t-L .stack3d{filter:drop-shadow(0 0 26px rgba(255,210,110,.9))}
-.hand.tease.t-P .stack3d,.hand.tease.t-K .stack3d{filter:drop-shadow(0 0 22px rgba(255,59,92,.7)) drop-shadow(0 0 30px rgba(51,214,255,.6))}
-@keyframes tease{0%,100%{translate:0 0}10%{translate:-2px 0}20%{translate:2px 0}30%{translate:0 0}}
+.hand.tease.t-E .stack3d{filter:drop-shadow(0 0 7px rgba(220,230,255,.22))}
+.hand.tease.t-L .stack3d{filter:drop-shadow(0 0 10px rgba(255,225,170,.3))}
+.hand.tease.t-P .stack3d,.hand.tease.t-K .stack3d{filter:drop-shadow(0 0 10px rgba(255,214,140,.35))}
+@keyframes tease{0%,100%{translate:0 0}10%{translate:-1px 0}20%{translate:1px 0}30%{translate:0 0}}
 .rays{position:absolute;left:50%;top:50%;width:620px;height:620px;margin:-310px 0 0 -310px;border-radius:50%;pointer-events:none;opacity:0;z-index:-1}
 .rays.on{opacity:1;animation:spin 14s linear infinite,pop .6s ease-out;-webkit-mask:radial-gradient(circle,#000 18%,transparent 66%);mask:radial-gradient(circle,#000 18%,transparent 66%)}
 .rays.r-E{background:repeating-conic-gradient(rgba(220,230,255,.3) 0 6deg,transparent 6deg 18deg)}
@@ -563,6 +563,19 @@ html,body,button,a,.card,.pick,.slot,.bpack,.chip,nav,section{touch-action:manip
  .engage-bar{position:sticky;bottom:calc(74px + env(safe-area-inset-bottom));z-index:5;padding:10px 0 4px;background:linear-gradient(180deg,transparent,rgba(10,12,17,.95) 40%)}
  .duel-bar .btns{margin-left:0!important;width:100%}.duel-bar .btns .btn{flex:1}
 }
+
+/* ===== Cadres par rareté : écarts volontairement fins (on hésite à l'ouverture), l'Alt se remarque un peu plus ===== */
+/* ● ◆ non holo : argent neutre (cadre de base) */
+.card.var-h{background:linear-gradient(155deg,#f5f6fb 0%,#b0b5c4 20%,#5c6273 48%,#bcc1d0 76%,#f2f0f7 100%)}
+.card.var-r{background:linear-gradient(155deg,#f6f9ff 0%,#b0bccd 20%,#55627a 48%,#bcc8db 76%,#f3f7ff 100%)}
+.card.var-f{background:linear-gradient(155deg,#fbf9f5 0%,#c0bab1 20%,#625e59 48%,#cdc6bb 76%,#faf7f1 100%)}
+.card.var-a{background:linear-gradient(155deg,#fbf2f7 0%,#c4b8d4 18%,#665f7b 46%,#b8cfd4 72%,#eef6e8 88%,#f8f1f6 100%)}
+.card.var-p{background:linear-gradient(155deg,#faf4e4 0%,#c6b386 20%,#6b5f45 48%,#d0bf93 76%,#faf5e8 100%)}
+.scard.e-h .sedge,.v3d.e-h .edge{background:linear-gradient(90deg,#fff,#bcc0cd 20%,#7f8597 50%,#bcc0cd 80%,#fbf9ff)}
+.scard.e-r .sedge,.v3d.e-r .edge{background:linear-gradient(90deg,#fbfdff,#b9c4d4 20%,#78849b 50%,#b9c4d4 80%,#fbfdff)}
+.scard.e-f .sedge,.v3d.e-f .edge{background:linear-gradient(90deg,#fffdf9,#c8c2b8 20%,#86817a 50%,#c8c2b8 80%,#fffdf9)}
+.scard.e-a .sedge,.v3d.e-a .edge{background:linear-gradient(90deg,#fff6fb,#cbbfda 20%,#878198 45%,#bdd5d8 70%,#f4fbef)}
+.scard.e-p .sedge,.v3d.e-p .edge{background:linear-gradient(90deg,#fffaf0,#d0bf95 20%,#8e7f5c 50%,#d0bf95 80%,#fffaf0)}
 </style>
 </head>
 <body>
@@ -967,7 +980,7 @@ const faceOf=x=>cardHTML(x.c);
 function renderHand(){
   const o=$('#opener'),n=OP.items.length;
   o.innerHTML=`<div class="op-title">${OP.title}</div><div class="op-count" id="opCount"></div>
-    <div class="hand" id="hand"><div class="rays" id="rays"></div><div class="stack3d" id="stack3d">${OP.items.map((it,k)=>`<div class="scard" data-k="${k}" style="z-index:${n-k}"><div class="sedge" style="transform:translateZ(-1px)"></div><div class="sedge" style="transform:translateZ(-2px)"></div><div class="sface">${k<8?faceOf(it):''}</div></div>`).join('')}</div></div>
+    <div class="hand" id="hand"><div class="rays" id="rays"></div><div class="stack3d" id="stack3d">${OP.items.map((it,k)=>`<div class="scard e-${it.c.v}" data-k="${k}" style="z-index:${n-k}"><div class="sedge" style="transform:translateZ(-1px)"></div><div class="sedge" style="transform:translateZ(-2px)"></div><div class="sface">${k<8?faceOf(it):''}</div></div>`).join('')}</div></div>
     <div class="tagline" id="tagline"></div>
     <div class="op-hint">${TOUCH?'Touche ou glisse la carte pour passer à la suivante · maintiens le doigt pour l’incliner':'Bouge la souris pour incliner le paquet · glisse la carte du dessus sur le côté'}</div>
     <button class="btn ghost sm" id="opSkip" style="margin-top:12px">Passer ⏭ voir tout</button>`;
@@ -975,7 +988,7 @@ function renderHand(){
   const hand=$('#hand'),stack=$('#stack3d'),cards=[...stack.querySelectorAll('.scard')],MAX=26;
   let rx=0,ry=0,trx=0,tRy=0,tx=0,drag=false,x0=0,y0=0,moved=0,flying=false,holdT=0,tilt=false,last=null;
   function layout(){
-    cards.forEach((el,k)=>{const d=k-OP.i;if(d<0)return;const f=el.querySelector('.sface');if(d<8&&!f.innerHTML)f.innerHTML=faceOf(OP.items[k]);el.style.display=d>6?'none':'';el.style.transform=`translateZ(${-Math.min(d,6)*3.2}px)`;el.classList.toggle('top',d===0)});
+    cards.forEach((el,k)=>{const d=k-OP.i;if(d<0)return;const f=el.querySelector('.sface');if(d<8&&!f.innerHTML)f.innerHTML=faceOf(OP.items[k]);el.style.display=d>6?'none':'';const dd=Math.min(d,6),sg=k%2?1:-1;el.style.transform=d===0?'translateZ(0)':`translateZ(${-dd*3.2}px) translate(${sg*(1.5+dd)}px,${2+dd*2.2}px) rotate(${sg*(.6+dd*.35)}deg)`;el.classList.toggle('top',d===0)}); // paquet en léger désordre : le bord de la carte suivante dépasse 
     const it0=OP.items[OP.i],pk=it0.pack||0,first=OP.items.findIndex(x=>(x.pack||0)===pk);
     $('#opCount').textContent=OP.count>1?`Booster ${pk+1} / ${OP.count} · carte ${OP.i-first+1} / 10`:`${OP.i+1} / ${n}`;
     const it=OP.items[OP.i],nx=OP.items[OP.i+1];
@@ -1098,7 +1111,7 @@ function updateSoundBtn(){const b=$('#sndBtn');if(!b)return;const on=S.sound!==f
 function zoomCard(id){
   const c=CARS[id];if(!c)return;const z=$('#zoom');
   const k=Math.max(1,Math.min((innerWidth-40)/220,(innerHeight-140)/356,2.4));
-  z.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="zbox" style="width:${220*k}px;height:${356*k+40}px"><div class="zscale" style="transform:translateX(-50%) scale(${k})">${viewerHTML(cardHTML(c))}</div></div><div class="zcap">${c.brand} ${c.model} · ${symOf(c)} · ${numLabel(c)}</div>`;
+  z.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="zbox" style="width:${220*k}px;height:${356*k+40}px"><div class="zscale" style="transform:translateX(-50%) scale(${k})">${viewerHTML(cardHTML(c),'e-'+c.v)}</div></div><div class="zcap">${c.brand} ${c.model} · ${symOf(c)} · ${numLabel(c)}</div>`;
   z.classList.remove('hidden');mountViewer(z.querySelector('.v3d'));sfx.click();
   const close=()=>{z.classList.add('hidden');z.innerHTML='';document.removeEventListener('keydown',esc)};
   const esc=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',esc);
@@ -1217,7 +1230,7 @@ function openDetail(id){
     acts+=`<button class="btn ghost" onclick="sellDup(${id})">💱 Revendre un doublon au grossiste (+${dupVal(c)} 🪙)</button>`;
   }
   const ctry=COUNTRY[c.cc];
-  m.innerHTML=`<div class="detail"><button class="x" onclick="closeDetail()">×</button><div>${viewerHTML(cardHTML(c,{count:own}))}<div class="req center">${TOUCH?'Maintiens le doigt sur la carte pour l’incliner':'Bouge la souris sur la carte pour l’incliner'}</div><div class="center"><button class="btn ghost sm" onclick="zoomCard(${id})">⛶ Plein écran</button></div></div><div>
+  m.innerHTML=`<div class="detail"><button class="x" onclick="closeDetail()">×</button><div>${viewerHTML(cardHTML(c,{count:own}),'e-'+c.v)}<div class="req center">${TOUCH?'Maintiens le doigt sur la carte pour l’incliner':'Bouge la souris sur la carte pour l’incliner'}</div><div class="center"><button class="btn ghost sm" onclick="zoomCard(${id})">⛶ Plein écran</button></div></div><div>
    <h3>${c.brand} ${c.model}</h3>
    <div class="mut" style="margin:0">${ctry[0]} ${ctry[1]} · ${c.year} · ${symOf(c)}${c.v==='h'?' holo':''} · ${extOf(c).name} n°${numLabel(c).split(' ')[1]}${c.secret?' (secrète)':''}</div>${c.v==='a'?`<div class="fact"><b>Mise en scène ★★★ :</b> la voiture en action (rallye, piste, drift ou photo historique).</div>`:''}${c.v==='p'?`<div class="fact"><b>Mise en scène Prépa :</b> la photo montre la version préparée par ${c.tuner} (${c.prep.brand} ${c.prep.model}, ${c.prep.hp} ch). ${c.prep.fact}</div>`:''}
    <div class="fact"><b>Le saviez-vous ?</b> ${c.fact}</div>
