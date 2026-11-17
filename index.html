@@ -829,8 +829,10 @@ const RANGE={};STATS.forEach(s=>{const v=CARS.map(c=>c[s.k]);RANGE[s.k]={min:Mat
 function norm(c,k){const s=STATS.find(x=>x.k===k),r=RANGE[k];let n=k==='hp'?Math.log(c[k]/r.min)/Math.log(r.max/r.min):(c[k]-r.min)/(r.max-r.min);return s.hi?n:1-n}
 function power(c){return STATS.reduce((a,s)=>a+norm(c,s.k),0)}
 // valeurs par rang de rareté (● ●holo ◆ ◆holo ★ ★★ ★★★ ♛). Un booster revendu en doublons rapporte moins que son prix.
-const COTE=[2,5,4,10,18,110,240,700],DUP=[1,3,2,6,12,60,120,300];
-function cote(c){return Math.max(1,Math.round(COTE[cardRank(c)]*(0.7+power(c)/4*0.8)))}
+// rangs : 0 ● · 1 ● holo · 2 ◆ · 3 ◆ holo · 4 ★ · 5 ★★ · 6 ★★★ · 7 ♛
+// cote = prix à l'unité (vitrine), plafonnée à COTE_MAX ; DUP = rachat d'un doublon par le grossiste
+const COTE=[2,3,3,4,6,20,35,53],DUP=[2,2,2,3,3,12,22,30],COTE_MAX=70;
+function cote(c){return Math.min(COTE_MAX,Math.max(2,Math.round(COTE[cardRank(c)]*(0.7+power(c)/4*0.8))))}
 const dupVal=c=>DUP[cardRank(c)];
 
 // Boosters & produits scellés
@@ -1392,7 +1394,7 @@ function customer(){
   const n=NAMES[Math.floor(Math.random()*NAMES.length)];
   const collector=S.vitrine.length&&(Math.random()<.3||!S.shelf.length);
   if(collector){
-    const i=Math.floor(Math.random()*S.vitrine.length),v=S.vitrine[i],c=CARS[v.cid],will=Math.round(cote(c)*rnd(.8,1.4));
+    const i=Math.floor(Math.random()*S.vitrine.length),v=S.vitrine[i],c=CARS[v.cid],will=Math.min(COTE_MAX,Math.round(cote(c)*rnd(.8,1.4)));
     if(v.price<=will){S.vitrine.splice(i,1);S.coins+=v.price;S.revenue+=v.price;S.sales++;S.rep=Math.min(100,S.rep+1.5);addLog(`🧑 ${n} (collectionneur) achète la ${c.brand} ${c.model} pour ${v.price} 🪙`,'ok');sold(v.price)}
     else{S.rep=Math.max(0,S.rep-.5);addLog(`🧑 ${n} trouve la ${c.model} trop chère à ${v.price} 🪙 (il était prêt à payer ~${will})`,'ko')}
     return;
@@ -1686,6 +1688,7 @@ if(location.hash==='#god')setTimeout(godPanel,300);
 // =====================================================================
 let resetArm=false;
 $('#resetBtn').onclick=()=>{const b=$('#resetBtn');if(!resetArm){resetArm=true;b.textContent='Confirmer ? Tout sera effacé';setTimeout(()=>{resetArm=false;b.textContent='Réinitialiser la partie'},4000);return}S=fresh();duel=null;sel=[];Q=null;save();resetArm=false;b.textContent='Réinitialiser la partie';showTab('ouvrir');updateHUD();toast('Nouvelle partie')};
+S.vitrine.forEach(v=>{v.price=Math.min(v.price,cote(CARS[v.cid]))}); // anciennes cotes (3 fois plus chères) ramenées au nouveau barème
 checkBadges(true); // anciennes parties : badges déjà mérités, sans notification
 updateHUD();updateSoundBtn();renderOpen();
 // Safari iOS ignore « touch-action: none » : deux touchers rapprochés (tap rapide sur les cartes) déclenchaient le zoom.

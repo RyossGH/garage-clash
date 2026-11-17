@@ -37,6 +37,7 @@ Jeu web de cartes à collectionner de voitures, en français. Prototype statique
 - Photos : uniquement des images libres de Wikimedia Commons, avec crédit auteur + licence
 
 ## À faire / décisions ouvertes
+- Valeur des cartes (`COTE`, `DUP`, `COTE_MAX` = 70) : revente d'un doublon 2-3 🪙 pour les courantes, jusqu'à 70 🪙 de cote pour les ♛
 - Économie : quiz et duels sont plafonnés par jour ; la boutique (ventes aux clients) rapporte encore des jetons sans limite
 - Serveur : comptes, sauvegarde en ligne, anti-triche, puis vrai paiement
 - Chiffres et anecdotes des voitures : approximatifs, à revérifier avant lancement public
