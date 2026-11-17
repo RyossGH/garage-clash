@@ -18,6 +18,8 @@ Jeu web de cartes à collectionner de voitures, en français. Prototype statique
   - `f`, `a`, `p` sont des secrètes, numérotées au-delà du total
 - `PHOTO`, `PHOTO_FA`, `PHOTO_ALT` : crédits Wikimedia `[fichier, auteur, licence]` — à tenir à jour avec `img/`
 - Booster (`PV1`, `rollBooster`) : 10 cartes = 6 non holo, 3 holo (emplacements 7-9, peuvent être remplacés par une secrète selon `hs`), 1 ★
+  - god pack (`gp`, 0,1 %) : 5 ★, 3 ★★, 2 ★★★ toutes différentes (`godCards`) ; forçable en mode dev
+- Cadres et tranches teintés très légèrement selon la version (`var-*`, `e-*`) : la pile est alignée et on aperçoit la tranche des cartes suivantes en inclinant le paquet. Ne pas mettre de `filter` sur `.stack3d` (ça aplatit la 3D)
 - Sauvegarde : localStorage, clé `SKEY` (incrémenter si la liste des cartes change)
 - Duel : 5 terrains tirés parmi `TERRAINS` (circuit, autobahn, départ arrêté, pluie, rallye, neige, ville, course de côte). Score d'une voiture sur un terrain = `terrainScore(c,T)` (poids des stats `w` + bonus/malus `bonus`, ex. intégrale sur la neige). Transmission et énergie : `DRIVE_A`, `DRIVE_R` (le reste = traction), `ENERGY`. Niveaux d'IA dans `DIFF` (off = niveau des voitures, build = équipe adaptée aux terrains, smart = bonne voiture jouée). Toute nouvelle voiture doit être ajoutée à `DRIVE_A`/`DRIVE_R`/`ENERGY` si besoin.
 - Sons : synthétisés en WebAudio (`sfx`), vibrations via `buzz()`, coupables avec le bouton haut-parleur (`S.sound`)

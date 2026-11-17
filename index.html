@@ -283,9 +283,9 @@ body.opening{background:#07080c}
 .tag.pop{animation:pop .35s ease-out}
 .tag.hit{background:linear-gradient(90deg,#9ff,#f9f,#ff9);color:#1a1030}
 .hand.tease .stack3d{animation:tease 1.2s ease-in-out infinite}
-.hand.tease.t-E .stack3d{filter:drop-shadow(0 0 7px rgba(220,230,255,.22))}
-.hand.tease.t-L .stack3d{filter:drop-shadow(0 0 10px rgba(255,225,170,.3))}
-.hand.tease.t-P .stack3d,.hand.tease.t-K .stack3d{filter:drop-shadow(0 0 10px rgba(255,214,140,.35))}
+.hand.tease.t-E{filter:drop-shadow(0 0 7px rgba(220,230,255,.22))}
+.hand.tease.t-L{filter:drop-shadow(0 0 10px rgba(255,225,170,.3))}
+.hand.tease.t-P,.hand.tease.t-K{filter:drop-shadow(0 0 10px rgba(255,214,140,.35))}
 @keyframes tease{0%,100%{translate:0 0}10%{translate:-1px 0}20%{translate:1px 0}30%{translate:0 0}}
 .rays{position:absolute;left:50%;top:50%;width:620px;height:620px;margin:-310px 0 0 -310px;border-radius:50%;pointer-events:none;opacity:0;z-index:-1}
 .rays.on{opacity:1;animation:spin 14s linear infinite,pop .6s ease-out;-webkit-mask:radial-gradient(circle,#000 18%,transparent 66%);mask:radial-gradient(circle,#000 18%,transparent 66%)}
@@ -545,14 +545,16 @@ html,body,button,a,.card,.pick,.slot,.bpack,.chip,nav,section{touch-action:manip
 .sndbtn{display:flex;align-items:center;justify-content:center;padding:6px 9px;cursor:pointer;color:var(--txt)}
 .sndbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .sndbtn.off{color:var(--mut)}
+/* ===== God pack ===== */
+.tag.god{background:linear-gradient(90deg,#ff3b5c,#ffb347,#ffe66b,#4dffb5,#33d6ff,#a36bff);background-size:300% 100%;color:#120a00;animation:godtag 2.5s linear infinite}
+@keyframes godtag{to{background-position:300% 0}}
 /* ===== Zoom ===== */
-.zoom{position:fixed;inset:0;z-index:80;background:rgba(4,5,9,.92);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadein .2s}
+.zoom{position:fixed;inset:0;z-index:80;background:rgba(4,5,9,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadein .2s}
 .zoom.hidden{display:none}
 .zoom .x{position:absolute;top:calc(12px + env(safe-area-inset-top));right:16px;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:26px;width:44px;height:44px;border-radius:50%;cursor:pointer}
 .zbox{position:relative;display:flex;justify-content:center}
-.zscale{transform-origin:top center;position:absolute;top:0;left:50%;width:256px}
+.zoom .v3d{width:100%;height:100%;padding:0;align-items:center}.zoom .v3d-card{will-change:auto}
 .zoom .v3d-card{width:220px!important;height:356px!important}.zoom .v3d .card:not(.fa) .art{height:128px!important}.zoom .v3d .card .stat{font-size:14px!important;padding:5px 7px!important}
-.zscale .v3d{padding:18px}
 .zcap{color:var(--mut);font-size:14px;margin-top:8px;text-align:center;padding:0 16px}
 .zoomable{cursor:zoom-in}
 @keyframes fadein{from{opacity:0}}
@@ -571,11 +573,12 @@ html,body,button,a,.card,.pick,.slot,.bpack,.chip,nav,section{touch-action:manip
 .card.var-f{background:linear-gradient(155deg,#fbf9f5 0%,#c0bab1 20%,#625e59 48%,#cdc6bb 76%,#faf7f1 100%)}
 .card.var-a{background:linear-gradient(155deg,#fbf2f7 0%,#c4b8d4 18%,#665f7b 46%,#b8cfd4 72%,#eef6e8 88%,#f8f1f6 100%)}
 .card.var-p{background:linear-gradient(155deg,#faf4e4 0%,#c6b386 20%,#6b5f45 48%,#d0bf93 76%,#faf5e8 100%)}
-.scard.e-h .sedge,.v3d.e-h .edge{background:linear-gradient(90deg,#fff,#bcc0cd 20%,#7f8597 50%,#bcc0cd 80%,#fbf9ff)}
-.scard.e-r .sedge,.v3d.e-r .edge{background:linear-gradient(90deg,#fbfdff,#b9c4d4 20%,#78849b 50%,#b9c4d4 80%,#fbfdff)}
-.scard.e-f .sedge,.v3d.e-f .edge{background:linear-gradient(90deg,#fffdf9,#c8c2b8 20%,#86817a 50%,#c8c2b8 80%,#fffdf9)}
-.scard.e-a .sedge,.v3d.e-a .edge{background:linear-gradient(90deg,#fff6fb,#cbbfda 20%,#878198 45%,#bdd5d8 70%,#f4fbef)}
-.scard.e-p .sedge,.v3d.e-p .edge{background:linear-gradient(90deg,#fffaf0,#d0bf95 20%,#8e7f5c 50%,#d0bf95 80%,#fffaf0)}
+.scard .sedge{background:linear-gradient(160deg,#c9ced8,#8f97a6 50%,#b7bdc9)}
+.scard.e-h .sedge,.v3d.e-h .edge{background:linear-gradient(160deg,#dde1ea,#9aa1b1 50%,#c9ceda)}
+.scard.e-r .sedge,.v3d.e-r .edge{background:linear-gradient(160deg,#d3dcec,#8796b0 50%,#c0cbdd)}
+.scard.e-f .sedge,.v3d.e-f .edge{background:linear-gradient(160deg,#e9e3d8,#a9a194 50%,#ddd5c8)}
+.scard.e-a .sedge,.v3d.e-a .edge{background:linear-gradient(160deg,#ecd6e6,#b3a6cf 35%,#9fc4cc 65%,#e2efd6)}
+.scard.e-p .sedge,.v3d.e-p .edge{background:linear-gradient(160deg,#eedfb6,#b39e66 50%,#e2cf9a)}
 </style>
 </head>
 <body>
@@ -821,7 +824,8 @@ const dupVal=c=>DUP[cardRank(c)];
 
 // Boosters & produits scellés
 // emplacements holo 7, 8, 9 : chance d'être remplacés par une secrète (♛ = rareté « gold »)
-const PV1={name:'Première Vitesse',ext:'PV1',ar:.35,hs:[{},{F:.03,A:.015},{F:.06,A:.03,P:.007}]};
+// gp : chance (très rare) d'un god pack = 10 cartes ★ / ★★ / ★★★
+const PV1={name:'Première Vitesse',ext:'PV1',ar:.35,gp:.001,hs:[{},{F:.03,A:.015},{F:.06,A:.03,P:.007}]};
 const BOOST={
  classique:PV1,premium:PV1,retro:PV1
 };
@@ -919,11 +923,11 @@ function mountViewer(root,opt={}){
   function loop(){
     if(!root.isConnected)return;
     rx+=(trx-rx)*.14;ry+=(tRy-ry)*.14;tx+=(ttx-tx)*(gone?.22:.25);
-    card.style.transform=`translateX(${tx.toFixed(1)}px) rotateZ(${(tx/22).toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+    card.style.transform=`${opt.scale?`scale(${opt.scale}) `:''}translateX(${tx.toFixed(1)}px) rotateZ(${(tx/22).toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
     if(inner){inner.style.setProperty('--mx',(50+ry/MAX*55).toFixed(1)+'%');inner.style.setProperty('--my',(50-rx/(MAX*.75)*55).toFixed(1)+'%');const o=Math.min(1,(Math.abs(rx)+Math.abs(ry))/18);inner.style.setProperty('--o',o.toFixed(2));inner.classList.toggle('lit',o>.03)}
     requestAnimationFrame(loop)}
   function fling(dir){if(gone)return;gone=true;ttx=dir*(window.innerWidth||900);tRy=dir*35;setTimeout(()=>opt.onSwipe&&opt.onSwipe(dir),280)}
-  root.addEventListener('pointermove',e=>{last=e;if(e.pointerType==='mouse'||tilt)aim(e);if(!drag||gone)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));if(opt.onSwipe&&!tilt)ttx=dx});
+  root.addEventListener('pointermove',e=>{last=e;if(opt.dragTilt&&drag&&!tilt&&Math.abs(e.clientX-x0)+Math.abs(e.clientY-y0)>6){tilt=true;clearTimeout(holdT)}if(e.pointerType==='mouse'||tilt)aim(e);if(!drag||gone)return;const dx=e.clientX-x0;moved=Math.max(moved,Math.abs(dx)+Math.abs(e.clientY-y0));if(opt.onSwipe&&!tilt)ttx=dx});
   root.addEventListener('pointerdown',e=>{if(gone)return;drag=true;x0=e.clientX;y0=e.clientY;moved=0;last=e;try{root.setPointerCapture(e.pointerId)}catch(_){}
     if(e.pointerType==='mouse')aim(e);else{tilt=false;clearTimeout(holdT);holdT=setTimeout(()=>{if(drag&&moved<12){tilt=true;aim(last)}},HOLD_MS)}});
   const up=e=>{if(!drag)return;drag=false;clearTimeout(holdT);if(tilt){tilt=false;ttx=0;trx=0;tRy=0;return}
@@ -943,7 +947,7 @@ const TOUCH=!!(window.matchMedia&&matchMedia('(hover:none)').matches);
 let OP=null;
 function startOpening(type,title,count=1){
   let items=[];
-  for(let k=0;k<count;k++){const r=rollBooster(type);items.push(...r.res.map(x=>({kind:'car',c:x.c,isNew:x.isNew,pack:k})))}
+  for(let k=0;k<count;k++){const r=rollBooster(type);items.push(...r.res.map(x=>({kind:'car',c:x.c,isNew:x.isNew,pack:k,god:!!r.god})))}
   items.forEach(it=>{const im=new Image();im.src='img/'+it.c.img+'.webp'});
   OP={type,count,title:title||(count>1?`${count} boosters ${BOOST[type].name}`:'Booster '+BOOST[type].name),items,i:0,stage:'pack',revealed:false,busy:false};
   updateHUD();document.body.classList.add('opening');window.scrollTo(0,0);renderOpener();$('#opener').classList.remove('hidden');
@@ -969,7 +973,7 @@ function renderOpener(){
   const nNew=OP.items.filter(it=>it.isNew).length,nSec=OP.items.filter(it=>it.c.secret).length;
   o.innerHTML=`<div class="op-title">${OP.count>1?`Contenu des ${OP.count} boosters`:'Contenu du booster'}</div>
     ${OP.count>1?`<p class="mut center">${OP.items.length} cartes · ${nNew} nouvelle${nNew>1?'s':''} · ${nSec} secrète${nSec>1?'s':''} (★★ / ★★★ / ♛)</p>`:''}
-    ${Array.from({length:OP.count},(_,k)=>`${OP.count>1?`<h4 class="center">Booster ${k+1}</h4>`:''}<div class="sum">${OP.items.filter(it=>(it.pack||0)===k).map(it=>`<div class="slot zoomable" onclick="zoomCard(${it.c.id})">${cardHTML(it.c)}<div class="tag ${it.isNew?'new':'dup'} show">${it.isNew?'NOUVELLE':'Doublon'}</div></div>`).join('')}</div>`).join('')}
+    ${Array.from({length:OP.count},(_,k)=>`${OP.count>1||OP.items.some(it=>it.pack===k&&it.god)?`<h4 class="center">${OP.count>1?'Booster '+(k+1):''}${OP.items.some(it=>(it.pack||0)===k&&it.god)?' <span class="tag god show">⚡ GOD PACK</span>':''}</h4>`:''}<div class="sum">${OP.items.filter(it=>(it.pack||0)===k).map(it=>`<div class="slot zoomable" onclick="zoomCard(${it.c.id})">${cardHTML(it.c)}<div class="tag ${it.isNew?'new':'dup'} show">${it.isNew?'NOUVELLE':'Doublon'}</div></div>`).join('')}</div>`).join('')}
     <p class="mut center" style="margin-top:14px">+${5*OP.count} ✦ points booster · total ${S.points} ✦ (échangeables contre la carte de ton choix dans le Garage)</p>
     <div class="btns" style="justify-content:center"><button class="btn" id="opAgain">Ouvrir un autre booster</button><button class="btn ghost" id="opClose">Terminer</button></div>`;
   $('#opAgain').onclick=e=>{e.stopPropagation();closeOpener();showTab('ouvrir')};
@@ -980,7 +984,7 @@ const faceOf=x=>cardHTML(x.c);
 function renderHand(){
   const o=$('#opener'),n=OP.items.length;
   o.innerHTML=`<div class="op-title">${OP.title}</div><div class="op-count" id="opCount"></div>
-    <div class="hand" id="hand"><div class="rays" id="rays"></div><div class="stack3d" id="stack3d">${OP.items.map((it,k)=>`<div class="scard e-${it.c.v}" data-k="${k}" style="z-index:${n-k}"><div class="sedge" style="transform:translateZ(-1px)"></div><div class="sedge" style="transform:translateZ(-2px)"></div><div class="sface">${k<8?faceOf(it):''}</div></div>`).join('')}</div></div>
+    <div class="hand" id="hand"><div class="rays" id="rays"></div><div class="stack3d" id="stack3d">${OP.items.map((it,k)=>`<div class="scard e-${it.c.v}" data-k="${k}" style="z-index:${n-k}"><div class="sedge" style="transform:translateZ(-1.5px)"></div><div class="sedge" style="transform:translateZ(-3px)"></div><div class="sedge" style="transform:translateZ(-4.5px)"></div><div class="sface">${k<8?faceOf(it):''}</div></div>`).join('')}</div></div>
     <div class="tagline" id="tagline"></div>
     <div class="op-hint">${TOUCH?'Touche ou glisse la carte pour passer à la suivante · maintiens le doigt pour l’incliner':'Bouge la souris pour incliner le paquet · glisse la carte du dessus sur le côté'}</div>
     <button class="btn ghost sm" id="opSkip" style="margin-top:12px">Passer ⏭ voir tout</button>`;
@@ -988,11 +992,11 @@ function renderHand(){
   const hand=$('#hand'),stack=$('#stack3d'),cards=[...stack.querySelectorAll('.scard')],MAX=26;
   let rx=0,ry=0,trx=0,tRy=0,tx=0,drag=false,x0=0,y0=0,moved=0,flying=false,holdT=0,tilt=false,last=null;
   function layout(){
-    cards.forEach((el,k)=>{const d=k-OP.i;if(d<0)return;const f=el.querySelector('.sface');if(d<8&&!f.innerHTML)f.innerHTML=faceOf(OP.items[k]);el.style.display=d>6?'none':'';const dd=Math.min(d,6),sg=k%2?1:-1;el.style.transform=d===0?'translateZ(0)':`translateZ(${-dd*3.2}px) translate(${sg*(1.5+dd)}px,${2+dd*2.2}px) rotate(${sg*(.6+dd*.35)}deg)`;el.classList.toggle('top',d===0)}); // paquet en léger désordre : le bord de la carte suivante dépasse 
+    cards.forEach((el,k)=>{const d=k-OP.i;if(d<0)return;const f=el.querySelector('.sface');if(d<8&&!f.innerHTML)f.innerHTML=faceOf(OP.items[k]);el.style.display=d>6?'none':'';el.style.transform=`translateZ(${-Math.min(d,6)*6}px)`;el.classList.toggle('top',d===0)}); // pile alignée ; en inclinant le paquet on voit la tranche des cartes de derrière 
     const it0=OP.items[OP.i],pk=it0.pack||0,first=OP.items.findIndex(x=>(x.pack||0)===pk);
     $('#opCount').textContent=OP.count>1?`Booster ${pk+1} / ${OP.count} · carte ${OP.i-first+1} / 10`:`${OP.i+1} / ${n}`;
     const it=OP.items[OP.i],nx=OP.items[OP.i+1];
-    $('#tagline').innerHTML=`<span class="tag ${it.isNew?'new':'dup'} show pop">${it.isNew?'NOUVELLE':'Doublon · x'+cnt(it.c.id)}</span>${it.c.v==='h'?' <span class="tag hit show pop">✨ HOLO</span>':''}`;
+    $('#tagline').innerHTML=`<span class="tag ${it.isNew?'new':'dup'} show pop">${it.isNew?'NOUVELLE':'Doublon · x'+cnt(it.c.id)}</span>${it.c.v==='h'?' <span class="tag hit show pop">✨ HOLO</span>':''}${it.god?' <span class="tag god show pop">⚡ GOD PACK</span>':''}`;
     hand.className='hand'+(nx&&isRareItem(nx)?' tease t-'+itRar(nx):'');
   }
   function reveal(){const it=OP.items[OP.i];if(it.c.v==='h')sfx.holo();if(!isRareItem(it))return;const r=itRar(it);sfx.rare(r);buzz(r==='P'?[60,40,60,40,160]:r==='L'?[40,40,90]:30);
@@ -1033,8 +1037,8 @@ function renderHand(){
 }
 function tear(){
   if(OP.stage!=='pack'||OP.busy)return;OP.busy=true;
-  const best=OP.items.reduce((m,it)=>Math.max(m,it.c.v==='p'||it.c.v==='a'?4:it.c.v==='f'?3:0),0),tw=$('#tw');
-  if(best>=3){tw.classList.add('rumble',best>=4?'best-P':'best-L');$('.op-hint').textContent='… il se passe quelque chose !';sfx.rumble();buzz([50,40,50,40,50,40,50])}
+  const best=OP.items.reduce((m,it)=>Math.max(m,it.c.v==='p'||it.c.v==='a'?4:it.c.v==='f'?3:0),0),tw=$('#tw'),isGod=OP.items.some(it=>it.god);
+  if(best>=3){tw.classList.add('rumble',best>=4?'best-P':'best-L');$('.op-hint').textContent=isGod?'… ce booster est anormalement lourd ⚡':'… il se passe quelque chose !';sfx.rumble();buzz(isGod?[80,40,80,40,80,40,200]:[50,40,50,40,50,40,50])}
   setTimeout(()=>{tw.classList.add('torn');sfx.tear();buzz(35);setTimeout(()=>{OP.busy=false;OP.stage='cards';renderOpener()},850)},best>=3?900:0);
 }
 function closeOpener(){$('#opener').classList.add('hidden');document.body.classList.remove('opening');OP=null;rerender()}
@@ -1111,8 +1115,8 @@ function updateSoundBtn(){const b=$('#sndBtn');if(!b)return;const on=S.sound!==f
 function zoomCard(id){
   const c=CARS[id];if(!c)return;const z=$('#zoom');
   const k=Math.max(1,Math.min((innerWidth-40)/220,(innerHeight-140)/356,2.4));
-  z.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="zbox" style="width:${220*k}px;height:${356*k+40}px"><div class="zscale" style="transform:translateX(-50%) scale(${k})">${viewerHTML(cardHTML(c),'e-'+c.v)}</div></div><div class="zcap">${c.brand} ${c.model} · ${symOf(c)} · ${numLabel(c)}</div>`;
-  z.classList.remove('hidden');mountViewer(z.querySelector('.v3d'));sfx.click();
+  z.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="zbox" style="width:${220*k+36}px;height:${356*k+36}px">${viewerHTML(cardHTML(c),'e-'+c.v)}</div><div class="zcap">${c.brand} ${c.model} · ${symOf(c)} · ${numLabel(c)}</div>`;
+  z.classList.remove('hidden');mountViewer(z.querySelector('.v3d'),{scale:k,dragTilt:true});sfx.click();
   const close=()=>{z.classList.add('hidden');z.innerHTML='';document.removeEventListener('keydown',esc)};
   const esc=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',esc);
   z.onclick=e=>{if(!e.target.closest('.v3d-card'))close()};
@@ -1147,8 +1151,12 @@ const slotProb=(B,k)=>1-B.hs.reduce((m,u)=>m*(1-(u[k]||0)),1);
 // pour le duel : une carte au hasard d'un niveau donné (version standard)
 function randomOf(r,filter=()=>true,excl=[]){const base=c=>c.v==='s'||c.v==='r';let p=CARS.filter(c=>base(c)&&c.rar===r&&filter(c)&&!excl.includes(c.id));if(!p.length)p=CARS.filter(c=>base(c)&&c.rar===r);return p[Math.floor(Math.random()*p.length)]}
 function openBooster(type,title){startOpening(type,title)}
+// God pack : 5 ★, 3 ★★, 2 ★★★, toutes différentes, dans l'ordre (la 1re carte déjà ★ met la puce à l'oreille)
+let forceGod=false;
+function godCards(B){const out=[];const take=(v,n)=>{for(let i=0;i<n;i++)out.push(pickFrom(B.ext,c=>c.v===v&&!out.includes(c))||pickFrom(B.ext,c=>c.v===v))};take('r',5);take('f',3);take('a',2);return out}
 function rollBooster(type){
   const B=BOOST[type];
+  if(forceGod||Math.random()<(B.gp||0)){forceGod=false;const res=godCards(B).map(c=>{const isNew=!cnt(c.id);S.owned[c.id]=cnt(c.id)+1;return{c,isNew}});S.packs++;S.points+=5;S.godPacks=(S.godPacks||0)+1;save();return{res,god:true}}
   const cards=[];
   for(let i=0;i<6;i++){const br=Math.random()<B.ar?'AR':'C';cards.push(pickFrom(B.ext,c=>c.v==='s'&&c.br===br))}
   for(let i=0;i<3;i++){const v=holoSlot(B.hs[i]);const br=Math.random()<B.ar?'AR':'C';cards.push(v==='h'?pickFrom(B.ext,c=>c.v==='h'&&c.br===br):(pickFrom(B.ext,c=>c.v===v)||pickFrom(B.ext,c=>c.v==='f')))}
@@ -1162,7 +1170,7 @@ function packHTML(p,extra=''){return `<div class="bpack ${p.cls} ${extra}" data-
 function renderPacks(){
   $('#packs').innerHTML=PACKS.map(p=>packHTML(p,p.type===selPack?'sel':'')).join('');
   $('#packs').querySelectorAll('.bpack').forEach(el=>el.onclick=()=>{selPack=el.dataset.type;renderPacks();tick()});
-  const B=BOOST[selPack],pc=x=>(x*100).toLocaleString('fr-FR',{maximumFractionDigits:1});$('#packInfo').textContent=`Extension ${B.name} · 10 cartes : 6 non holo, 3 holo, 1 ★ · par booster : ★★ ${pc(slotProb(B,'F'))} % · ★★★ ${pc(slotProb(B,'A'))} % · ♛ ${pc(slotProb(B,'P'))} % (≈ 1 tous les ${Math.round(1/slotProb(B,'P'))} boosters) · +5 ✦`;
+  const B=BOOST[selPack],pc=x=>(x*100).toLocaleString('fr-FR',{maximumFractionDigits:1});$('#packInfo').textContent=`Extension ${B.name} · 10 cartes : 6 non holo, 3 holo, 1 ★ · par booster : ★★ ${pc(slotProb(B,'F'))} % · ★★★ ${pc(slotProb(B,'A'))} % · ♛ ${pc(slotProb(B,'P'))} % · god pack ${pc(B.gp||0)} % (≈ 1 tous les ${Math.round(1/slotProb(B,'P'))} boosters) · +5 ✦`;
 }
 $('#openFree').onclick=()=>{regen();if(S.freeStock<1)return;S.freeStock--;if(!S.freeAt)S.freeAt=Date.now()+FREE_MS;startOpening(selPack,'Booster '+BOOST[selPack].name+' (gratuit)')};
 $('#openGem').onclick=()=>{const p=GEM_PRICE[selPack];if(S.gems<p){openGemShop(`Il te manque ${p-S.gems} 💎 pour ce booster.`);return}S.gems-=p;startOpening(selPack)};
@@ -1570,6 +1578,7 @@ function godPanel(){
    <button class="btn sm" onclick="god('mkt')">Tick marché</button>
    <button class="btn sm" onclick="god('rep')">Réputation 100</button>
    <button class="btn sm" onclick="god('leg')">Booster GOD (★★ / ★★★ / ♛)</button>
+   <button class="btn sm" onclick="god('gp')">Forcer un god pack</button>
    <button class="btn sm ghost" onclick="god('wipe')">Vider la collection</button>`;
   document.body.appendChild(p);
 }
@@ -1583,6 +1592,7 @@ function god(a){
   if(a==='cust'){S.nextCust=Date.now()-1}
   if(a==='mkt')Object.keys(PROD).forEach(pid=>{S.mktPrev[pid]=S.mkt[pid];S.mkt[pid]=Math.min(3,Math.max(.7,S.mkt[pid]*(1+(Math.random()-.4)*.2)))});
   if(a==='rep')S.rep=100;
+  if(a==='gp'){forceGod=true;startOpening(selPack,'Booster '+BOOST[selPack].name);return}
   if(a==='leg'){BOOST.god={name:'GOD',ext:null,ar:.5,hs:[{F:.5,A:.3},{F:.3,A:.4,P:.3},{F:.2,A:.3,P:.5}]};startOpening('god','Booster GOD')}
   if(a==='wipe'){S.owned={};duel=null;sel=[];dPrep=null}
   save();rerender();if(a!=='leg')toast('God : '+a);
