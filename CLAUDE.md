@@ -5,6 +5,7 @@ Jeu web de cartes à collectionner de voitures, en français. Prototype statique
 ## Lancer / tester
 - `python -m http.server 8000` puis http://localhost:8000
 - Mode dev dans le jeu : Ctrl+Shift+G ou `#god` dans l'URL
+- En ligne : GitHub Pages (branche `main`, racine)
 
 ## Modèle de données (dans index.html)
 - `RAW` : une ligne par voiture `[clé, marque, modèle, année, ch, vmax, 0-100, poids, silhouette, pays, anecdote, {evo, mega, tuner}]`
@@ -18,6 +19,9 @@ Jeu web de cartes à collectionner de voitures, en français. Prototype statique
 - `PHOTO`, `PHOTO_FA`, `PHOTO_ALT` : crédits Wikimedia `[fichier, auteur, licence]` — à tenir à jour avec `img/`
 - Booster (`PV1`, `rollBooster`) : 10 cartes = 6 non holo, 3 holo (emplacements 7-9, peuvent être remplacés par une secrète selon `hs`), 1 ★
 - Sauvegarde : localStorage, clé `SKEY` (incrémenter si la liste des cartes change)
+- Duel : 5 terrains tirés parmi `TERRAINS` (circuit, autobahn, départ arrêté, pluie, rallye, neige, ville, course de côte). Score d'une voiture sur un terrain = `terrainScore(c,T)` (poids des stats `w` + bonus/malus `bonus`, ex. intégrale sur la neige). Transmission et énergie : `DRIVE_A`, `DRIVE_R` (le reste = traction), `ENERGY`. Niveaux d'IA dans `DIFF` (off = niveau des voitures, build = équipe adaptée aux terrains, smart = bonne voiture jouée). Toute nouvelle voiture doit être ajoutée à `DRIVE_A`/`DRIVE_R`/`ENERGY` si besoin.
+- Sons : synthétisés en WebAudio (`sfx`), vibrations via `buzz()`, coupables avec le bouton haut-parleur (`S.sound`)
+- Hors-ligne : `sw.js` (page en réseau d'abord, images en cache d'abord, préchargement envoyé par la page). Changer `VERSION` dans `sw.js` si une image existante est remplacée par une autre du même nom.
 
 ## Règles du projet
 - Aucun nom de rareté sur les cartes, seulement les symboles ● ◆ ★ ★★ ★★★ ♛

@@ -20,6 +20,7 @@ puis ouvrir http://localhost:8000 (ouvrir `index.html` en double-clic ne suffit 
 
 - `index.html` : tout le jeu (HTML, CSS, JavaScript dans un seul fichier)
 - `img/` : photos des cartes (`<clé>.webp`, `<clé>_fa.webp` pour les Full Art, `<clé>_alt.webp` pour les Alt)
+- `sw.js` : mode hors-ligne (cache de la page et des images)
 - `manifest.webmanifest`, `icon*.png`, `icon.svg` : installation sur l'écran d'accueil du téléphone
 - `CLAUDE.md` : notes de contexte pour Claude Code
 

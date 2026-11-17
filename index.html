@@ -504,13 +504,67 @@ footer{border-top-color:rgba(255,255,255,.06);opacity:.8}
 body.opening nav{display:none}
 .toast{opacity:0;pointer-events:none;transition:transform .3s,opacity .3s}
 .toast.show{opacity:1}
+
+/* ===== Duel v2 ===== */
+.tstrip{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0 12px}
+.tchip{display:flex;align-items:center;gap:6px;background:#161a24;border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--mut)}
+.tchip .ti{font-size:16px}
+.tchip.cur{background:linear-gradient(180deg,#ff6a33,#f04d12);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(255,90,31,.3)}
+.tchip.r-w{border-color:var(--win);color:var(--win)}.tchip.r-l{border-color:var(--lose);color:var(--lose)}.tchip.r-t{border-color:#778}
+.tchip.cur,.tchip.cur.r-w,.tchip.cur.r-l{color:#fff;border-color:transparent}
+.tkeys{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:16px}
+.tkeys div{background:#141821;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:8px 12px;font-size:13px}
+.tkeys b{display:block;margin-bottom:2px}.tkeys span{color:var(--mut)}
+.duel-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:6px 0 16px}
+.seg{display:inline-flex;background:#141821;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:4px;gap:2px}
+.seg button{background:none;border:none;color:var(--mut);font-weight:700;font-size:13px;padding:7px 13px;border-radius:9px;cursor:pointer}
+.seg button.on{background:#fff;color:#0a0c11}
+.tech{text-align:center;font-size:11.5px;color:var(--mut);margin-top:6px;letter-spacing:.03em}
+.pick.on .tech{color:#ff8a5c;font-weight:700}
+.tbanner{display:flex;align-items:center;gap:14px;max-width:520px;margin:6px auto 4px;background:linear-gradient(180deg,#1a1f2c,#12151d);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 16px;box-shadow:var(--sh)}
+.tbanner .tbi{font-size:40px;line-height:1}
+.tbanner .round{text-align:left;letter-spacing:.12em}
+.tbanner b{display:block;font-size:20px}.tbanner span{color:var(--mut);font-size:13.5px}
+.hand-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.engage-bar{margin-top:14px}
+.sbox{width:210px;background:#12151d;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 10px;margin-top:6px}
+.sbox.win{border-color:var(--win);box-shadow:0 0 18px rgba(47,210,122,.18)}.sbox.lose{opacity:.75}
+.stot{font-size:28px;font-weight:700;text-align:center;line-height:1.1}.stot small{font-size:12px;color:var(--mut);margin-left:3px}
+.sbox.win .stot{color:var(--win)}
+.sline{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mut);padding:2px 0}
+.sline b{color:var(--txt);white-space:nowrap}.sline.neg b{color:var(--lose)}
+.flipin{animation:flipin .5s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes flipin{from{transform:perspective(800px) rotateY(90deg) scale(.9);opacity:0}}
+.end .tstrip{margin:10px 0}
+/* ===== Son ===== */
+.sndbtn{display:flex;align-items:center;justify-content:center;padding:6px 9px;cursor:pointer;color:var(--txt)}
+.sndbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sndbtn.off{color:var(--mut)}
+/* ===== Zoom ===== */
+.zoom{position:fixed;inset:0;z-index:80;background:rgba(4,5,9,.92);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadein .2s}
+.zoom.hidden{display:none}
+.zoom .x{position:absolute;top:calc(12px + env(safe-area-inset-top));right:16px;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:26px;width:44px;height:44px;border-radius:50%;cursor:pointer}
+.zbox{position:relative;display:flex;justify-content:center}
+.zscale{transform-origin:top center;position:absolute;top:0;left:50%;width:256px}
+.zoom .v3d-card{width:220px!important;height:356px!important}.zoom .v3d .card:not(.fa) .art{height:128px!important}.zoom .v3d .card .stat{font-size:14px!important;padding:5px 7px!important}
+.zscale .v3d{padding:18px}
+.zcap{color:var(--mut);font-size:14px;margin-top:8px;text-align:center;padding:0 16px}
+.zoomable{cursor:zoom-in}
+@keyframes fadein{from{opacity:0}}
+@media(max-width:700px){
+ .tchip .tn{display:none}.tchip{padding:6px 9px}.tchip.cur .tn{display:inline}
+ .hand-row{gap:8px}.hand-row .card{width:140px;height:236px}.hand-row .card .stat{font-size:10.5px;padding:2px 4px}.hand-row .card:not(.fa) .art{height:70px}
+ .sbox{width:160px}.sline{font-size:11px}
+ .engage-bar{position:sticky;bottom:calc(74px + env(safe-area-inset-bottom));z-index:5;padding:10px 0 4px;background:linear-gradient(180deg,transparent,rgba(10,12,17,.95) 40%)}
+ .duel-bar .btns{margin-left:0!important;width:100%}.duel-bar .btns .btn{flex:1}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="logo">GARAGE<span>CLASH</span></div>
-    <div class="hud"><div class="chip" id="hudCoins" title="Jetons : boutique, duels, quiz"></div><div class="chip clickable-chip" id="hudGems" onclick="openGemShop()"></div><div class="chip" id="hudPts" title="Points booster : échange-les contre la carte de ton choix"></div><div class="chip" id="hudCol" title="Cartes collectionnées"></div></div>
+    <div class="hud"><div class="chip" id="hudCoins" title="Jetons : boutique, duels, quiz"></div><div class="chip clickable-chip" id="hudGems" onclick="openGemShop()"></div><div class="chip" id="hudPts" title="Points booster : échange-les contre la carte de ton choix"></div><div class="chip" id="hudCol" title="Cartes collectionnées"></div><button class="chip sndbtn" id="sndBtn" onclick="toggleSound()"></button></div>
   </header>
   <nav>
     <button data-tab="ouvrir" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M5 8h14"/><path d="M12 12l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="currentColor" stroke="none"/></svg><span>Ouvrir</span></button>
@@ -571,6 +625,7 @@ body.opening nav{display:none}
 <div class="modal hidden" id="detailModal"></div>
 <div class="opener hidden" id="opener"></div>
 <div class="modal hidden" id="gemModal"></div>
+<div class="zoom hidden" id="zoom"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -893,7 +948,7 @@ function renderOpener(){
   const nNew=OP.items.filter(it=>it.isNew).length,nSec=OP.items.filter(it=>it.c.secret).length;
   o.innerHTML=`<div class="op-title">${OP.count>1?`Contenu des ${OP.count} boosters`:'Contenu du booster'}</div>
     ${OP.count>1?`<p class="mut center">${OP.items.length} cartes · ${nNew} nouvelle${nNew>1?'s':''} · ${nSec} secrète${nSec>1?'s':''} (★★ / ★★★ / ♛)</p>`:''}
-    ${Array.from({length:OP.count},(_,k)=>`${OP.count>1?`<h4 class="center">Booster ${k+1}</h4>`:''}<div class="sum">${OP.items.filter(it=>(it.pack||0)===k).map(it=>`<div class="slot">${cardHTML(it.c)}<div class="tag ${it.isNew?'new':'dup'} show">${it.isNew?'NOUVELLE':'Doublon'}</div></div>`).join('')}</div>`).join('')}
+    ${Array.from({length:OP.count},(_,k)=>`${OP.count>1?`<h4 class="center">Booster ${k+1}</h4>`:''}<div class="sum">${OP.items.filter(it=>(it.pack||0)===k).map(it=>`<div class="slot zoomable" onclick="zoomCard(${it.c.id})">${cardHTML(it.c)}<div class="tag ${it.isNew?'new':'dup'} show">${it.isNew?'NOUVELLE':'Doublon'}</div></div>`).join('')}</div>`).join('')}
     <p class="mut center" style="margin-top:14px">+${5*OP.count} ✦ points booster · total ${S.points} ✦ (échangeables contre la carte de ton choix dans le Garage)</p>
     <div class="btns" style="justify-content:center"><button class="btn" id="opAgain">Ouvrir un autre booster</button><button class="btn ghost" id="opClose">Terminer</button></div>`;
   $('#opAgain').onclick=e=>{e.stopPropagation();closeOpener();showTab('ouvrir')};
@@ -919,7 +974,7 @@ function renderHand(){
     $('#tagline').innerHTML=`<span class="tag ${it.isNew?'new':'dup'} show pop">${it.isNew?'NOUVELLE':'Doublon · x'+cnt(it.c.id)}</span>${it.c.v==='h'?' <span class="tag hit show pop">✨ HOLO</span>':''}`;
     hand.className='hand'+(nx&&isRareItem(nx)?' tease t-'+itRar(nx):'');
   }
-  function reveal(){const it=OP.items[OP.i];if(!isRareItem(it))return;const r=itRar(it);
+  function reveal(){const it=OP.items[OP.i];if(it.c.v==='h')sfx.holo();if(!isRareItem(it))return;const r=itRar(it);sfx.rare(r);buzz(r==='P'?[60,40,60,40,160]:r==='L'?[40,40,90]:30);
     const rays=$('#rays');rays.className='rays on r-'+r;
     const fl=document.createElement('div');fl.className='flash f-'+r;o.appendChild(fl);setTimeout(()=>fl.remove(),900);
     const N={E:18,L:40,P:60,K:24}[r]||20,cols={E:['#fff','#bcd3ff'],L:['#fff','#ffd36b','#ffb11f'],P:['#ff3b5c','#ffb11f','#fff15c','#2fd27a','#33d6ff','#b04dff'],K:['#2fd27a','#fff']}[r];
@@ -938,7 +993,7 @@ function renderHand(){
       const c=top.querySelector('.card');if(c){c.style.setProperty('--mx',(50+ry/MAX*55).toFixed(1)+'%');c.style.setProperty('--my',(50-rx/(MAX*.75)*55).toFixed(1)+'%');const ov=Math.min(1,(Math.abs(rx)+Math.abs(ry))/16);c.style.setProperty('--o',ov.toFixed(2));c.classList.toggle('lit',ov>.03)}}
     requestAnimationFrame(loop)}
   function fling(dir){
-    if(flying)return;flying=true;const top=cards[OP.i];
+    if(flying)return;flying=true;const top=cards[OP.i];sfx.swipe();
     top.style.transition='transform .35s cubic-bezier(.4,0,.6,1),opacity .35s';
     top.style.transform=`translateZ(30px) translateX(${dir*900}px) translateY(-80px) rotateZ(${dir*35}deg)`;top.style.opacity='0';
     setTimeout(()=>{top.style.display='none';tx=0;OP.i++;flying=false;
@@ -956,8 +1011,8 @@ function renderHand(){
 function tear(){
   if(OP.stage!=='pack'||OP.busy)return;OP.busy=true;
   const best=OP.items.reduce((m,it)=>Math.max(m,it.c.v==='p'||it.c.v==='a'?4:it.c.v==='f'?3:0),0),tw=$('#tw');
-  if(best>=3){tw.classList.add('rumble',best>=4?'best-P':'best-L');$('.op-hint').textContent='… il se passe quelque chose !'}
-  setTimeout(()=>{tw.classList.add('torn');setTimeout(()=>{OP.busy=false;OP.stage='cards';renderOpener()},850)},best>=3?900:0);
+  if(best>=3){tw.classList.add('rumble',best>=4?'best-P':'best-L');$('.op-hint').textContent='… il se passe quelque chose !';sfx.rumble();buzz([50,40,50,40,50,40,50])}
+  setTimeout(()=>{tw.classList.add('torn');sfx.tear();buzz(35);setTimeout(()=>{OP.busy=false;OP.stage='cards';renderOpener()},850)},best>=3?900:0);
 }
 function closeOpener(){$('#opener').classList.add('hidden');document.body.classList.remove('opening');OP=null;rerender()}
 
@@ -990,10 +1045,54 @@ function paySheet(i){
   $('#payBtn').onclick=()=>{
     $('#payBtn').disabled=true;$('#payBtn').innerHTML='<span class="spin"></span> Paiement en cours…';
     setTimeout(()=>{
-      S.gems+=o.g;S.iap.push({g:o.g,p:o.p,at:Date.now()});save();updateHUD();
+      S.gems+=o.g;S.iap.push({g:o.g,p:o.p,at:Date.now()});save();updateHUD();sfx.coin();buzz(30);
       g.innerHTML=`<div class="paid"><div class="check">✓</div><h3>Achat validé !</h3><p class="mut">+${nf(o.g)} 💎 ajoutées · solde : ${nf(S.gems)} 💎</p><p class="mut" style="font-size:12px">Simulation : aucun montant n’a été débité.</p><button class="btn" onclick="closeGem()">Super !</button></div>`;
     },1300);
   };
+}
+
+// =====================================================================
+// SONS (synthétisés, aucun fichier) + VIBRATIONS
+// =====================================================================
+let AC=null;
+function audio(){if(S.sound===false)return null;try{if(!AC){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;AC=new A()}if(AC.state==='suspended')AC.resume();return AC}catch(e){return null}}
+function tone(f,t,dur,{type='sine',vol=.12,to=null,att=.008}={}){const a=audio();if(!a)return;const o=a.createOscillator(),g=a.createGain(),t0=a.currentTime+t;
+  o.type=type;o.frequency.setValueAtTime(f,t0);if(to)o.frequency.exponentialRampToValueAtTime(to,t0+dur);
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+att);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  o.connect(g).connect(a.destination);o.start(t0);o.stop(t0+dur+.05)}
+function noise(t,dur,{vol=.15,f0=800,f1=4000,q=.8}={}){const a=audio();if(!a)return;const n=Math.floor(a.sampleRate*dur),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=Math.random()*2-1;const src=a.createBufferSource();src.buffer=b;const fl=a.createBiquadFilter();fl.type='bandpass';fl.Q.value=q;
+  const t0=a.currentTime+t;fl.frequency.setValueAtTime(f0,t0);fl.frequency.exponentialRampToValueAtTime(f1,t0+dur);
+  const g=a.createGain();g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);src.connect(fl).connect(g).connect(a.destination);src.start(t0)}
+const sfx={
+  click(){tone(660,0,.06,{type:'triangle',vol:.05})},
+  tear(){noise(0,.35,{vol:.25,f0:600,f1:5000,q:.6})},
+  rumble(){tone(55,0,.9,{type:'sawtooth',vol:.06,to:80})},
+  swipe(){noise(0,.18,{vol:.08,f0:2500,f1:700,q:1.2})},
+  holo(){[1320,1760].forEach((f,i)=>tone(f,i*.05,.25,{vol:.035}))},
+  rare(r){const seq={E:[660,880,1100],L:[523,659,784,1047],P:[523,659,784,1047,1319,1568],K:[660,880]}[r]||[660,880];
+    seq.forEach((f,i)=>tone(f,i*.08,.5,{type:'triangle',vol:.09}));if(r==='L'||r==='P')tone(seq[seq.length-1]*2,seq.length*.08,.9,{vol:.05})},
+  win(){tone(660,0,.12,{type:'triangle',vol:.08});tone(990,.1,.2,{type:'triangle',vol:.08})},
+  lose(){tone(330,0,.18,{type:'triangle',vol:.07,to:220})},
+  victory(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.11,.35,{type:'triangle',vol:.09}))},
+  coin(){tone(988,0,.08,{type:'square',vol:.04});tone(1319,.07,.25,{type:'square',vol:.04})}
+};
+function buzz(p){if(S.sound===false)return;try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+function toggleSound(){S.sound=S.sound===false;save();updateSoundBtn();if(S.sound!==false){sfx.click();buzz(15)}toast(S.sound===false?'Sons et vibrations coupés':'Sons et vibrations activés')}
+function updateSoundBtn(){const b=$('#sndBtn');if(!b)return;const on=S.sound!==false;b.classList.toggle('off',!on);b.title=on?'Couper les sons et vibrations':'Activer les sons et vibrations';
+  b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/>${on?'<path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>':'<path d="M17 9l5 6M22 9l-5 6"/>'}</svg>`}
+
+// =====================================================================
+// ZOOM PLEIN ÉCRAN
+// =====================================================================
+function zoomCard(id){
+  const c=CARS[id];if(!c)return;const z=$('#zoom');
+  const k=Math.max(1,Math.min((innerWidth-40)/220,(innerHeight-140)/356,2.4));
+  z.innerHTML=`<button class="x" aria-label="Fermer">×</button><div class="zbox" style="width:${220*k}px;height:${356*k+40}px"><div class="zscale" style="transform:translateX(-50%) scale(${k})">${viewerHTML(cardHTML(c))}</div></div><div class="zcap">${c.brand} ${c.model} · ${symOf(c)} · ${numLabel(c)}</div>`;
+  z.classList.remove('hidden');mountViewer(z.querySelector('.v3d'));sfx.click();
+  const close=()=>{z.classList.add('hidden');z.innerHTML='';document.removeEventListener('keydown',esc)};
+  const esc=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',esc);
+  z.onclick=e=>{if(!e.target.closest('.v3d-card'))close()};
 }
 
 // Inclinaison 3D + reflets qui suivent la souris
@@ -1108,11 +1207,12 @@ function openDetail(id){
     acts+=`<button class="btn ghost" onclick="sellDup(${id})">💱 Revendre un doublon au grossiste (+${dupVal(c)} 🪙)</button>`;
   }
   const ctry=COUNTRY[c.cc];
-  m.innerHTML=`<div class="detail"><button class="x" onclick="closeDetail()">×</button><div>${viewerHTML(cardHTML(c,{count:own}))}<div class="req center">${TOUCH?'Touche la carte pour l’incliner':'Bouge la souris sur la carte pour l’incliner'}</div></div><div>
+  m.innerHTML=`<div class="detail"><button class="x" onclick="closeDetail()">×</button><div>${viewerHTML(cardHTML(c,{count:own}))}<div class="req center">${TOUCH?'Touche la carte pour l’incliner':'Bouge la souris sur la carte pour l’incliner'}</div><div class="center"><button class="btn ghost sm" onclick="zoomCard(${id})">⛶ Plein écran</button></div></div><div>
    <h3>${c.brand} ${c.model}</h3>
    <div class="mut" style="margin:0">${ctry[0]} ${ctry[1]} · ${c.year} · ${symOf(c)}${c.v==='h'?' holo':''} · ${extOf(c).name} n°${numLabel(c).split(' ')[1]}${c.secret?' (secrète)':''}</div>${c.v==='a'?`<div class="fact"><b>Mise en scène ★★★ :</b> la voiture en action (rallye, piste, drift ou photo historique).</div>`:''}${c.v==='p'?`<div class="fact"><b>Mise en scène Prépa :</b> la photo montre la version préparée par ${c.tuner} (${c.prep.brand} ${c.prep.model}, ${c.prep.hp} ch). ${c.prep.fact}</div>`:''}
    <div class="fact"><b>Le saviez-vous ?</b> ${c.fact}</div>
    <div class="credit">📷 ${photoCredit(c)}</div>
+   <div class="kv"><span>Transmission · énergie</span><b>${techTag(c)}</b></div>
    <div class="kv"><span>Rapport poids/puissance</span><b>${(c.kg/c.hp).toFixed(1).replace('.',',')} kg/ch</b></div>
    <div class="kv"><span>Cote estimée (à l’unité)</span><b>${cote(c)} 🪙</b></div>
    <div class="kv"><span>Exemplaires</span><b>${own}</b></div>
@@ -1215,62 +1315,160 @@ setInterval(()=>{
   save();renderShop();
 },20000);
 
+// ---- Transmission et énergie (pour les terrains du duel)
+const DRIVE_A='gryaris sti evo9 r34 delta quattro macan golf8r rs6 r35 huracan urus g63 911ts veyron chiron nevera 918 sf90 plaid taycan r32mk4 r32mk5 golfr7 r32gtr r33 t993 t997 rs6c5 rs6c6 rs6c7 svj m3cs'.split(' ');
+const DRIVE_R='cox ae86 delorean mx5na mx5nb mx5nc mx5nd a110old a110 gr86 supraa80 supraa70 grsupra e30 e36 e46 e92 f80 m3g80 carrera27 mustang65 mustangfox mustang05 mustang rx7 gt3 amggtr c8 f40 458 countach mcf1 agera laferrari p1 720s huayra demon model3 t930 twingo3 twingoe'.split(' ');
+const ENERGY={model3:'E',r5e:'E',nevera:'E',plaid:'E',taycan:'E',twingoe:'E',yaris:'H',laferrari:'H','918':'H',p1:'H',sf90:'H'};
+const driveOf=c=>DRIVE_A.includes(c.key)?'A':DRIVE_R.includes(c.key)?'R':'F';
+const energyOf=c=>ENERGY[c.key]||'T';
+const DRIVE_NAME={A:'Intégrale',R:'Propulsion',F:'Traction'},ENERGY_NAME={E:'Électrique',H:'Hybride',T:'Thermique'};
+const techTag=c=>`${DRIVE_NAME[driveOf(c)]}${energyOf(c)!=='T'?' · '+ENERGY_NAME[energyOf(c)]:''}`;
+
+// ---- Terrains : chaque terrain donne un score sur 100 environ, avec le détail du calcul
+const clamp01=x=>Math.max(0,Math.min(1,x));
+const sc={
+  pw:c=>100*clamp01((Math.log(20)-Math.log(c.kg/c.hp))/(Math.log(20)-Math.log(1.1))),
+  v:c=>100*clamp01((c.vmax-110)/(450-110)),
+  a:c=>100*clamp01((16-c.acc)/(16-2)),
+  kg:c=>100*clamp01((2600-c.kg)/(2600-560))
+};
+const kgch=c=>(c.kg/c.hp).toFixed(1).replace('.',',')+' kg/ch';
+const TPART={pw:['Rapport poids/puissance',kgch],v:['Vitesse max',c=>c.vmax+' km/h'],a:['0 à 100 km/h',c=>c.acc.toFixed(1).replace('.',',')+' s'],kg:['Légèreté',c=>nf(c.kg)+' kg']};
+const TERRAINS=[
+ {id:'circuit',icon:'🏁',name:'Circuit',key:'Rapport poids/puissance et légèreté',w:{pw:.7,kg:.3},bonus:c=>[],
+  tip:'Sur circuit, on accélère et on freine sans arrêt : moins il y a de kilos à emmener par cheval, plus la voiture est rapide. La légèreté aide aussi dans les virages.'},
+ {id:'autobahn',icon:'🛣️',name:'Autobahn',key:'Vitesse maximale',w:{v:1},bonus:c=>[],
+  tip:'Sur une autoroute sans limitation, seule la vitesse de pointe compte. Elle dépend de la puissance, mais aussi de l’aérodynamisme et de la dernière vitesse de la boîte.'},
+ {id:'drag',icon:'🚦',name:'Départ arrêté',key:'0 à 100 km/h',w:{a:1},bonus:c=>[],
+  tip:'Au départ arrêté, la motricité compte autant que la puissance : les intégrales et les électriques (couple disponible dès l’arrêt) patinent moins et partent plus fort.'},
+ {id:'pluie',icon:'🌧️',name:'Route mouillée',key:'Motricité, puis puissance',w:{pw:.5,kg:.2},
+  bonus:c=>{const r=[],d=driveOf(c);if(d==='A')r.push(['Transmission intégrale',25]);if(d==='R'&&c.hp>=400)r.push(['Propulsion très puissante, ça glisse',-15]);return r},
+  tip:'Sur le mouillé, les pneus accrochent moins. Une intégrale répartit la puissance sur 4 roues et garde la trajectoire ; une propulsion très puissante a du mal à passer sa puissance au sol.'},
+ {id:'rallye',icon:'🌲',name:'Spéciale de rallye',key:'Intégrale, légèreté, garde au sol',w:{pw:.5,kg:.3},
+  bonus:c=>{const r=[];if(driveOf(c)==='A')r.push(['Transmission intégrale',30]);if(c.type==='hyper')r.push(['Garde au sol trop basse',-30]);if(c.type==='suv')r.push(['Garde au sol haute',10]);return r},
+  tip:'Sur la terre, l’intégrale est reine : c’est pour ça que presque toutes les voitures de rallye en sont équipées depuis l’Audi Quattro. Une supercar trop basse touche le sol.'},
+ {id:'neige',icon:'❄️',name:'Col enneigé',key:'Intégrale avant tout',w:{pw:.3,kg:.3},
+  bonus:c=>{const r=[],d=driveOf(c);if(d==='A')r.push(['Transmission intégrale',40]);if(d==='R')r.push(['Propulsion sur la neige',-15]);if(c.type==='suv')r.push(['SUV haut sur pattes',15]);if(c.type==='hyper')r.push(['Garde au sol trop basse',-30]);return r},
+  tip:'Sur la neige, une voiture qui n’arrive pas à transmettre sa puissance n’avance pas. Les roues motrices à l’avant (traction) tirent la voiture, l’intégrale fait encore mieux.'},
+ {id:'ville',icon:'🏙️',name:'Centre-ville',key:'Petite, légère, économe',w:{kg:.6},
+  bonus:c=>{const r=[],e=energyOf(c);if(c.type==='citadine')r.push(['Citadine maniable',30]);if(e==='E')r.push(['Électrique : silencieuse et sobre',20]);if(e==='H')r.push(['Hybride : roule en électrique à basse vitesse',12]);if(c.type==='hyper')r.push(['Trop large et trop basse',-25]);if(c.type==='suv')r.push(['Encombrant à garer',-10]);return r},
+  tip:'En ville, la vitesse de pointe ne sert à rien : on cherche une voiture compacte, facile à garer et qui consomme peu dans les bouchons. L’électrique et l’hybride y sont dans leur élément.'},
+ {id:'montagne',icon:'⛰️',name:'Course de côte',key:'Légèreté, puis puissance',w:{kg:.6,pw:.4},bonus:c=>[],
+  tip:'En montée, chaque kilo doit être hissé contre la gravité et les virages s’enchaînent : une voiture légère et vive bat souvent une voiture plus puissante mais lourde.'}
+];
+function terrainScore(c,T){
+  const parts=Object.entries(T.w).map(([k,wt])=>[`${TPART[k][0]} (${TPART[k][1](c)})`,Math.round(sc[k](c)*wt)]);
+  const bonus=T.bonus(c);
+  const total=Math.max(0,parts.concat(bonus).reduce((a,[,p])=>a+p,0));
+  return{total,parts:parts.concat(bonus)};
+}
+
+// ---- Niveaux de l'IA
+const DIFF={
+  // off : niveau des voitures de l'IA par rapport aux tiennes · build : chance qu'elle choisisse une voiture adaptée à chaque terrain · smart : chance qu'elle joue la bonne voiture à chaque manche
+  facile:{name:'Facile',off:-14,build:0,smart:.3,rw:{win:30,draw:15,loss:5}},
+  normal:{name:'Normal',off:0,build:.6,smart:.7,rw:{win:60,draw:30,loss:15}},
+  expert:{name:'Expert',off:10,build:1,smart:1,rw:{win:100,draw:50,loss:20}}
+};
+
 // =====================================================================
-// DUEL
+// DUEL : 5 terrains, une voiture par terrain
 // =====================================================================
-let sel=[],duel=null;
+let sel=[],duel=null,dPrep=null;
+function bestOwned(){const best={};CARS.forEach(c=>{if(cnt(c.id)&&(!best[c.base]||cardRank(c)>cardRank(best[c.base])))best[c.base]=c});return Object.values(best)}
+function newTerrains(){return shuffle(TERRAINS).slice(0,5).map(t=>t.id)}
+const TER=id=>TERRAINS.find(t=>t.id===id);
+function terrainStrip(ids,cur,res){return `<div class="tstrip">${ids.map((id,i)=>{const T=TER(id),r=res&&res[i];return `<div class="tchip ${i===cur?'cur':''} ${r?'r-'+r:''}" title="${T.name} : ${T.key}"><span class="ti">${T.icon}</span><span class="tn">${T.name}</span></div>`}).join('')}</div>`}
 function renderDuel(){
   const el=$('#duel');
   if(duel){duel.phase==='done'?renderEnd():renderRound();return}
-  // une entrée par voiture (la plus belle version possédée)
-  const best={};CARS.forEach(c=>{if(cnt(c.id)&&(!best[c.base]||cardRank(c)>cardRank(best[c.base])))best[c.base]=c});
-  const mine=Object.values(best).sort((a,b)=>power(b)-power(a));
+  const mine=bestOwned().sort((a,b)=>power(b)-power(a));
   sel=sel.filter(id=>mine.some(c=>c.id===id));
   if(mine.length<5){el.innerHTML=`<div class="empty">Il te faut au moins 5 voitures différentes pour lancer un duel (tu en as ${mine.length}).<br><button class="btn" onclick="showTab('ouvrir')">Ouvrir un booster</button></div>`;return}
-  el.innerHTML=`<div class="duel-head"><div><h2>Choisis ton équipe</h2><p class="mut">5 voitures, 5 manches. À chaque manche, une stat est choisie (toi puis l’IA, en alternance) : la meilleure valeur gagne. Pour le 0-100 et le poids, c’est la plus petite valeur qui l’emporte.<br>Victoire +60 🪙 · Égalité +30 🪙 · Défaite +15 🪙</p></div><div class="btns"><button class="btn ghost" id="autoSel">Auto : mes 5 meilleures</button><button class="btn" id="goDuel" ${sel.length===5?'':'disabled'}>Lancer le duel (${sel.length}/5)</button></div></div><div class="grid">${mine.map(c=>`<div class="pick ${sel.includes(c.id)?'on':''}" data-id="${c.id}">${cardHTML(c,{lazy:true})}</div>`).join('')}</div>`;
+  if(!dPrep)dPrep={terrains:newTerrains(),diff:S.duelDiff||'normal'};
+  const D=DIFF[dPrep.diff];
+  el.innerHTML=`<div class="duel-head"><div><h2>Duel sur 5 terrains</h2><p class="mut">Choisis 5 voitures. À chaque manche, tu engages l’une d’elles sur le terrain du moment, sans savoir laquelle l’IA va jouer. Chaque voiture ne sert qu’une fois : garde ton intégrale pour la neige !</p></div></div>
+   <h4>Les terrains de ce duel</h4>${terrainStrip(dPrep.terrains,-1)}
+   <div class="tkeys">${dPrep.terrains.map(id=>{const T=TER(id);return `<div><b>${T.icon} ${T.name}</b><span>${T.key}</span></div>`}).join('')}</div>
+   <div class="duel-bar">
+     <div class="seg">${Object.entries(DIFF).map(([k,d])=>`<button class="${k===dPrep.diff?'on':''}" data-d="${k}">${d.name}</button>`).join('')}</div>
+     <span class="mut" style="margin:0;font-size:13px">Victoire +${D.rw.win} 🪙 · Nul +${D.rw.draw} · Défaite +${D.rw.loss}</span>
+     <div class="btns" style="margin-left:auto"><button class="btn ghost" id="autoSel">Équipe auto</button><button class="btn" id="goDuel" ${sel.length===5?'':'disabled'}>Lancer (${sel.length}/5)</button></div>
+   </div>
+   <div class="grid">${mine.map(c=>`<div class="pick ${sel.includes(c.id)?'on':''}" data-id="${c.id}">${cardHTML(c,{lazy:true})}<div class="tech">${techTag(c)}</div></div>`).join('')}</div>`;
   el.querySelectorAll('.pick').forEach(p=>p.onclick=()=>{const id=+p.dataset.id;if(sel.includes(id))sel=sel.filter(x=>x!==id);else if(sel.length<5)sel.push(id);else{toast('5 voitures maximum');return}renderDuel()});
-  $('#autoSel').onclick=()=>{sel=mine.slice(0,5).map(c=>c.id);renderDuel()};
+  el.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{dPrep.diff=b.dataset.d;S.duelDiff=b.dataset.d;save();renderDuel()});
+  $('#autoSel').onclick=()=>{ // pour chaque terrain, la meilleure voiture restante
+    const pool=[...mine];sel=[];dPrep.terrains.forEach(id=>{const T=TER(id);pool.sort((a,b)=>terrainScore(b,T).total-terrainScore(a,T).total);sel.push(pool.shift().id)});renderDuel()};
   $('#goDuel').onclick=startDuel;
 }
 function startDuel(){
-  const ai=[];sel.forEach(id=>{const c=randomOf(CARS[id].rar,()=>true,ai);ai.push(c.id)});
-  duel={p:shuffle(sel),a:shuffle(ai),round:0,ps:0,as:0,phase:'choose',last:null,aiBusy:false};
-  renderDuel();
+  const D=DIFF[dPrep.diff];
+  const pool=CARS.filter(c=>c.v==='s'||c.v==='r').sort((a,b)=>power(a)-power(b));
+  const mineB=new Set(sel.map(id=>CARS[id].base));
+  // niveau visé : la position moyenne de ton équipe dans le classement des voitures, décalée selon la difficulté
+  const ranks=sel.map(id=>Math.max(0,pool.findIndex(c=>c.base===CARS[id].base)));
+  const center=Math.round(ranks.reduce((a,b)=>a+b,0)/ranks.length)+D.off,W=12;
+  const lo=Math.max(0,Math.min(pool.length-2*W-1,center-W)),win=pool.slice(lo,lo+2*W+1).filter(c=>D.build>=1||!mineB.has(c.base)); // en Expert, l'IA peut jouer les mêmes modèles que toi
+  const ai=[];
+  dPrep.terrains.forEach(tid=>{const T=TER(tid),left=win.filter(c=>!ai.includes(c.id));
+    const c=Math.random()<D.build?left.sort((a,b)=>terrainScore(b,T).total-terrainScore(a,T).total)[0]:left[Math.floor(Math.random()*left.length)];
+    ai.push(c.id)});
+  duel={terrains:dPrep.terrains,diff:dPrep.diff,mine:[...sel],ai,round:0,ps:0,as:0,res:[],phase:'choose',pick:null,last:null};
+  dPrep=null;renderDuel();window.scrollTo({top:0});
 }
-const WHY={hp:'La puissance (en chevaux) mesure la capacité du moteur à fournir de l’énergie rapidement.',vmax:'La vitesse maximale dépend de la puissance mais aussi de l’aérodynamisme et de la boîte de vitesses.',acc:'Pour le 0-100 km/h, le plus petit temps gagne : la motricité (4 roues motrices, électrique) compte autant que la puissance.',kg:'Pour le poids, le plus léger gagne : une voiture légère freine, tourne et accélère mieux à puissance égale.'};
+function aiPick(T){
+  const d=duel,D=DIFF[d.diff];
+  const ranked=[...d.ai].sort((a,b)=>terrainScore(CARS[b],T).total-terrainScore(CARS[a],T).total);
+  return Math.random()<D.smart?ranked[0]:ranked[Math.floor(Math.random()*ranked.length)];
+}
+function scoreBox(c,s,win){return `<div class="sbox ${win}"><div class="stot">${s.total}<small>pts</small></div>${s.parts.map(([l,p])=>`<div class="sline ${p<0?'neg':''}"><span>${l}</span><b>${p>0?'+':''}${p}</b></div>`).join('')}</div>`}
 function renderRound(){
-  const d=duel,pc=CARS[d.p[d.round]],ac=CARS[d.a[d.round]],myTurn=d.round%2===0,rev=d.phase==='reveal';
-  const opp=r=>r==='win'?'lose':r==='lose'?'win':'tie';
-  const pRes=rev?(d.last.res==='p'?'win':d.last.res==='a'?'lose':'tie'):null;
-  $('#duel').innerHTML=`
-   <div class="round">Manche ${d.round+1} / 5</div>
-   <div class="score"><div>${d.ps}<small>TOI</small></div><div style="color:var(--mut)">–</div><div>${d.as}<small>IA</small></div></div>
-   <div class="turn">${rev?'':myTurn?'À toi : clique sur la stat de ta voiture qui doit l’emporter':'L’adversaire choisit une stat…'}</div>
-   <div class="board">
-     <div class="side"><div class="who">Ta voiture</div><div id="pCard">${cardHTML(pc,{clickable:myTurn&&!rev,hl:rev?{stat:d.last.stat,res:pRes}:null})}</div></div>
+  const d=duel,T=TER(d.terrains[d.round]),el=$('#duel');
+  const head=`${terrainStrip(d.terrains,d.round,d.res)}
+   <div class="score"><div>${d.ps}<small>TOI</small></div><div style="color:var(--mut)">–</div><div>${d.as}<small>IA ${DIFF[d.diff].name.toUpperCase()}</small></div></div>
+   <div class="tbanner"><div class="tbi">${T.icon}</div><div><div class="round">Manche ${d.round+1} / 5</div><b>${T.name}</b><span>Ce qui compte : ${T.key}</span></div></div>`;
+  if(d.phase==='choose'){
+    el.innerHTML=head+`<div class="turn">Quelle voiture engages-tu ${T.name==='Autobahn'?'sur l’Autobahn':'sur ce terrain'} ?</div>
+     <div class="hand-row">${d.mine.map(id=>`<div class="pick ${d.pick===id?'on':''}" data-id="${id}">${cardHTML(CARS[id])}<div class="tech">${techTag(CARS[id])}</div></div>`).join('')}</div>
+     <div class="center engage-bar"><button class="btn big" id="engage" ${d.pick!=null?'':'disabled'}>Engager ${d.pick!=null?'la '+CARS[d.pick].model:''}</button></div>`;
+    el.querySelectorAll('.pick').forEach(p=>p.onclick=()=>{d.pick=+p.dataset.id;sfx.click();renderRound()});
+    $('#engage').onclick=()=>resolveRound();
+    return;
+  }
+  const L=d.last,pc=CARS[L.p],ac=CARS[L.a];
+  const pw=L.res==='p'?'win':L.res==='a'?'lose':'tie',aw=L.res==='a'?'win':L.res==='p'?'lose':'tie';
+  el.innerHTML=head+`<div class="board">
+     <div class="side"><div class="who">Ta voiture</div>${cardHTML(pc)}${scoreBox(pc,L.ps,pw)}</div>
      <div class="vs">VS</div>
-     <div class="side"><div class="who">Adversaire</div>${rev?cardHTML(ac,{hl:{stat:d.last.stat,res:opp(pRes)}}):BACK}</div>
+     <div class="side"><div class="who">Adversaire</div><div class="flipin">${cardHTML(ac)}</div>${scoreBox(ac,L.as,aw)}</div>
    </div>
-   ${rev?`<div class="result ${d.last.res}">${d.last.res==='p'?'Manche gagnée !':d.last.res==='a'?'Manche perdue':'Égalité'} <span style="color:var(--mut);font-size:15px;font-weight:500">· ${STATS.find(s=>s.k===d.last.stat).label}${d.last.by==='a'?' (choix de l’IA)':''}</span></div><div class="why">${WHY[d.last.stat]}</div><div class="center"><button class="btn" id="nextR">${d.round<4?'Manche suivante':'Voir le résultat'}</button></div>`:''}`;
-  if(!rev&&myTurn)document.querySelectorAll('#pCard .stat').forEach(s=>s.onclick=()=>resolve(s.dataset.stat,'p'));
-  if(!rev&&!myTurn&&!d.aiBusy){d.aiBusy=true;setTimeout(()=>{if(duel!==d)return;const best=STATS.map(s=>({k:s.k,v:norm(ac,s.k)+Math.random()*.08})).sort((a,b)=>b.v-a.v)[0].k;resolve(best,'a')},1200)}
-  if(rev)$('#nextR').onclick=()=>{d.round++;d.aiBusy=false;if(d.round>=5)finish();else d.phase='choose';renderDuel()};
+   <div class="result ${L.res}">${L.res==='p'?'Manche gagnée !':L.res==='a'?'Manche perdue':'Égalité'}</div>
+   <div class="why"><b>${T.icon} Le saviez-vous ?</b> ${T.tip}</div>
+   <div class="center"><button class="btn" id="nextR">${d.round<4?'Manche suivante':'Voir le résultat'}</button></div>`;
+  $('#nextR').onclick=()=>{d.round++;d.pick=null;if(d.round>=5)finish();else d.phase='choose';renderDuel();window.scrollTo({top:0,behavior:'smooth'})};
 }
-function resolve(k,by){
-  const d=duel,s=STATS.find(x=>x.k===k),pv=CARS[d.p[d.round]][k],av=CARS[d.a[d.round]][k];
-  const res=pv===av?'tie':((s.hi?pv>av:pv<av)?'p':'a');
+function resolveRound(){
+  const d=duel,T=TER(d.terrains[d.round]);if(d.pick==null)return;
+  const a=aiPick(T),ps=terrainScore(CARS[d.pick],T),as=terrainScore(CARS[a],T);
+  const res=ps.total===as.total?'tie':ps.total>as.total?'p':'a';
   if(res==='p')d.ps++;else if(res==='a')d.as++;
-  d.last={stat:k,res,by};d.phase='reveal';if(curTab()==='duel')renderRound();
+  d.res.push(res==='p'?'w':res==='a'?'l':'t');
+  d.mine=d.mine.filter(x=>x!==d.pick);d.ai=d.ai.filter(x=>x!==a);
+  d.last={p:d.pick,a,ps,as,res};d.phase='reveal';
+  if(res==='p'){sfx.win();buzz(25)}else if(res==='a'){sfx.lose();buzz([15,40,15])}else sfx.click();
+  if(curTab()==='duel')renderRound();
 }
 function finish(){
-  const d=duel;d.phase='done';
-  d.out=d.ps>d.as?'win':d.ps<d.as?'loss':'draw';d.reward=d.out==='win'?60:d.out==='draw'?30:15;
+  const d=duel,D=DIFF[d.diff];d.phase='done';
+  d.out=d.ps>d.as?'win':d.ps<d.as?'loss':'draw';d.reward=D.rw[d.out];
   S.coins+=d.reward;if(d.out==='win')S.wins++;else if(d.out==='loss')S.losses++;else S.draws++;save();updateHUD();
+  if(d.out==='win'){sfx.victory();buzz([30,60,30,60,80])}
 }
 function renderEnd(){
   const d=duel;
-  $('#duel').innerHTML=`<div class="end"><div class="round">Fin du duel</div><div class="big" style="color:${d.out==='win'?'var(--win)':d.out==='loss'?'var(--lose)':'var(--txt)'}">${d.out==='win'?'VICTOIRE':d.out==='loss'?'DÉFAITE':'ÉGALITÉ'}</div><div class="score"><div>${d.ps}<small>TOI</small></div><div style="color:var(--mut)">–</div><div>${d.as}<small>IA</small></div></div><p class="mut">+${d.reward} 🪙 · Bilan : ${S.wins} V / ${S.draws} N / ${S.losses} D</p><div class="btns" style="justify-content:center"><button class="btn" id="again">Rejouer</button><button class="btn ghost" id="toOpen">Ouvrir un booster</button></div></div>`;
-  $('#again').onclick=()=>{duel=null;startDuel()};
+  $('#duel').innerHTML=`<div class="end"><div class="round">Fin du duel · ${DIFF[d.diff].name}</div><div class="big" style="color:${d.out==='win'?'var(--win)':d.out==='loss'?'var(--lose)':'var(--txt)'}">${d.out==='win'?'VICTOIRE':d.out==='loss'?'DÉFAITE':'ÉGALITÉ'}</div>${terrainStrip(d.terrains,-1,d.res)}<div class="score"><div>${d.ps}<small>TOI</small></div><div style="color:var(--mut)">–</div><div>${d.as}<small>IA</small></div></div><p class="mut">+${d.reward} 🪙 · Bilan : ${S.wins} V / ${S.draws} N / ${S.losses} D</p><div class="btns" style="justify-content:center"><button class="btn" id="again">Nouveau duel</button><button class="btn ghost" id="toOpen">Ouvrir un booster</button></div></div>`;
+  $('#again').onclick=()=>{duel=null;sel=[];renderDuel()};
   $('#toOpen').onclick=()=>{duel=null;showTab('ouvrir')};
 }
 
@@ -1363,7 +1561,7 @@ function god(a){
   if(a==='mkt')Object.keys(PROD).forEach(pid=>{S.mktPrev[pid]=S.mkt[pid];S.mkt[pid]=Math.min(3,Math.max(.7,S.mkt[pid]*(1+(Math.random()-.4)*.2)))});
   if(a==='rep')S.rep=100;
   if(a==='leg'){BOOST.god={name:'GOD',ext:null,ar:.5,hs:[{F:.5,A:.3},{F:.3,A:.4,P:.3},{F:.2,A:.3,P:.5}]};startOpening('god','Booster GOD')}
-  if(a==='wipe'){S.owned={};duel=null;sel=[]}
+  if(a==='wipe'){S.owned={};duel=null;sel=[];dPrep=null}
   save();rerender();if(a!=='leg')toast('God : '+a);
 }
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&(e.key==='G'||e.key==='g')){e.preventDefault();godPanel()}});
@@ -1374,7 +1572,11 @@ if(location.hash==='#god')setTimeout(godPanel,300);
 // =====================================================================
 let resetArm=false;
 $('#resetBtn').onclick=()=>{const b=$('#resetBtn');if(!resetArm){resetArm=true;b.textContent='Confirmer ? Tout sera effacé';setTimeout(()=>{resetArm=false;b.textContent='Réinitialiser la partie'},4000);return}S=fresh();duel=null;sel=[];Q=null;save();resetArm=false;b.textContent='Réinitialiser la partie';showTab('ouvrir');updateHUD();toast('Nouvelle partie')};
-updateHUD();renderOpen();
+updateHUD();updateSoundBtn();renderOpen();
+// Mode hors-ligne : enregistre le service worker (GitHub Pages), puis lui demande de garder toutes les images en cache
+try{if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')&&window.top===window.self){
+  navigator.serviceWorker.register('sw.js').then(reg=>{const send=()=>{const w=reg.active||navigator.serviceWorker.controller;if(w)w.postMessage({type:'precache',urls:[...new Set(CARS.map(c=>'img/'+c.img+'.webp'))]})};
+    if(reg.active)setTimeout(send,4000);else navigator.serviceWorker.addEventListener('controllerchange',()=>setTimeout(send,2000))}).catch(()=>{})}}catch(e){}
 </script>
 </body>
 </html>
