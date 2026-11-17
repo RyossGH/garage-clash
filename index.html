@@ -545,6 +545,17 @@ html,body,button,a,.card,.pick,.slot,.bpack,.chip,nav,section{touch-action:manip
 .sndbtn{display:flex;align-items:center;justify-content:center;padding:6px 9px;cursor:pointer;color:var(--txt)}
 .sndbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .sndbtn.off{color:var(--mut)}
+/* ===== Profil : niveau et badges ===== */
+.lvlchip{font-weight:800;color:#ffd76b;border-color:rgba(255,215,107,.35)}
+.pf-head{display:flex;gap:14px;align-items:center;margin-top:4px}
+.pf-lvl{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:26px;font-weight:900;color:#1a1200;background:conic-gradient(from 200deg,#ffe58a,#ffb347,#ff7a59,#ffe58a);box-shadow:0 0 0 3px rgba(255,215,107,.25)}
+.pf-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin:8px 0 4px}.pf-bar i{display:block;height:100%;background:linear-gradient(90deg,#ffb347,#ffe58a);border-radius:99px}
+.pf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}.pf-stats div{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center}.pf-stats b{display:block;font-size:18px}.pf-stats small{color:var(--mut);font-size:11px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.badge{background:var(--panel2);border:1px solid rgba(255,215,107,.35);border-radius:12px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.badge span{font-size:26px}.badge b{font-size:13px}.badge small{color:var(--mut);font-size:11px;line-height:1.25}
+.badge.locked{border-color:var(--line);opacity:.4}.badge.locked span{filter:grayscale(1)}
+@media(max-width:560px){.pf-stats{grid-template-columns:repeat(2,1fr)}}
 /* ===== God pack ===== */
 .tag.god{background:linear-gradient(90deg,#ff3b5c,#ffb347,#ffe66b,#4dffb5,#33d6ff,#a36bff);background-size:300% 100%;color:#120a00;animation:godtag 2.5s linear infinite}
 @keyframes godtag{to{background-position:300% 0}}
@@ -585,7 +596,7 @@ html,body,button,a,.card,.pick,.slot,.bpack,.chip,nav,section{touch-action:manip
 <div class="wrap">
   <header>
     <div class="logo">GARAGE<span>CLASH</span></div>
-    <div class="hud"><div class="chip" id="hudCoins" title="Jetons : boutique, duels, quiz"></div><div class="chip clickable-chip" id="hudGems" onclick="openGemShop()"></div><div class="chip" id="hudPts" title="Points booster : échange-les contre la carte de ton choix"></div><div class="chip" id="hudCol" title="Cartes collectionnées"></div><button class="chip sndbtn" id="sndBtn" onclick="toggleSound()"></button></div>
+    <div class="hud"><button class="chip clickable-chip lvlchip" id="hudLvl" onclick="openProfile()" title="Niveau, expérience et badges"></button><div class="chip" id="hudCoins" title="Jetons : boutique, duels, quiz"></div><div class="chip clickable-chip" id="hudGems" onclick="openGemShop()"></div><div class="chip" id="hudPts" title="Points booster : échange-les contre la carte de ton choix"></div><div class="chip" id="hudCol" title="Cartes collectionnées"></div><button class="chip sndbtn" id="sndBtn" onclick="toggleSound()"></button></div>
   </header>
   <nav>
     <button data-tab="ouvrir" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M5 8h14"/><path d="M12 12l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="currentColor" stroke="none"/></svg><span>Ouvrir</span></button>
@@ -848,6 +859,7 @@ function fresh(){return{gems:50,points:0,freeStock:2,iap:[],coins:300,owned:{},i
 function load(){try{const s=JSON.parse(localStorage.getItem(SKEY)||'null');if(s)return Object.assign(fresh(),s)}catch(e){}return null}
 let S=load();
 if(!S){S=fresh();try{const o=JSON.parse(localStorage.getItem('gc_save_v7')||localStorage.getItem('gc_save_v6')||localStorage.getItem('gc_save_v5')||localStorage.getItem('gc_save_v4')||localStorage.getItem('gc_save_v3')||localStorage.getItem('gc_save_v2')||'null');if(o){['gems','coins','points','freeStock','freeAt','iap','wins','losses','draws','quizOk','quizN','rep','sales','revenue','spent'].forEach(k=>{if(o[k]!=null)S[k]=o[k]});if(o.inv){S.inv=o.inv;delete S.inv.cp}}}catch(e){}}
+if(S.xp==null)S.xp=S.packs*20+S.wins*30+(S.quizOk||0)*10+(S.sales||0)*5;
 if(S.freeStock==null){S.freeStock=S.freeAt&&S.freeAt>Date.now()?0:1;S.freeAt=S.freeStock<FREE_MAX?Date.now()+FREE_MS:0}
 // anciens produits (Hypercars / Légendes) convertis en boosters Première Vitesse
 ['bp','br'].forEach(k=>{if(S.inv[k]){S.inv.bc=(S.inv.bc||0)+S.inv[k];delete S.inv[k]}});S.shelf=(S.shelf||[]).filter(x=>PROD[x.pid]);
@@ -881,10 +893,68 @@ const BACK=`<div class="card back-card"><div class="in"><div class="gc">G<span>C
 const $=s=>document.querySelector(s);
 const rnd=(a,b)=>a+Math.random()*(b-a);
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400)}
+let toastQ=[],toastOn=false;
+function toast(m){if(toastQ.length<5)toastQ.push(m);if(!toastOn)nextToast()}
+function nextToast(){const t=$('#toast'),m=toastQ.shift();if(!m){toastOn=false;return}toastOn=true;t.textContent=m;t.classList.add('show');setTimeout(()=>{t.classList.remove('show');setTimeout(nextToast,280)},toastQ.length?1600:2300)}
+
+// =====================================================================
+// LIMITES DU JOUR, EXPÉRIENCE, NIVEAUX, BADGES (purement décoratif)
+// =====================================================================
+const QUIZ_MAX=5; // questions par jour
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+function daily(){if(!S.daily||S.daily.d!==today())S.daily={d:today(),q:0,qok:0,dw:0};return S.daily}
+// XP totale pour atteindre le niveau n : 0, 100, 300, 600, 1000…
+const xpFor=n=>50*n*(n-1);
+function lvlOf(x){let n=1;while(x>=xpFor(n+1))n++;return n}
+const TITLES=[[1,'Apprenti mécano'],[3,'Mécano'],[5,'Pilote du dimanche'],[8,'Pilote de club'],[12,'Pilote pro'],[16,'Champion'],[20,'Légende du garage']];
+const titleOf=n=>TITLES.filter(t=>n>=t[0]).pop()[1];
+const hasV=v=>CARS.some(c=>c.v===v&&cnt(c.id));
+const modelsOwned=()=>new Set(CARS.filter(c=>cnt(c.id)).map(c=>c.key)).size;
+const BADGES=[
+ ['b1','📦','Premier booster','Ouvrir 1 booster',()=>S.packs>=1],
+ ['b10','🎁','Habitué','Ouvrir 10 boosters',()=>S.packs>=10],
+ ['b50','🛒','Collectionneur','Ouvrir 50 boosters',()=>S.packs>=50],
+ ['b100','🏭','Usine à boosters','Ouvrir 100 boosters',()=>S.packs>=100],
+ ['b500','🌋','Insatiable','Ouvrir 500 boosters',()=>S.packs>=500],
+ ['god','⚡','Béni des dieux','Tomber sur un god pack',()=>(S.godPacks||0)>=1],
+ ['vf','🎨','Full Art','Obtenir une carte ★★',()=>hasV('f')],
+ ['va','🏁','En action','Obtenir une carte ★★★',()=>hasV('a')],
+ ['vp','♛','Préparé','Obtenir une carte ♛',()=>hasV('p')],
+ ['c25','🚗','Petit garage','25 voitures différentes',()=>modelsOwned()>=25],
+ ['c50','🚙','Beau garage','50 voitures différentes',()=>modelsOwned()>=50],
+ ['c100','🏎️','Grand garage','100 voitures différentes',()=>modelsOwned()>=100],
+ ['call','🏆','Collection complète','Toutes les cartes de Première Vitesse',()=>ownedCount()>=CARS.length],
+ ['w1','🥇','Première victoire','Gagner un duel',()=>S.wins>=1],
+ ['w10','🎖️','Pilote confirmé','Gagner 10 duels',()=>S.wins>=10],
+ ['w50','👑','Roi de la piste','Gagner 50 duels',()=>S.wins>=50],
+ ['exp','🧠','Plus fort que l’IA','Gagner un duel en Expert',()=>((S.winsBy||{}).expert||0)>=1],
+ ['q10','🎓','Bon élève','10 bonnes réponses au quiz',()=>S.quizOk>=10],
+ ['q50','📚','Encyclopédie','50 bonnes réponses au quiz',()=>S.quizOk>=50],
+ ['qp','💯','Sans faute','5 sur 5 au quiz du jour',()=>!!S.quizPerfect],
+ ['s1','🏪','Premier client','Vendre un produit en boutique',()=>S.sales>=1],
+ ['s50','💼','Commerçant','50 ventes en boutique',()=>S.sales>=50],
+ ['l5','⭐','Niveau 5','Atteindre le niveau 5',()=>lvlOf(S.xp||0)>=5],
+ ['l10','🌟','Niveau 10','Atteindre le niveau 10',()=>lvlOf(S.xp||0)>=10],
+ ['l20','💫','Niveau 20','Atteindre le niveau 20',()=>lvlOf(S.xp||0)>=20]
+];
+function checkBadges(silent){S.badges=S.badges||[];BADGES.forEach(([id,ic,n,,t])=>{if(!S.badges.includes(id)&&t()){S.badges.push(id);if(!silent)toast(`🏅 Badge débloqué : ${ic} ${n}`)}})}
+function addXP(n){const b=lvlOf(S.xp||0);S.xp=(S.xp||0)+n;const a=lvlOf(S.xp);if(a>b){toast(`⬆️ Niveau ${a} : ${titleOf(a)}`);sfx.coin();buzz([20,40,20])}checkBadges();save();if($('#hudLvl'))updateHUD()}
+function openProfile(){
+  const m=$('#gemModal'),x=S.xp||0,n=lvlOf(x),cur=x-xpFor(n),need=xpFor(n+1)-xpFor(n),dl=daily(),got=S.badges||[];
+  m.innerHTML=`<div class="gemshop profile"><button class="x" onclick="closeGem()">×</button>
+   <div class="pf-head"><div class="pf-lvl">${n}</div><div style="flex:1"><h3 style="margin:0">${titleOf(n)}</h3><div class="pf-bar"><i style="width:${(cur/need*100).toFixed(1)}%"></i></div><small class="mut">${nf(cur)} / ${nf(need)} XP avant le niveau ${n+1} · ${nf(x)} XP au total</small></div></div>
+   <div class="pf-stats"><div><b>${S.packs}</b><small>boosters</small></div><div><b>${ownedCount()}/${CARS.length}</b><small>cartes</small></div><div><b>${S.wins}</b><small>victoires</small></div><div><b>${S.quizOk}</b><small>bonnes réponses</small></div></div>
+   <p class="mut" style="margin:10px 0 4px">Aujourd’hui : quiz ${dl.q}/${QUIZ_MAX} · victoires récompensées ${Math.min(dl.dw,3)}/3</p>
+   <h4 style="margin:14px 0 8px">Badges · ${got.length}/${BADGES.length}</h4>
+   <div class="badges">${BADGES.map(([id,ic,nm,ds])=>`<div class="badge ${got.includes(id)?'':'locked'}" title="${ds}"><span>${ic}</span><b>${nm}</b><small>${ds}</small></div>`).join('')}</div>
+   <p class="mut" style="margin:12px 0 0;font-size:12px">L’expérience et les badges sont décoratifs. XP : booster +20 (+5 par nouvelle carte), duel +30 / +15 / +10, quiz +10 / +3, vente en boutique +5.</p>
+  </div>`;
+  m.classList.remove('hidden');m.onclick=e=>{if(e.target===m)closeGem()};sfx.click();
+}
 const ownedCount=()=>CARS.filter(c=>cnt(c.id)).length;
 const curTab=()=>document.querySelector('nav button.on').dataset.tab;
 function updateHUD(){
+  $('#hudLvl').textContent='⭐ '+lvlOf(S.xp||0);
   $('#hudCoins').textContent='🪙 '+nf(S.coins);
   $('#hudGems').textContent='💎 '+nf(S.gems)+'  +';
   $('#hudPts').textContent='✦ '+nf(S.points);
@@ -1155,13 +1225,13 @@ let forceGod=false;
 function godCards(B){const out=[];const take=(v,n)=>{for(let i=0;i<n;i++)out.push(pickFrom(B.ext,c=>c.v===v&&!out.includes(c))||pickFrom(B.ext,c=>c.v===v))};take('r',5);take('f',3);take('a',2);return out}
 function rollBooster(type){
   const B=BOOST[type];
-  if(forceGod||Math.random()<(B.gp||0)){forceGod=false;const res=godCards(B).map(c=>{const isNew=!cnt(c.id);S.owned[c.id]=cnt(c.id)+1;return{c,isNew}});S.packs++;S.points+=5;S.godPacks=(S.godPacks||0)+1;save();return{res,god:true}}
+  if(forceGod||Math.random()<(B.gp||0)){forceGod=false;const res=godCards(B).map(c=>{const isNew=!cnt(c.id);S.owned[c.id]=cnt(c.id)+1;return{c,isNew}});S.packs++;S.points+=5;S.godPacks=(S.godPacks||0)+1;addXP(150+20+5*res.filter(x=>x.isNew).length);return{res,god:true}}
   const cards=[];
   for(let i=0;i<6;i++){const br=Math.random()<B.ar?'AR':'C';cards.push(pickFrom(B.ext,c=>c.v==='s'&&c.br===br))}
   for(let i=0;i<3;i++){const v=holoSlot(B.hs[i]);const br=Math.random()<B.ar?'AR':'C';cards.push(v==='h'?pickFrom(B.ext,c=>c.v==='h'&&c.br===br):(pickFrom(B.ext,c=>c.v===v)||pickFrom(B.ext,c=>c.v==='f')))}
   cards.push(pickFrom(B.ext,c=>c.v==='r'));
   const res=cards.map(c=>{const isNew=!cnt(c.id);S.owned[c.id]=cnt(c.id)+1;return{c,isNew}});
-  S.packs++;S.points+=5;save();
+  S.packs++;S.points+=5;save();addXP(20+5*res.filter(x=>x.isNew).length);
   return{res};
 }
 let selPack='classique';
@@ -1332,7 +1402,7 @@ function customer(){
   if(s.price<=will){s.qty--;if(!s.qty)S.shelf.splice(i,1);S.coins+=s.price;S.revenue+=s.price;S.sales++;S.rep=Math.min(100,S.rep+1);addLog(`🧑 ${n} achète un ${PROD[s.pid].name} pour ${s.price} 🪙`,'ok');sold(s.price)}
   else{S.rep=Math.max(0,S.rep-.5);addLog(`🧑 ${n} trouve le ${PROD[s.pid].name} trop cher à ${s.price} 🪙 (prêt à payer ~${will})`,'ko')}
 }
-function sold(p){if(curTab()!=='boutique')toast('🏪 Vente en boutique : +'+p+' 🪙')}
+function sold(p){if(curTab()!=='boutique')toast('🏪 Vente en boutique : +'+p+' 🪙');addXP(5)}
 setInterval(()=>{
   tick();
   if(!S.open)return;
@@ -1422,7 +1492,7 @@ function renderDuel(){
    <div class="tkeys">${dPrep.terrains.map(id=>{const T=TER(id);return `<div><b>${T.icon} ${T.name}</b><span>${T.key}</span></div>`}).join('')}</div>
    <div class="duel-bar">
      <div class="seg">${Object.entries(DIFF).map(([k,d])=>`<button class="${k===dPrep.diff?'on':''}" data-d="${k}">${d.name}</button>`).join('')}</div>
-     <span class="mut" style="margin:0;font-size:13px">Victoire +${D.rw.win} 🪙 · Nul +${D.rw.draw} · Défaite +${D.rw.loss}</span>
+     <span class="mut" style="margin:0;font-size:13px">${(()=>{const w=daily().dw,ok=k=>w>=k?'✅':'';return w>=3?'Récompenses du jour gagnées · reviens demain (les duels donnent toujours de l’XP)':`Victoires du jour : ${ok(1)}1re 🎁 booster · ${ok(2)}2e +${D.rw.win} 🪙 · 3e +${Math.round(D.rw.win/2)} 🪙`})()}</span>
      <div class="btns" style="margin-left:auto"><button class="btn ghost" id="autoSel">Équipe auto</button><button class="btn" id="goDuel" ${sel.length===5?'':'disabled'}>Lancer (${sel.length}/5)</button></div>
    </div>
    <div class="grid">${mine.map(c=>`<div class="pick ${sel.includes(c.id)?'on':''}" data-id="${c.id}">${cardHTML(c,{lazy:true})}<div class="tech">${techTag(c)}</div></div>`).join('')}</div>`;
@@ -1491,13 +1561,23 @@ function resolveRound(){
 }
 function finish(){
   const d=duel,D=DIFF[d.diff];d.phase='done';
-  d.out=d.ps>d.as?'win':d.ps<d.as?'loss':'draw';d.reward=D.rw[d.out];
-  S.coins+=d.reward;if(d.out==='win')S.wins++;else if(d.out==='loss')S.losses++;else S.draws++;save();updateHUD();
+  d.out=d.ps>d.as?'win':d.ps<d.as?'loss':'draw';
+  // récompenses du jour : 1re victoire = 1 booster gratuit, 2e = les jetons du niveau, 3e = la moitié ; ensuite seulement de l'XP
+  const dl=daily();let rw=0,txt;
+  if(d.out==='win'){dl.dw++;
+    if(dl.dw===1){S.freeStock++;txt='🎁 +1 booster gratuit (1re victoire du jour)'}
+    else if(dl.dw===2){rw=D.rw.win;txt=`+${rw} 🪙 (2e victoire du jour)`}
+    else if(dl.dw===3){rw=Math.round(D.rw.win/2);txt=`+${rw} 🪙 (3e victoire du jour)`}
+    else txt='Récompenses du jour déjà gagnées · +30 XP'}
+  else txt=dl.dw<3?'Pas de récompense : seules les victoires comptent':'Récompenses du jour déjà gagnées';
+  d.reward=rw;d.rwTxt=txt;S.coins+=rw;
+  if(d.out==='win'){S.wins++;S.winsBy=S.winsBy||{};S.winsBy[d.diff]=(S.winsBy[d.diff]||0)+1}else if(d.out==='loss')S.losses++;else S.draws++;
+  save();addXP(d.out==='win'?30:d.out==='draw'?15:10);updateHUD();
   if(d.out==='win'){sfx.victory();buzz([30,60,30,60,80])}
 }
 function renderEnd(){
   const d=duel;
-  $('#duel').innerHTML=`<div class="end"><div class="round">Fin du duel · ${DIFF[d.diff].name}</div><div class="big" style="color:${d.out==='win'?'var(--win)':d.out==='loss'?'var(--lose)':'var(--txt)'}">${d.out==='win'?'VICTOIRE':d.out==='loss'?'DÉFAITE':'ÉGALITÉ'}</div>${terrainStrip(d.terrains,-1,d.res)}<div class="score"><div>${d.ps}<small>TOI</small></div><div style="color:var(--mut)">–</div><div>${d.as}<small>IA</small></div></div><p class="mut">+${d.reward} 🪙 · Bilan : ${S.wins} V / ${S.draws} N / ${S.losses} D</p><div class="btns" style="justify-content:center"><button class="btn" id="again">Nouveau duel</button><button class="btn ghost" id="toOpen">Ouvrir un booster</button></div></div>`;
+  $('#duel').innerHTML=`<div class="end"><div class="round">Fin du duel · ${DIFF[d.diff].name}</div><div class="big" style="color:${d.out==='win'?'var(--win)':d.out==='loss'?'var(--lose)':'var(--txt)'}">${d.out==='win'?'VICTOIRE':d.out==='loss'?'DÉFAITE':'ÉGALITÉ'}</div>${terrainStrip(d.terrains,-1,d.res)}<div class="score"><div>${d.ps}<small>TOI</small></div><div style="color:var(--mut)">–</div><div>${d.as}<small>IA</small></div></div><p class="mut">${d.rwTxt}<br>Bilan : ${S.wins} V / ${S.draws} N / ${S.losses} D</p><div class="btns" style="justify-content:center"><button class="btn" id="again">Nouveau duel</button><button class="btn ghost" id="toOpen">Ouvrir un booster</button></div></div>`;
   $('#again').onclick=()=>{duel=null;sel=[];renderDuel()};
   $('#toOpen').onclick=()=>{duel=null;showTab('ouvrir')};
 }
@@ -1524,7 +1604,8 @@ function genQ(){
   return{q:`Tu achètes un ${P.name} ${P.cost} 🪙 et tu le revends ${sale} 🪙. Quel est ton taux de marge ?`,opts:shuffle([...new Set([tm+' %',tq+' %',Math.round(sale/P.cost*100)+' %',m+' %'])]),ans:tm+' %',ex:`Taux de marge = (vente − achat) ÷ achat = ${m} ÷ ${P.cost} ≈ ${tm} %. À ne pas confondre avec le taux de marque, calculé sur le prix de vente (${tq} %).`};
 }
 function renderAcademy(){
-  if(!Q)Q={...genQ(),done:false};
+  const dl=daily(),over=dl.q>=QUIZ_MAX&&!(Q&&Q.done);
+  if(!Q&&!over)Q={...genQ(),done:false};
   const LEX=[
    ['Puissance (ch)','La quantité d’énergie que le moteur fournit par seconde. 1 cheval-vapeur ≈ 736 watts.'],
    ['Couple (N·m)','La force de rotation du moteur. Beaucoup de couple à bas régime donne des reprises vigoureuses ; les moteurs électriques en ont dès l’arrêt.'],
@@ -1539,10 +1620,10 @@ function renderAcademy(){
    ['Cote','Le prix auquel une carte se revend à l’unité. Elle dépend de la rareté et de la demande.'],
    ['Marge et marque','Marge = vente − achat. Le taux de marge se calcule sur l’achat, le taux de marque sur la vente.']
   ];
-  $('#academie').innerHTML=`<div class="cols"><div class="panel quiz"><h3>Quiz du garage</h3><p class="mut">+8 🪙 par bonne réponse · score : ${S.quizOk}/${S.quizN}</p>
-   <div style="font-size:17px;font-weight:600;margin:6px 0 10px">${Q.q}</div>
+  $('#academie').innerHTML=`<div class="cols"><div class="panel quiz"><h3>Quiz du garage</h3><p class="mut">${QUIZ_MAX} questions par jour · +8 🪙 et +10 XP par bonne réponse · aujourd’hui : ${dl.q}/${QUIZ_MAX}</p>
+   ${over?`<div class="edu" style="margin-top:4px"><b>C’est tout pour aujourd’hui : ${dl.qok}/${QUIZ_MAX} bonnes réponses.</b> Reviens demain pour 5 nouvelles questions.</div>`:`<div style="font-size:17px;font-weight:600;margin:6px 0 10px">${Q.q}</div>
    ${Q.opts.map(o=>`<button class="qopt ${Q.done?(o===Q.ans?'good':o===Q.chosen?'bad':''):''}" ${Q.done?'disabled':''} data-o="${o.replace(/"/g,'&quot;')}">${o}</button>`).join('')}
-   ${Q.done?`<div class="edu"><b>${Q.chosen===Q.ans?'Bonne réponse ! +8 🪙':'Raté.'}</b> ${Q.ex}</div><div style="margin-top:12px"><button class="btn" id="nextQ">Question suivante</button></div>`:''}
+   ${Q.done?`<div class="edu"><b>${Q.chosen===Q.ans?'Bonne réponse ! +8 🪙':'Raté.'}</b> ${Q.ex}</div><div style="margin-top:12px"><button class="btn" id="nextQ">${dl.q>=QUIZ_MAX?'Terminer':'Question suivante'}</button></div>`:''}`}
   </div>
   <div class="panel"><h3>Comment marche Garage Clash</h3>
    <div class="edu" style="margin-top:0"><b>Les raretés.</b> ● et ◆ sont les cartes courantes ; elles existent aussi en version <b>holo</b>. ★ est toujours holo, avec un reflet renforcé. Viennent ensuite les secrètes : ★★ <b>Full Art</b> (une autre photo sur toute la carte), ★★★ <b>Alt</b> (la voiture en action : rallye, piste, drift…) et ♛ <b>Prépa</b> (la voiture en version préparée : Brabus, Shelby, Abarth, Nismo…).</div>
@@ -1555,7 +1636,8 @@ function renderAcademy(){
   <h3 id="credits" style="margin-top:22px">Crédits photos</h3>
   <p class="mut">Toutes les photos viennent de Wikimedia Commons, sous licences libres (CC BY, CC BY-SA, CC0 ou domaine public). Elles ont été recadrées pour les cartes. Les licences CC BY-SA imposent de créditer l’auteur et de partager les modifications sous la même licence.</p>
   <div class="credits-list">${CARS.filter(c=>c.v!=='h').map(c=>{const p=c.v==='f'?PHOTO_FA[c.key]:c.v==='a'?PHOTO_ALT[c.key]:PHOTO[c.img];return p?`<div><b style="color:var(--txt)">${c.brand} ${c.model}</b> <small>(${symOf(c)}${c.v==='a'?', en action':''})</small> — ${p[1]} (${p[2]}) · <a href="https://commons.wikimedia.org/wiki/File:${encodeURIComponent(p[0].replace(/ /g,'_'))}" target="_blank" rel="noopener">source</a></div>`:''}).join('')}</div>`;
-  if(!Q.done)document.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{Q.done=true;Q.chosen=b.dataset.o;S.quizN++;if(Q.chosen===Q.ans){S.quizOk++;S.coins+=8}save();updateHUD();renderAcademy()});
+  if(over)return;
+  if(!Q.done)document.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{if(daily().q>=QUIZ_MAX)return;Q.done=true;Q.chosen=b.dataset.o;S.quizN++;const d=daily();d.q++;const ok=Q.chosen===Q.ans;if(ok){S.quizOk++;S.coins+=8;d.qok++}if(d.q>=QUIZ_MAX&&d.qok>=QUIZ_MAX)S.quizPerfect=true;save();addXP(ok?10:3);updateHUD();renderAcademy()});
   else $('#nextQ').onclick=()=>{Q=null;renderAcademy()};
 }
 
@@ -1604,6 +1686,7 @@ if(location.hash==='#god')setTimeout(godPanel,300);
 // =====================================================================
 let resetArm=false;
 $('#resetBtn').onclick=()=>{const b=$('#resetBtn');if(!resetArm){resetArm=true;b.textContent='Confirmer ? Tout sera effacé';setTimeout(()=>{resetArm=false;b.textContent='Réinitialiser la partie'},4000);return}S=fresh();duel=null;sel=[];Q=null;save();resetArm=false;b.textContent='Réinitialiser la partie';showTab('ouvrir');updateHUD();toast('Nouvelle partie')};
+checkBadges(true); // anciennes parties : badges déjà mérités, sans notification
 updateHUD();updateSoundBtn();renderOpen();
 // Safari iOS ignore « touch-action: none » : deux touchers rapprochés (tap rapide sur les cartes) déclenchaient le zoom.
 // On annule l'action par défaut du 2e toucher ; les gestes du jeu (pointer events) continuent de fonctionner.

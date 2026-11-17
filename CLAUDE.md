@@ -22,6 +22,8 @@ Jeu web de cartes à collectionner de voitures, en français. Prototype statique
 - Cadres et tranches teintés très légèrement selon la version (`var-*`, `e-*`) : la pile est alignée et on aperçoit la tranche des cartes suivantes en inclinant le paquet. Ne pas mettre de `filter` sur `.stack3d` (ça aplatit la 3D)
 - Sauvegarde : localStorage, clé `SKEY` (incrémenter si la liste des cartes change)
 - Duel : 5 terrains tirés parmi `TERRAINS` (circuit, autobahn, départ arrêté, pluie, rallye, neige, ville, course de côte). Score d'une voiture sur un terrain = `terrainScore(c,T)` (poids des stats `w` + bonus/malus `bonus`, ex. intégrale sur la neige). Transmission et énergie : `DRIVE_A`, `DRIVE_R` (le reste = traction), `ENERGY`. Niveaux d'IA dans `DIFF` (off = niveau des voitures, build = équipe adaptée aux terrains, smart = bonne voiture jouée). Toute nouvelle voiture doit être ajoutée à `DRIVE_A`/`DRIVE_R`/`ENERGY` si besoin.
+- Limites du jour (`daily()`, remise à zéro à minuit heure locale) : quiz `QUIZ_MAX` = 5 questions ; duels : 1re victoire = 1 booster gratuit, 2e = jetons du niveau (`DIFF.rw.win`), 3e = la moitié, ensuite rien (XP seulement)
+- Expérience (`S.xp`, `addXP`, `lvlOf`, `TITLES`) et `BADGES` : purement décoratifs, profil ouvert depuis la pastille ⭐ du HUD (`openProfile`)
 - Sons : synthétisés en WebAudio (`sfx`), vibrations via `buzz()`, coupables avec le bouton haut-parleur (`S.sound`)
 - Hors-ligne : `sw.js` (page en réseau d'abord, images en cache d'abord, préchargement envoyé par la page). Changer `VERSION` dans `sw.js` si une image existante est remplacée par une autre du même nom.
 
@@ -35,6 +37,6 @@ Jeu web de cartes à collectionner de voitures, en français. Prototype statique
 - Photos : uniquement des images libres de Wikimedia Commons, avec crédit auteur + licence
 
 ## À faire / décisions ouvertes
-- Économie : les jetons (duels, quiz, boutique) permettent d'acheter des boosters sans limite, ce qui contourne les gemmes
+- Économie : quiz et duels sont plafonnés par jour ; la boutique (ventes aux clients) rapporte encore des jetons sans limite
 - Serveur : comptes, sauvegarde en ligne, anti-triche, puis vrai paiement
 - Chiffres et anecdotes des voitures : approximatifs, à revérifier avant lancement public
