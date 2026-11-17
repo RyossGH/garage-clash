@@ -502,6 +502,10 @@ footer{border-top-color:rgba(255,255,255,.06);opacity:.8}
  footer{flex-direction:column}
 }
 body.opening nav{display:none}
+/* pas de zoom du navigateur au double-tap (le pincement reste possible) */
+html,body,button,a,.card,.pick,.slot,.bpack,.chip,nav,section{touch-action:manipulation}
+/* iOS zoome sur un champ de saisie dont le texte fait moins de 16 px */
+@media(max-width:700px){input,select,textarea{font-size:16px}}
 .toast{opacity:0;pointer-events:none;transition:transform .3s,opacity .3s}
 .toast.show{opacity:1}
 
